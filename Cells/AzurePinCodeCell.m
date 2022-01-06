@@ -36,13 +36,13 @@
 
 		});
 
-		[NSNotificationCenter.defaultCenter removeObserver: self];
-		[NSNotificationCenter.defaultCenter addObserver: self selector: @selector(resumeTimer) name: UIApplicationDidBecomeActiveNotification object: nil];
+//		[NSNotificationCenter.defaultCenter removeObserver: self];
+//		[NSNotificationCenter.defaultCenter addObserver: self selector: @selector(resumeTimer) name: UIApplicationDidBecomeActiveNotification object: nil];
 
 		progressLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgressLabel) userInfo:nil repeats:YES];
-		fireDate = progressLabelTimer.fireDate;
 
-		[NSUserDefaults.standardUserDefaults setObject: fireDate forKey: @"fireDate"];
+/* 		fireDate = progressLabelTimer.fireDate;
+		[NSUserDefaults.standardUserDefaults setObject: fireDate forKey: @"fireDate"]; */
 
 	}
 
@@ -193,15 +193,15 @@
 
 // MARK: NSNotificationCenter
 
-- (void)resumeTimer {
+/* - (void)resumeTimer {
 
-//	NSDate *now = [NSDate date];
+	NSDate *now = [NSDate date];
 
 	fireDate = [NSUserDefaults.standardUserDefaults objectForKey: @"fireDate"];
 
-	if([fireDate timeIntervalSinceNow] < 0) {
+//	if([fireDate timeIntervalSinceNow] < 0) {
 
-//	if([now compare: fireDate] == NSOrderedAscending) {
+	if([now compare: fireDate] == NSOrderedAscending) {
 
 		NSTimeInterval timeInterval = [fireDate timeIntervalSinceNow];
 
@@ -213,7 +213,7 @@
 
 	}
 
-}
+} */
 
 
 // MARK: NSTimer
