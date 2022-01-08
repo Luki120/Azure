@@ -53,6 +53,8 @@
 	<string>0.9.0</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Azure needs your permission in order to be able to scan TOTP QR codes.</string>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>

@@ -1,7 +1,7 @@
 @import Foundation;
-#import "Controllers/PinCodeVC.h"
-#import "TOTPGenerator/TOTPGenerator.h"
-#import "TOTPGenerator/MF_Base32Additions.h"
+#import "Controllers/Core/PinCodeVC.h"
+#import "Libraries/TOTPGenerator.h"
+#import "Libraries/MF_Base32Additions.h"
 
 
 @interface TOTPManager : NSObject {

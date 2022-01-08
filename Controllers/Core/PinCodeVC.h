@@ -10,6 +10,10 @@
 @end
 
 
-@interface PinCodeVC : UIViewController <UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate>
+@interface PinCodeVC : UIViewController <UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate> {
+
+	@public UITextField *secretTextField;
+
+}
 @property (nonatomic, weak) id <PinCodeVCDelegate> delegate;
 @end

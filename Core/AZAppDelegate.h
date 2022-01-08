@@ -1,6 +1,6 @@
 #import "Constants/Constants.h"
-#import "Controllers/AzureRootVC.h"
-#import "Controllers/NotAuthenticatedVC.h"
+#import "Controllers/Core/AzureRootVC.h"
+#import "Controllers/Other/NotAuthenticatedVC.h"
 #import <LocalAuthentication/LocalAuthentication.h>
 
 

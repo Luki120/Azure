@@ -2,10 +2,13 @@ import SwiftUI
 import SafariServices
 
 
-struct LinksView: View {
+struct SettingsView: View {
+
+	@AppStorage("useBiometrics") private var shouldUseBiometricsToggle = false
 
 	@Environment (\.colorScheme) private var colorScheme
 
+	@State private var shouldShowWarningAlert = false
 	@State private var shouldShowAuroraSheet = false
 	@State private var shouldShowCoraSheet = false
 	@State private var shouldShowSourceCodeSheet = false
@@ -16,7 +19,7 @@ struct LinksView: View {
 
 	init() {
 		UITableView.appearance().backgroundColor = .clear
-		UITableView.appearance().isScrollEnabled = false
+//		UITableView.appearance().isScrollEnabled = false
 	}
 
 	var body: some View {
@@ -24,6 +27,30 @@ struct LinksView: View {
 		VStack {
 
 			Form {
+
+				Section(header: Text("Settings")) {
+
+					Toggle("Use biometrics", isOn: $shouldUseBiometricsToggle)
+						.toggleStyle(SwitchToggleStyle(tint: Color(.systemTeal)))
+
+					Button("Purge data") {
+						shouldShowWarningAlert.toggle()
+					}
+					.foregroundColor(Color(.systemRed))
+					.alert(isPresented: $shouldShowWarningAlert) {
+						Alert(
+							title: Text("Azure"),
+							message: Text("YO DUDE!! Hold up right there. You’re about to purge ALL of your 2FA codes and your data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈."),
+							primaryButton: .destructive(Text("I'm sure")) {
+								NotificationCenter.default.post(name: Notification.Name("purgeDataDone"), object: nil)
+							},
+							secondaryButton: .cancel()
+						)
+
+					}
+
+				}
+				.listRowBackground(colorScheme == .dark ? Color.black : Color.white)
 
 				Section(header: Text("Other apps you may like")) {
 
@@ -34,7 +61,6 @@ struct LinksView: View {
 								SafariView(url: url)
 							}
 						}
-						.listRowBackground(colorScheme == .dark ? Color.black : Color.white)
 
 					Button("Cora") { shouldShowCoraSheet.toggle() }
 						.foregroundColor(Color(.label))
@@ -43,9 +69,9 @@ struct LinksView: View {
 								SafariView(url: url)
 							}
 						}
-						.listRowBackground(colorScheme == .dark ? Color.black : Color.white)
 
 				}
+				.listRowBackground(colorScheme == .dark ? Color.black : Color.white)
 
 				Section(footer:
 
@@ -73,7 +99,9 @@ struct LinksView: View {
 
 						Spacer()
 
-					}) {}
+					}
+
+				) {}
 
 			}
 

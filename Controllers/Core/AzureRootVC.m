@@ -13,15 +13,15 @@
 		// Custom initialization
 
 		AzureTableVC *firstVC = [AzureTableVC new];
-		UIViewController *secondVC = [[LinksVC new] makeLinksViewUI];
+		UIViewController *secondVC = [[SettingsVC new] makeSettingsViewUI];
 		firstVC.title = @"Home";
-		secondVC.title = @"Links";
+		secondVC.title = @"Settings";
 
 		UINavigationController *firstNav = [[UINavigationController alloc] initWithRootViewController: firstVC];
 		UINavigationController *secondNav = [[UINavigationController alloc] initWithRootViewController: secondVC];
 
-		firstNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home" image:[UIImage systemImageNamed:@"house.fill"] tag:0];
-		secondNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Links" image:[UIImage systemImageNamed:@"mappin.and.ellipse"] tag:1];
+		firstNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home" image:[UIImage systemImageNamed:@"lock.shield.fill"] tag:0];
+		secondNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings" image:[UIImage systemImageNamed:@"gear"] tag:1];
 
 		NSArray *tabBarControllers = @[firstNav, secondNav];
 		self.viewControllers = tabBarControllers;

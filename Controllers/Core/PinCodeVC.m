@@ -8,7 +8,6 @@
 	UILabel *issuerLabel;
 	UILabel *secretHashLabel;
 	UITextField *issuerTextField;
-	UITextField *secretTextField;
 	UITableView *pinCodesTableView;
 
 }
@@ -23,12 +22,23 @@
 
 		[pinCodesTableView registerClass: UITableViewCell.class forCellReuseIdentifier: @"Cell"];
 
-		[NSNotificationCenter.defaultCenter removeObserver: self];
-		[NSNotificationCenter.defaultCenter addObserver: self selector: @selector(shouldSaveData) name: @"checkIfDataShouldBeSaved" object: nil];
+		[NSNotificationCenter.defaultCenter removeObserver:self];
+		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
 
 	}
 
 	return self;
+
+}
+
+
+- (void)viewDidLoad {
+
+	[super viewDidLoad];
+
+	// Do any additional setup after loading the view, typically from a nib.
+
+	self.view.backgroundColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
 
 }
 
@@ -38,6 +48,24 @@
 	[super viewDidLayoutSubviews];
 
 	[self layoutUI];
+
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+
+	[super viewWillAppear: animated];
+
+	pinCodesTableView.scrollEnabled = YES;
+
+}
+
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+
+	[super traitCollectionDidChange: previousTraitCollection];
+
+	self.view.backgroundColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
 
 }
 
