@@ -33,16 +33,13 @@
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
 			[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:YES];
+			progressLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgressLabel) userInfo:nil repeats:YES];
 
 		});
 
-//		[NSNotificationCenter.defaultCenter removeObserver: self];
-//		[NSNotificationCenter.defaultCenter addObserver: self selector: @selector(resumeTimer) name: UIApplicationDidBecomeActiveNotification object: nil];
-
-		progressLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgressLabel) userInfo:nil repeats:YES];
-
-/* 		fireDate = progressLabelTimer.fireDate;
-		[NSUserDefaults.standardUserDefaults setObject: fireDate forKey: @"fireDate"]; */
+		[NSNotificationCenter.defaultCenter removeObserver:self];
+		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(cacheTimer) name:UIApplicationDidEnterBackgroundNotification object:nil];
+		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(resumeTimer) name:UIApplicationDidBecomeActiveNotification object:nil];
 
 	}
 
@@ -193,27 +190,36 @@
 
 // MARK: NSNotificationCenter
 
-/* - (void)resumeTimer {
+- (void)cacheTimer {
+
+	fireDate = progressLabelTimer.fireDate;
+	[NSUserDefaults.standardUserDefaults setObject: fireDate forKey: @"firingDate"];
+
+}
+
+
+ - (void)resumeTimer {
 
 	NSDate *now = [NSDate date];
 
-	fireDate = [NSUserDefaults.standardUserDefaults objectForKey: @"fireDate"];
+	fireDate = [NSUserDefaults.standardUserDefaults objectForKey: @"firingDate"];
 
-//	if([fireDate timeIntervalSinceNow] < 0) {
+	if([now compare: fireDate] == NSOrderedDescending) {
 
-	if([now compare: fireDate] == NSOrderedAscending) {
+		NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
 
-		NSTimeInterval timeInterval = [fireDate timeIntervalSinceNow];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (30 - timestamp % 30) * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, timeInterval * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			[progressLabelTimer invalidate];
+			progressLabelTimer = nil;
 
-			[progressLabelTimer fire];
+			progressLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgressLabel) userInfo:nil repeats:YES];
 
 		});
 
 	}
 
-} */
+}
 
 
 // MARK: NSTimer
