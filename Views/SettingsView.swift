@@ -19,7 +19,7 @@ struct SettingsView: View {
 
 	init() {
 		UITableView.appearance().backgroundColor = .clear
-//		UITableView.appearance().isScrollEnabled = false
+		UITableView.appearance().isScrollEnabled = false
 	}
 
 	var body: some View {
@@ -57,17 +57,13 @@ struct SettingsView: View {
 					Button("Aurora") { shouldShowAuroraSheet.toggle() }
 						.foregroundColor(Color(.label))
 						.sheet(isPresented: $shouldShowAuroraSheet) {
-							if let url = URL(string: auroraDepictionURL) {
-								SafariView(url: url)
-							}
+							getURLFromURLString(string: auroraDepictionURL)
 						}
 
 					Button("Cora") { shouldShowCoraSheet.toggle() }
 						.foregroundColor(Color(.label))
 						.sheet(isPresented: $shouldShowCoraSheet) {
-							if let url = URL(string: coraDepictionURL) {
-								SafariView(url: url)
-							}
+							getURLFromURLString(string: coraDepictionURL)
 						}
 
 				}
@@ -85,9 +81,7 @@ struct SettingsView: View {
 								.font(.system(size: 15.5))
 								.foregroundColor(.gray)
 								.sheet(isPresented: $shouldShowSourceCodeSheet) {
-									if let url = URL(string: sourceCodeURL) {
-										SafariView(url: url)
-									}
+									getURLFromURLString(string: sourceCodeURL)
 								}
 
 							Text("2021 © Luki120")
@@ -106,6 +100,16 @@ struct SettingsView: View {
 			}
 
 		}
+
+	}
+
+	private func getURLFromURLString(string: String) -> AnyView {
+
+		guard let url = URL(string: string) else {
+			return AnyView(Text("Invalid URL"))
+		}
+
+		return AnyView(SafariView(url: url))
 
 	}
 
