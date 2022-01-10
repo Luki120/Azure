@@ -10,17 +10,6 @@
 }
 
 
-- (id)initWithNibName:(NSString *)aNib bundle:(NSBundle *)aBundle {
-
-	self = [super initWithNibName:aNib bundle:aBundle];
-
-//	if(self) [self setupScanner];
-
-	return self;
-
-}
-
-
 - (void)viewDidLoad {
 
 	[super viewDidLoad];
@@ -96,14 +85,21 @@
 
  	if(outputString) {
 
-		NSRange equal = [outputString rangeOfString: @"="];
-		NSRange rangeBetweenEqualAndAmpersand = [[outputString substringFromIndex:equal.location] rangeOfString: @"&"];
-		NSString *chadifiedString = [outputString substringWithRange:NSMakeRange(equal.location, rangeBetweenEqualAndAmpersand.location)];
+		NSURL *url = [[NSURL alloc] initWithString: outputString];
+		NSURLComponents *components = [NSURLComponents componentsWithURL: url resolvingAgainstBaseURL: NO];
+		NSArray *queryItems = components.queryItems;
 
-		NSString *secretHash = [chadifiedString stringByReplacingOccurrencesOfString: @"=" withString: @""];
+		for(NSURLQueryItem *queryItem in queryItems) {
 
-		UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-		pasteboard.string = secretHash;
+			if([queryItem.name isEqualToString: @"secret"]) {
+
+				NSString *secretHash = queryItem.value;
+				UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+				pasteboard.string = secretHash;
+
+			}
+
+		}
 
 		[NSNotificationCenter.defaultCenter postNotificationName: @"qrCodeScanDone" object: nil];
 
