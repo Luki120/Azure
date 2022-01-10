@@ -6,19 +6,14 @@
 	UILabel *pinLabel;
 	UIButton *infoButton;
 	UIButton *copyPinButton;
-	UIView *circleProgressView;
-	CAShapeLayer *circleLayer;
-	UILabel *progressLabel;
-	NSInteger duration;
+	PieView *pieView;
 	UIStackView *buttonsStackView;
 	TOTPGenerator *generator;
-	NSDate *fireDate;
-	NSTimer *progressLabelTimer;
 
 }
 
 
-- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {	
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
 
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 
@@ -33,13 +28,8 @@
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
 			[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:YES];
-			progressLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgressLabel) userInfo:nil repeats:YES];
 
 		});
-
-		[NSNotificationCenter.defaultCenter removeObserver:self];
-		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(cacheTimer) name:UIApplicationDidEnterBackgroundNotification object:nil];
-		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(resumeTimer) name:UIApplicationDidBecomeActiveNotification object:nil];
 
 	}
 
@@ -53,15 +43,6 @@
 	[super layoutSubviews];
 
 	[self layoutUI];
-
-}
-
-
-- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
-
-	[super traitCollectionDidChange: previousTraitCollection];
-
-	circleLayer.strokeColor = UIColor.labelColor.CGColor;
 
 }
 
@@ -118,38 +99,10 @@
 	[copyPinButton addTarget: self action:@selector(didTapCopyPinButton) forControlEvents: UIControlEventTouchUpInside];
 	[buttonsStackView addArrangedSubview: copyPinButton];
 
-	circleProgressView = [UIView new];
-	circleProgressView.translatesAutoresizingMaskIntoConstraints = NO;
-	[buttonsStackView addArrangedSubview: circleProgressView];
+	pieView = [[PieView alloc] initWithFrame: CGRectMake(0,0,12,12) fromAngle: -90 toAngle: 270 strokeColor: kAzureTintColor];
+	[buttonsStackView addArrangedSubview: pieView];
 
-	circleLayer = [CAShapeLayer layer];
-	circleLayer.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(15, 15) radius:15 startAngle:-M_PI_2 endAngle:2 * M_PI - M_PI_2 clockwise:YES].CGPath;
-	circleLayer.lineCap = kCALineCapRound;
-	circleLayer.lineWidth = 4;
-	circleLayer.fillColor = UIColor.clearColor.CGColor;
-	circleLayer.strokeColor = UIColor.labelColor.CGColor;
-
-	duration = 30;
-
-	CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath: @"strokeEnd"];
-	animation.duration = duration;
-	animation.fromValue = @(0);
-	animation.toValue = @(1);
-	animation.repeatCount = HUGE_VALF;
-	animation.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionLinear];
-	animation.removedOnCompletion = NO;
-	[circleLayer addAnimation: animation forKey: @"drawCircleAnimation"];
-
-	[circleProgressView.layer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
-	[circleProgressView.layer addSublayer: circleLayer];
-
-	progressLabel = [UILabel new];
-	progressLabel.font = [UIFont systemFontOfSize: 10];
-	progressLabel.text = [NSString stringWithFormat: @"%ld", duration];
-	progressLabel.textColor = UIColor.labelColor;
-	progressLabel.textAlignment = NSTextAlignmentCenter;
-	progressLabel.translatesAutoresizingMaskIntoConstraints = NO;
-	[circleProgressView addSubview: progressLabel];
+	[pieView animateShapeLayer];
 
 }
 
@@ -161,12 +114,7 @@
 
 	[buttonsStackView.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant : - 15].active = YES;
 	[buttonsStackView.centerYAnchor constraintEqualToAnchor: self.contentView.centerYAnchor].active = YES;
-
-	[circleProgressView.widthAnchor constraintEqualToConstant: 30].active = YES;
-	[circleProgressView.heightAnchor constraintEqualToConstant: 30].active = YES;
-
-	[progressLabel.centerXAnchor constraintEqualToAnchor: circleProgressView.centerXAnchor].active = YES;
-	[progressLabel.centerYAnchor constraintEqualToAnchor: circleProgressView.centerYAnchor].active = YES;
+	[buttonsStackView.widthAnchor constraintEqualToConstant: 80].active = YES;
 
 }
 
@@ -183,41 +131,7 @@
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = pinLabel.text;
 
-	[NSNotificationCenter.defaultCenter postNotificationName: @"fadeInOutToastDone" object: nil];
-
-}
-
-
-// MARK: NSNotificationCenter
-
-- (void)cacheTimer {
-
-	fireDate = progressLabelTimer.fireDate;
-	[NSUserDefaults.standardUserDefaults setObject: fireDate forKey: @"firingDate"];
-
-}
-
-
- - (void)resumeTimer {
-
-	NSDate *now = [NSDate date];
-
-	fireDate = [NSUserDefaults.standardUserDefaults objectForKey: @"firingDate"];
-
-	if([now compare: fireDate] == NSOrderedDescending) {
-
-		NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
-
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (30 - timestamp % 30) * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-
-			[progressLabelTimer invalidate];
-			progressLabelTimer = nil;
-
-			progressLabelTimer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgressLabel) userInfo:nil repeats:YES];
-
-		});
-
-	}
+	[NSNotificationCenter.defaultCenter postNotificationName: @"fadeInOutToast" object: nil];
 
 }
 
@@ -227,18 +141,15 @@
 - (void)regeneratePIN {
 
 	pinLabel.text = @"";
+
+	CATransition *transition = [CATransition animation];
+	transition.type = kCATransitionFade;
+	transition.duration = 0.8f;
+	transition.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+
+	[pinLabel.layer addAnimation: transition forKey: nil];
+
 	pinLabel.text = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self generateTimestamp]]];
-
-}
-
-
-- (void)updateProgressLabel {
-
-	duration--;
-
-	progressLabel.text = [NSString stringWithFormat: @"%ld", duration];
-
-	if(duration == 0) duration = 30;
 
 }
 
