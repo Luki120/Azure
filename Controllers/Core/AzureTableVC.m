@@ -28,7 +28,7 @@
 		pinCodeVC.delegate = self;
 
 		[NSNotificationCenter.defaultCenter removeObserver:self];
-		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeToast) name:@"fadeInOutToastDone" object:nil];
+		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeToast) name:@"fadeInOutToast" object:nil];
 		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
 		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
 
@@ -107,6 +107,7 @@
 
 	cell.delegate = self;
 	cell.backgroundColor = UIColor.clearColor;
+	cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
 	cell->issuer = [TOTPManager sharedInstance]->issuersArray[indexPath.row];
 	cell->hash = [TOTPManager sharedInstance]->secretHashesArray[indexPath.row];
