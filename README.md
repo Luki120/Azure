@@ -6,5 +6,5 @@
 
 * To do:
 
-- [ ] IPA support.
-- [ ] Identify most common issuers with their respective app logo.
+* - [ ] IPA support.
+* - [ ] Identify most common issuers with their respective app logo.
