@@ -10,6 +10,7 @@
 	UIView *copyPinToastView;
 	UILabel *copiedPinLabel;
 	NSLayoutConstraint *bottomAnchorConstraint;
+	NSDictionary *imagesDict;
 
 }
 
@@ -22,26 +23,42 @@
 		// Custom initialization
 
 		[self setupViews];
+		[self setupObservers];
+		[self setupImagesDict];
 
 		qrCodeVC = [QRCodeVC new];
 		pinCodeVC = [PinCodeVC new];
 		pinCodeVC.delegate = self;
 
-		[NSNotificationCenter.defaultCenter removeObserver:self];
-		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeToast) name:@"fadeInOutToast" object:nil];
-		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
-		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
-
 		[self.tableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
-
-/*
-		[NSUserDefaults.standardUserDefaults removeObjectForKey: @"Hashes"];
-		[NSUserDefaults.standardUserDefaults removeObjectForKey: @"Issuers"];
-*/
 
 	}
 
 	return self;
+
+}
+
+
+- (void)setupImagesDict {
+
+	imagesDict = @{
+
+		@"discord": [UIImage imageNamed: @"Discord"],
+		@"github": [UIImage imageNamed: @"GitHub"],
+		@"instagram": [UIImage imageNamed: @"Instagram"],
+		@"snapchat": [UIImage imageNamed: @"Snapchat"],
+
+	};
+
+}
+
+
+- (void)setupObservers {
+
+	[NSNotificationCenter.defaultCenter removeObserver:self];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeToast) name:@"fadeInOutToast" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
 
 }
 
@@ -106,12 +123,19 @@
 	AzurePinCodeCell *cell = [tableView dequeueReusableCellWithIdentifier: kIdentifier forIndexPath: indexPath];
 
 	cell.delegate = self;
-	cell.backgroundColor = UIColor.clearColor;
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
+	cell.backgroundColor = UIColor.clearColor;
 
 	cell->issuer = [TOTPManager sharedInstance]->issuersArray[indexPath.row];
 	cell->hash = [TOTPManager sharedInstance]->secretHashesArray[indexPath.row];
 	[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row]];
+
+	UIImage *image = imagesDict[cell->issuer.lowercaseString];
+	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize: CGSizeMake(30, 30)];
+	UIImage *placeholderImage = [UIImage systemImageNamed: @"photo"];
+
+	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
+	cell->issuerImageView.tintColor = image ? nil : UIColor.labelColor;
 
 	return cell;
 

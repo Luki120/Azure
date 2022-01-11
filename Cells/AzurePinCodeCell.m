@@ -3,6 +3,7 @@
 
 @implementation AzurePinCodeCell {
 
+	UIStackView *issuersStackView;
 	UILabel *pinLabel;
 	UIButton *infoButton;
 	UIButton *copyPinButton;
@@ -47,6 +48,15 @@
 }
 
 
+- (void)prepareForReuse {
+
+	[super prepareForReuse];
+
+	issuerImageView.image = nil;
+
+}
+
+
 - (NSInteger)generateTimestamp {
 
 	NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
@@ -73,12 +83,24 @@
 
 	NSString *pinCode = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self generateTimestamp]]];
 
+	issuersStackView = [UIStackView new];
+	issuersStackView.axis = UILayoutConstraintAxisHorizontal;
+	issuersStackView.spacing = 10;
+	issuersStackView.distribution = UIStackViewDistributionFill;
+	issuersStackView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.contentView addSubview: issuersStackView];
+
+	issuerImageView = [UIImageView new];
+	issuerImageView.contentMode = UIViewContentModeScaleAspectFit;
+	issuerImageView.clipsToBounds = YES;
+	issuerImageView.translatesAutoresizingMaskIntoConstraints = NO;
+	[issuersStackView addArrangedSubview: issuerImageView];
+
 	pinLabel = [UILabel new];
 	pinLabel.font = [UIFont systemFontOfSize: 18];
 	pinLabel.text = pinCode;
 	pinLabel.textAlignment = NSTextAlignmentCenter;
-	pinLabel.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.contentView addSubview: pinLabel];
+	[issuersStackView addArrangedSubview: pinLabel];
 
 	buttonsStackView = [UIStackView new];
 	buttonsStackView.axis = UILayoutConstraintAxisHorizontal;
@@ -109,8 +131,11 @@
 
 - (void)layoutUI {
 
-	[pinLabel.leadingAnchor constraintEqualToAnchor: self.contentView.leadingAnchor constant : 15].active = YES;
-	[pinLabel.centerYAnchor constraintEqualToAnchor: self.contentView.centerYAnchor].active = YES;
+	[issuersStackView.leadingAnchor constraintEqualToAnchor: self.contentView.leadingAnchor constant: 15].active = YES;
+	[issuersStackView.centerYAnchor constraintEqualToAnchor: self.contentView.centerYAnchor].active = YES;
+
+	[issuerImageView.widthAnchor constraintEqualToConstant: 30].active = YES;
+	[issuerImageView.heightAnchor constraintEqualToConstant: 30].active = YES;
 
 	[buttonsStackView.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant : - 15].active = YES;
 	[buttonsStackView.centerYAnchor constraintEqualToAnchor: self.contentView.centerYAnchor].active = YES;

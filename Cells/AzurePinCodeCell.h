@@ -8,7 +8,9 @@
 
 
 @protocol AzurePinCodeCellDelegate <NSObject>
+
 @required - (void)didTapInfoButton:(AzurePinCodeCell *)cell;
+
 @end
 
 
@@ -16,6 +18,7 @@
 
 	@public NSString *issuer;
 	@public NSString *hash;
+	@public UIImageView *issuerImageView;
 
 }
 @property (nonatomic, weak) id <AzurePinCodeCellDelegate> delegate;
