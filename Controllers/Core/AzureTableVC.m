@@ -159,9 +159,7 @@
 		[[TOTPManager sharedInstance]->secretHashesArray removeObjectAtIndex: indexPath.row];
 		[self.tableView reloadData];
 
-		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-		[defaults setObject: [TOTPManager sharedInstance]->issuersArray forKey: @"Issuers"];
-		[defaults setObject: [TOTPManager sharedInstance]->secretHashesArray forKey: @"Hashes"];
+		[[TOTPManager sharedInstance] saveDefaults];
 
 		completionHandler(YES);
 
@@ -184,9 +182,7 @@
 	[[TOTPManager sharedInstance]->secretHashesArray removeAllObjects];
 	[self.tableView reloadData];
 
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	[defaults setObject: [TOTPManager sharedInstance]->issuersArray forKey: @"Issuers"];
-	[defaults setObject: [TOTPManager sharedInstance]->secretHashesArray forKey: @"Hashes"];
+	[[TOTPManager sharedInstance] saveDefaults];
 
 }
 

@@ -32,4 +32,13 @@
 }
 
 
+- (void)saveDefaults {
+
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	[defaults setObject: issuersArray forKey: @"Issuers"];
+	[defaults setObject: secretHashesArray forKey: @"Hashes"];
+
+}
+
+
 @end

@@ -207,9 +207,7 @@
 		[[TOTPManager sharedInstance]->issuersArray addObject: issuerTextField.text];
 		[[TOTPManager sharedInstance]->secretHashesArray addObject: secretTextField.text];
 
-		NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-		[defaults setObject: [TOTPManager sharedInstance]->issuersArray forKey: @"Issuers"];
-		[defaults setObject: [TOTPManager sharedInstance]->secretHashesArray forKey: @"Hashes"];
+		[[TOTPManager sharedInstance] saveDefaults];
 
 		[self.delegate shouldDismissVC];
 
