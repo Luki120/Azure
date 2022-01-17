@@ -40,7 +40,7 @@ struct SettingsView: View {
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),
-							message: Text("YO DUDE!! Hold up right there. You’re about to purge ALL of your 2FA codes and your data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈."),
+							message: Text("YO DUDE!! Hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈."),
 							primaryButton: .destructive(Text("I'm sure")) {
 								NotificationCenter.default.post(name: Notification.Name("purgeDataDone"), object: nil)
 							},
@@ -57,59 +57,42 @@ struct SettingsView: View {
 					Button("Aurora") { shouldShowAuroraSheet.toggle() }
 						.foregroundColor(Color(.label))
 						.sheet(isPresented: $shouldShowAuroraSheet) {
-							getURLFromURLString(string: auroraDepictionURL)
+							SafariView(url: URL(string: auroraDepictionURL))
 						}
 
 					Button("Cora") { shouldShowCoraSheet.toggle() }
 						.foregroundColor(Color(.label))
 						.sheet(isPresented: $shouldShowCoraSheet) {
-							getURLFromURLString(string: coraDepictionURL)
+							SafariView(url: URL(string: coraDepictionURL))
 						}
 
 				}
 				.listRowBackground(colorScheme == .dark ? Color.black : Color.white)
 
-				Section(footer:
-
-					HStack {
-
-						Spacer()
-
-						VStack {
-
-							Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
-								.font(.system(size: 15.5))
-								.foregroundColor(.gray)
-								.sheet(isPresented: $shouldShowSourceCodeSheet) {
-									getURLFromURLString(string: sourceCodeURL)
-								}
-
-							Text("2021 © Luki120")
-								.font(.system(size: 10))
-								.foregroundColor(.gray)
-								.padding(.top, 5)
-
-						}
-
-						Spacer()
-
-					}
-
-				) {}
-
 			}
 
+			Section(footer: Text("")) {
+
+				VStack {
+
+					Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
+						.font(.system(size: 15.5))
+						.foregroundColor(.gray)
+						.sheet(isPresented: $shouldShowSourceCodeSheet) {
+							SafariView(url: URL(string: sourceCodeURL))
+						}
+
+					Text("2022 © Luki120")
+						.font(.system(size: 10))
+						.foregroundColor(.gray)
+						.padding(.top, 5)
+
+				}
+
+			}
+			.padding(.top, 25)
+
 		}
-
-	}
-
-	private func getURLFromURLString(string: String) -> AnyView {
-
-		guard let url = URL(string: string) else {
-			return AnyView(Text("Invalid URL"))
-		}
-
-		return AnyView(SafariView(url: url))
 
 	}
 
@@ -118,13 +101,21 @@ struct SettingsView: View {
 
 private struct SafariView: UIViewControllerRepresentable {
 
-	let url: URL
+	let url: URL?
 
-	func makeUIViewController(context: UIViewControllerRepresentableContext<SafariView>) -> SFSafariViewController {
+	func makeUIViewController(context: Context) -> SFSafariViewController {
+
+		let fallbackURL = URL(string: "https://github.com/Luki120")! // this 100% exists so it's safe
+
+		guard let url = url else {
+			return SFSafariViewController(url: fallbackURL)
+		}
+
 		return SFSafariViewController(url: url)
+
 	}
 
-	func updateUIViewController(_ uiViewController: SFSafariViewController, context: UIViewControllerRepresentableContext<SafariView>) {
+	func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
 
 	}
 
