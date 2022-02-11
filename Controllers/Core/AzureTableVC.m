@@ -47,6 +47,7 @@
 		@"github": [UIImage imageNamed: @"GitHub"],
 		@"instagram": [UIImage imageNamed: @"Instagram"],
 		@"snapchat": [UIImage imageNamed: @"Snapchat"],
+		@"twitter": [UIImage imageNamed: @"Twitter"]
 
 	};
 
