@@ -155,13 +155,28 @@
 
 	UIContextualAction *action = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"Delete" handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
 
-		[[TOTPManager sharedInstance]->issuersArray removeObjectAtIndex: indexPath.row];
-		[[TOTPManager sharedInstance]->secretHashesArray removeObjectAtIndex: indexPath.row];
-		[self.tableView reloadData];
+		NSString *message = [NSString stringWithFormat: @"You're about to delete the code for the issuer named %@ ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to.", [TOTPManager sharedInstance]->issuersArray[indexPath.row]];
 
-		[[TOTPManager sharedInstance] saveDefaults];
+		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
+		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
 
-		completionHandler(YES);
+			[[TOTPManager sharedInstance]->issuersArray removeObjectAtIndex: indexPath.row];
+			[[TOTPManager sharedInstance]->secretHashesArray removeObjectAtIndex: indexPath.row];
+			[self.tableView reloadData];
+
+			[[TOTPManager sharedInstance] saveDefaults];
+
+			completionHandler(YES);
+
+		}];
+		UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Oops" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
+
+			completionHandler(NO);
+
+		}];
+		[alertController addAction: confirmAction];
+		[alertController addAction: dismissAction];
+		[self presentViewController:alertController animated:YES completion: nil];
 
 	}];
 
@@ -280,11 +295,8 @@
 	NSString *message = [NSString stringWithFormat: @"Issuer: %@ \nSecret hash: %@", cell->issuer, cell->hash];
 
 	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
-
 	UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Got it" style:UIAlertActionStyleDefault handler:nil];
-
 	[alertController addAction: dismissAction];
-
 	[self presentViewController:alertController animated:YES completion: nil];
 
 }
