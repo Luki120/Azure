@@ -18,21 +18,19 @@
 
 	self = [super init];
 
-	if(self) {
+	if(!self) return nil;
 
-		// Custom initialization
+	// Custom initialization
 
-		[self setupViews];
-		[self setupObservers];
-		[self setupImagesDict];
+	[self setupViews];
+	[self setupObservers];
+	[self setupImagesDict];
 
-		qrCodeVC = [QRCodeVC new];
-		pinCodeVC = [PinCodeVC new];
-		pinCodeVC.delegate = self;
+	qrCodeVC = [QRCodeVC new];
+	pinCodeVC = [PinCodeVC new];
+	pinCodeVC.delegate = self;
 
-		[self.tableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
-
-	}
+	[self.tableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
 
 	return self;
 
@@ -81,8 +79,8 @@
 
 	[super viewDidLayoutSubviews];
 
- 	[floatingCreateButton.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: - 20].active = YES;
-	[floatingCreateButton.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor constant: - 15].active = YES;
+ 	[floatingCreateButton.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -20].active = YES;
+	[floatingCreateButton.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor constant: -25].active = YES;
 	[floatingCreateButton.widthAnchor constraintEqualToConstant: 60].active = YES;
 	[floatingCreateButton.heightAnchor constraintEqualToConstant: 60].active = YES;
 
