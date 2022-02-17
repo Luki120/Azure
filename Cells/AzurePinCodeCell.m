@@ -71,9 +71,7 @@
 - (void)setSecret:(NSString *)secret {
 
 	NSData *secretData = [NSData dataWithBase32String: secret];
-
 	generator = [[TOTPGenerator alloc] initWithSecret:secretData algorithm:kOTPGeneratorSHA1Algorithm digits:6 period:30];
-
 	[self regeneratePIN];
 
 }
