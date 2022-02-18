@@ -14,7 +14,7 @@ struct SettingsView: View {
 	@State private var shouldShowSourceCodeSheet = false
 
 	private let auroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.auroraswiftui"
-	private let coraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswift"
+	private let coraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswiftui"
 	private let sourceCodeURL = "https://github.com/Luki120/iOS-Apps/tree/main/Azure"
 
 	init() {
