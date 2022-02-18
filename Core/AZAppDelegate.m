@@ -20,8 +20,8 @@
 	strongWindow = window;
 
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	BOOL state = [defaults boolForKey: @"useBiometrics"];
-	if(state) verifyAuthentication();
+	BOOL usesBiometrics = [defaults boolForKey: @"useBiometrics"];
+	if(usesBiometrics) unsafePortalDispatch();
 	else window.rootViewController = [AzureRootVC new];
 
  	UINavigationBar.appearance.shadowImage = [UIImage new];
@@ -59,42 +59,71 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
 
-	UILabel *addressLabel = [UILabel new];
+	addressLabel = [UILabel new];
+	addressLabel.alpha = 0;
+	addressLabel.font = [UIFont systemFontOfSize: 12];
 	addressLabel.text = [NSString stringWithFormat: @"%p", &self];
+	addressLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
+	addressLabel.textColor = UIColor.systemGrayColor;
 	addressLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview: addressLabel];
 
-	[addressLabel.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor constant: 30].active = YES;
 	[addressLabel.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
+	[addressLabel.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -30].active = YES;
+
+	quitButton = [UIButton new];
+	quitButton.alpha = 0;
+	quitButton.transform = CGAffineTransformMakeScale(0.1, 0.1);
+	quitButton.backgroundColor = kAzureTintColor;
+	quitButton.layer.cornerCurve = kCACornerCurveContinuous;
+	quitButton.layer.cornerRadius = 20;
+	quitButton.translatesAutoresizingMaskIntoConstraints = NO;
+	[quitButton setTitle:@"Quit" forState: UIControlStateNormal];
+	[quitButton addTarget:(AZAppDelegate *)([[UIApplication sharedApplication] delegate]) action:@selector(didTapQuitButton) forControlEvents: UIControlEventTouchUpInside];
+	[self.view addSubview: quitButton];
+
+	[quitButton.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
+	[quitButton.centerYAnchor constraintEqualToAnchor: self.view.centerYAnchor].active = YES;
+	[quitButton.widthAnchor constraintEqualToConstant: 120].active = YES;
+	[quitButton.heightAnchor constraintEqualToConstant: 40].active = YES;
 
 }
 
-static void unsafePortalDispatch(BOOL success) {
+- (void)didTapQuitButton { abort(); }
 
-	if(!success) abort();
-	strongWindow.rootViewController = [AzureRootVC new];
-	checkIfJailbroken();
-
-}
-
-static void prepareAuthentication(LAContext *context, LAPolicy policy) {
-
-	[context evaluatePolicy:policy localizedReason:@"Azure needs you to authenticate in order to access the app." reply:^(BOOL success, NSError *error) {
-
-		dispatch_async(dispatch_get_main_queue(), ^{ unsafePortalDispatch(success); });
-
-	}];
-
-}
-
-static void verifyAuthentication() {
+static void unsafePortalDispatch() {
 
 	LAContext *context = [LAContext new];
-	if([context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error: nil])
 
-		prepareAuthentication(context, LAPolicyDeviceOwnerAuthenticationWithBiometrics);
+	[context evaluatePolicy:LAPolicyDeviceOwnerAuthentication localizedReason:@"Azure needs you to authenticate in order to access the app." reply:^(BOOL success, NSError *error) {
 
-	else prepareAuthentication(context, LAPolicyDeviceOwnerAuthentication);
+		dispatch_async(dispatch_get_main_queue(), ^{
+
+			if(!success) {
+
+				strongWindow.rootViewController = [strongClass new];
+
+				[UIView animateWithDuration:0.5 delay:0.8 options:UIViewAnimationOptionCurveEaseIn animations:^{
+
+					addressLabel.alpha = 0.5;
+					quitButton.alpha = 1;
+					quitButton.transform = CGAffineTransformMakeScale(1, 1);
+					addressLabel.transform = CGAffineTransformMakeScale(1, 1);
+
+				} completion: nil];
+
+			}
+
+			else {
+
+				strongWindow.rootViewController = [AzureRootVC new];
+				checkIfJailbroken();
+
+			}
+
+		});
+
+	}];
 
 }
 
@@ -121,6 +150,5 @@ static void checkIfJailbroken() {
 	[defaults setBool:YES forKey: @"jailbrokenSheetAppearedOnce"];
 
 }
-
 
 @end
