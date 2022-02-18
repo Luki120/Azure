@@ -41,9 +41,12 @@
 
 	imagesDict = @{
 
+		@"dashlane": [UIImage imageNamed: @"Dashlane"],
 		@"discord": [UIImage imageNamed: @"Discord"],
+		@"facebook": [UIImage imageNamed: @"Facebook"],
 		@"github": [UIImage imageNamed: @"GitHub"],
 		@"instagram": [UIImage imageNamed: @"Instagram"],
+		@"kraken": [UIImage imageNamed: @"Kraken"],
 		@"snapchat": [UIImage imageNamed: @"Snapchat"],
 		@"paypal": [UIImage imageNamed: @"PayPal"],
 		@"twitter": [UIImage imageNamed: @"Twitter"]
@@ -79,7 +82,7 @@
 
 	[super viewDidLayoutSubviews];
 
- 	[floatingCreateButton.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -20].active = YES;
+	[floatingCreateButton.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -20].active = YES;
 	[floatingCreateButton.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor constant: -25].active = YES;
 	[floatingCreateButton.widthAnchor constraintEqualToConstant: 60].active = YES;
 	[floatingCreateButton.heightAnchor constraintEqualToConstant: 60].active = YES;
@@ -371,7 +374,7 @@
 		[UIView animateWithDuration:0.5 delay:0.2 options:UIViewAnimationOptionCurveEaseIn animations:^{
 
 			CATransform3D rotation = CATransform3DIdentity;
- 			rotation.m34 = 1.0 / - 500; // idfk what this does but ok :lul:
+			rotation.m34 = 1.0 / - 500; // idfk what this does but ok :lul:
 			rotation = CATransform3DRotate(rotation, 360.0 * M_PI / 360, 0, 1, 0);
 			copyPinToastView.layer.transform = rotation;
 			copiedPinLabel.layer.transform = rotation;
@@ -397,6 +400,29 @@
 		}];
 
 	}];
+
+}
+
+
+- (void)animateViewWithAlpha:(CGFloat)alpha translateX:(CGFloat)tx translateY:(CGFloat)ty forScrollView:(UIScrollView *)theScrollView {
+
+	[UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+		floatingCreateButton.alpha = alpha;
+		floatingCreateButton.transform = CGAffineTransformMakeTranslation(tx, ty);
+
+	} completion:nil];
+
+}
+
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+
+	if(-scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 30)
+
+		[self animateViewWithAlpha:0 translateX:100 translateY:0 forScrollView: scrollView];
+
+	else [self animateViewWithAlpha:1 translateX:1 translateY:1 forScrollView: scrollView];
 
 }
 
