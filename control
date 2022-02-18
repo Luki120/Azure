@@ -6,3 +6,4 @@ Description: An awesome application!
 Maintainer: Luki
 Author: Luki
 Section: Utilities
+Dependencies: ${LIBSWIFT}
