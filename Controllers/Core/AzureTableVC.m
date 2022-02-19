@@ -231,15 +231,14 @@
 
 	pinCodeVC.title = @"Add Pin Code";
 
-	UIBarButtonItem *createButtonItem = [[UIBarButtonItem alloc] 
-		initWithTitle:@"Create"
-		style:UIBarButtonItemStylePlain
+	UIBarButtonItem *createButtonItem = [[UIBarButtonItem alloc]
+		initWithImage:[UIImage systemImageNamed:@"checkmark.circle.fill"]
+		style:UIBarButtonItemStyleDone
 		target:self
 		action:@selector(didTapCreateButton)
 	];
 
 	pinCodeVC.navigationItem.rightBarButtonItem = createButtonItem;
-
 	[navVC pushViewController: pinCodeVC animated: YES];
 
 }
@@ -276,23 +275,21 @@
 	qrCodeVC.navigationController.navigationBar.translucent = NO;
 	qrCodeVC.navigationController.navigationBar.barTintColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
 
-	UIBarButtonItem *leftButtonItem = [[UIBarButtonItem alloc] 
-		initWithTitle:@"Dismiss"
-		style:UIBarButtonItemStylePlain
+	UIBarButtonItem *leftButtonItem = [[UIBarButtonItem alloc]
+		initWithImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
+		style:UIBarButtonItemStyleDone
 		target:self
-		action:@selector(didTapDismissButton)
+		action:@selector(didTapFloatingButton)
 	];
 
 	UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc] 
 		initWithBarButtonSystemItem:UIBarButtonSystemItemCompose
 		target:self
 		action:@selector(didTapComposeButton)
-
 	];
 
 	qrCodeVC.navigationItem.leftBarButtonItem = leftButtonItem;
 	qrCodeVC.navigationItem.rightBarButtonItem = rightButtonItem;
-
 	navVC.modalPresentationStyle = UIModalPresentationFullScreen;
 	[self presentViewController:navVC animated:YES completion:nil];
 
