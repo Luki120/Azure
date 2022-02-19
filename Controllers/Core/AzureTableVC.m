@@ -203,16 +203,7 @@
 	pinCodeVC->secretTextField.secureTextEntry = YES;
 
 	pinCodeVC.title = @"Add Pin Code";
-
-	UIBarButtonItem *createButtonItem = [[UIBarButtonItem alloc] 
-		initWithTitle:@"Create"
-		style:UIBarButtonItemStylePlain
-		target:self
-		action:@selector(didTapCreateButton)
-	];
-
-	pinCodeVC.navigationItem.rightBarButtonItem = createButtonItem;
-
+	pinCodeVC.navigationItem.rightBarButtonItem = [self getCreateButtonItem];
 	[navVC pushViewController: pinCodeVC animated: YES];
 
 }
@@ -220,16 +211,7 @@
 
 // MARK: Buttons
 
-- (void)didTapDismissButton {
-
-	[self dismissViewControllerAnimated:YES completion:nil];
-
-}
-
-
-- (void)didTapComposeButton {
-
-	pinCodeVC.title = @"Add Pin Code";
+- (UIBarButtonItem *)getCreateButtonItem {
 
 	UIBarButtonItem *createButtonItem = [[UIBarButtonItem alloc]
 		initWithImage:[UIImage systemImageNamed:@"checkmark.circle.fill"]
@@ -238,7 +220,15 @@
 		action:@selector(didTapCreateButton)
 	];
 
-	pinCodeVC.navigationItem.rightBarButtonItem = createButtonItem;
+	return createButtonItem;
+
+}
+
+
+- (void)didTapComposeButton {
+
+	pinCodeVC.title = @"Add Pin Code";
+	pinCodeVC.navigationItem.rightBarButtonItem = [self getCreateButtonItem];
 	[navVC pushViewController: pinCodeVC animated: YES];
 
 }
@@ -251,16 +241,9 @@
 }
 
 
-// MARK: AzurePinCodeCellDelegate
+- (void)didTapDismissButton {
 
-- (void)didTapInfoButton:(AzurePinCodeCell *)cell {
-
-	NSString *message = [NSString stringWithFormat: @"Issuer: %@ \nSecret hash: %@", cell->issuer, cell->hash];
-
-	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
-	UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Got it" style:UIAlertActionStyleDefault handler:nil];
-	[alertController addAction: dismissAction];
-	[self presentViewController:alertController animated:YES completion: nil];
+	[self dismissViewControllerAnimated:YES completion:nil];
 
 }
 
@@ -296,6 +279,20 @@
 }
 
 
+// MARK: AzurePinCodeCellDelegate
+
+- (void)didTapInfoButton:(AzurePinCodeCell *)cell {
+
+	NSString *message = [NSString stringWithFormat: @"Issuer: %@ \nSecret hash: %@", cell->issuer, cell->hash];
+
+	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
+	UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Got it" style:UIAlertActionStyleDefault handler:nil];
+	[alertController addAction: dismissAction];
+	[self presentViewController:alertController animated:YES completion: nil];
+
+}
+
+
 // MARK: PinCodeVCDelegate
 
 - (void)shouldDismissVC {
@@ -305,6 +302,8 @@
 
 }
 
+
+// ! Views
 
 - (void)setupViews {
 
