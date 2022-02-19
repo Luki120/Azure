@@ -42,7 +42,6 @@
 - (void)layoutSubviews {
 
 	[super layoutSubviews];
-
 	[self layoutUI];
 
 }
@@ -51,7 +50,6 @@
 - (void)prepareForReuse {
 
 	[super prepareForReuse];
-
 	issuerImageView.image = nil;
 
 }
@@ -60,9 +58,7 @@
 - (NSInteger)generateTimestamp {
 
 	NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
-
 	if(timestamp % 30 != 0) timestamp -= timestamp % 30;
-
 	return timestamp;
 
 }
@@ -107,17 +103,17 @@
 	buttonsStackView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.contentView addSubview: buttonsStackView];
 
-	infoButton = [UIButton new];
-	infoButton.tintColor = UIColor.labelColor;
-	[infoButton setImage: [UIImage systemImageNamed:@"info.circle"] forState: UIControlStateNormal];
-	[infoButton addTarget: self action:@selector(didTapButton) forControlEvents: UIControlEventTouchUpInside];
-	[buttonsStackView addArrangedSubview: infoButton];
-
 	copyPinButton = [UIButton new];
 	copyPinButton.tintColor = UIColor.labelColor;
 	[copyPinButton setImage: [UIImage systemImageNamed:@"paperclip"] forState: UIControlStateNormal];
 	[copyPinButton addTarget: self action:@selector(didTapCopyPinButton) forControlEvents: UIControlEventTouchUpInside];
 	[buttonsStackView addArrangedSubview: copyPinButton];
+
+	infoButton = [UIButton new];
+	infoButton.tintColor = UIColor.labelColor;
+	[infoButton setImage: [UIImage systemImageNamed:@"info.circle"] forState: UIControlStateNormal];
+	[infoButton addTarget: self action:@selector(didTapButton) forControlEvents: UIControlEventTouchUpInside];
+	[buttonsStackView addArrangedSubview: infoButton];
 
 	pieView = [[PieView alloc] initWithFrame: CGRectMake(0,0,12,12) fromAngle: -90 toAngle: 270 strokeColor: kAzureTintColor];
 	[buttonsStackView addArrangedSubview: pieView];
