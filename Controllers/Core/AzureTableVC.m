@@ -262,7 +262,7 @@
 		initWithImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
 		style:UIBarButtonItemStyleDone
 		target:self
-		action:@selector(didTapFloatingButton)
+		action:@selector(didTapDismissButton)
 	];
 
 	UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc] 
