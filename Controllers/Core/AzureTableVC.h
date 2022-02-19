@@ -4,7 +4,9 @@
 #import "Constants/Constants.h"
 #import "Controllers/Core/PinCodeVC.h"
 #import "Controllers/Core/QRCodeVC.h"
+#import "Views/AzureFloatingButtonView.h"
+#import "Views/AzureToastView.h"
 
 
-@interface AzureTableVC : UITableViewController <AzurePinCodeCellDelegate, PinCodeVCDelegate>
+@interface AzureTableVC : UITableViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, PinCodeVCDelegate>
 @end

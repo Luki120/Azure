@@ -3,14 +3,13 @@
 
 @implementation AzureTableVC {
 
+	AzureFloatingButtonView *azureFloatingButtonView;	
+	AzureToastView *azureToastView;
+	NSLayoutConstraint *bottomAnchorConstraint;
+	NSDictionary *imagesDict;
 	PinCodeVC *pinCodeVC;
 	QRCodeVC *qrCodeVC;
 	UINavigationController *navVC;
-	UIButton *floatingCreateButton;
-	UIView *copyPinToastView;
-	UILabel *copiedPinLabel;
-	NSLayoutConstraint *bottomAnchorConstraint;
-	NSDictionary *imagesDict;
 
 }
 
@@ -59,7 +58,6 @@
 - (void)setupObservers {
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeToast) name:@"fadeInOutToast" object:nil];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
 
@@ -82,10 +80,13 @@
 
 	[super viewDidLayoutSubviews];
 
-	[floatingCreateButton.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -20].active = YES;
-	[floatingCreateButton.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor constant: -25].active = YES;
-	[floatingCreateButton.widthAnchor constraintEqualToConstant: 60].active = YES;
-	[floatingCreateButton.heightAnchor constraintEqualToConstant: 60].active = YES;
+	[azureFloatingButtonView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -20].active = YES;
+	[azureFloatingButtonView.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor constant: -25].active = YES;
+	[azureFloatingButtonView.widthAnchor constraintEqualToConstant: 60].active = YES;
+	[azureFloatingButtonView.heightAnchor constraintEqualToConstant: 60].active = YES;
+
+	[azureToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -5].active = YES;
+	[azureToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
 }
 
@@ -99,15 +100,6 @@
 	so we gotta do a little forcing to reenable it :nfr: ---*/
 
 	self.tableView.scrollEnabled = YES;
-
-}
-
-
-- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
-
-	[super traitCollectionDidChange: previousTraitCollection];
-
-	floatingCreateButton.layer.shadowColor = kUserInterfaceStyle ? UIColor.whiteColor.CGColor : UIColor.blackColor.CGColor;
 
 }
 
@@ -228,37 +220,6 @@
 
 // MARK: Buttons
 
-- (void)didTapFloatingButton {
-
-	navVC = [[UINavigationController alloc] initWithRootViewController: qrCodeVC];
-
-	qrCodeVC.title = @"Scan QR Code";
-	qrCodeVC.navigationController.navigationBar.translucent = NO;
-	qrCodeVC.navigationController.navigationBar.barTintColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
-
-	UIBarButtonItem *leftButtonItem = [[UIBarButtonItem alloc] 
-		initWithTitle:@"Dismiss"
-		style:UIBarButtonItemStylePlain
-		target:self
-		action:@selector(didTapDismissButton)
-	];
-
-	UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc] 
-		initWithBarButtonSystemItem:UIBarButtonSystemItemCompose
-		target:self
-		action:@selector(didTapComposeButton)
-
-	];
-
-	qrCodeVC.navigationItem.leftBarButtonItem = leftButtonItem;
-	qrCodeVC.navigationItem.rightBarButtonItem = rightButtonItem;
-
-	navVC.modalPresentationStyle = UIModalPresentationFullScreen;
-	[self presentViewController:navVC animated:YES completion:nil];
-
-}
-
-
 - (void)didTapDismissButton {
 
 	[self dismissViewControllerAnimated:YES completion:nil];
@@ -305,6 +266,39 @@
 }
 
 
+// ! AzureFloatingButtonViewDelegate
+
+- (void)didTapFloatingButton {
+
+	navVC = [[UINavigationController alloc] initWithRootViewController: qrCodeVC];
+
+	qrCodeVC.title = @"Scan QR Code";
+	qrCodeVC.navigationController.navigationBar.translucent = NO;
+	qrCodeVC.navigationController.navigationBar.barTintColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
+
+	UIBarButtonItem *leftButtonItem = [[UIBarButtonItem alloc] 
+		initWithTitle:@"Dismiss"
+		style:UIBarButtonItemStylePlain
+		target:self
+		action:@selector(didTapDismissButton)
+	];
+
+	UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc] 
+		initWithBarButtonSystemItem:UIBarButtonSystemItemCompose
+		target:self
+		action:@selector(didTapComposeButton)
+
+	];
+
+	qrCodeVC.navigationItem.leftBarButtonItem = leftButtonItem;
+	qrCodeVC.navigationItem.rightBarButtonItem = rightButtonItem;
+
+	navVC.modalPresentationStyle = UIModalPresentationFullScreen;
+	[self presentViewController:navVC animated:YES completion:nil];
+
+}
+
+
 // MARK: PinCodeVCDelegate
 
 - (void)shouldDismissVC {
@@ -315,101 +309,24 @@
 }
 
 
-// MARK: UIKit magic
-
 - (void)setupViews {
 
-	floatingCreateButton = [UIButton new];
-	floatingCreateButton.tintColor = UIColor.labelColor;
-	floatingCreateButton.backgroundColor = kAzureTintColor;
-	floatingCreateButton.layer.shadowColor = kUserInterfaceStyle ? UIColor.whiteColor.CGColor : UIColor.blackColor.CGColor;
-	floatingCreateButton.layer.cornerRadius = 30;
-	floatingCreateButton.layer.shadowRadius = 8;
-	floatingCreateButton.layer.shadowOffset = CGSizeMake(0, 1);
-	floatingCreateButton.layer.shadowOpacity = 0.5;
-	floatingCreateButton.translatesAutoresizingMaskIntoConstraints = NO;
-	[floatingCreateButton setImage: [UIImage systemImageNamed:@"plus" withConfiguration: [UIImageSymbolConfiguration configurationWithPointSize: 25]] forState: UIControlStateNormal];
-	[floatingCreateButton addTarget:self action:@selector(didTapFloatingButton) forControlEvents: UIControlEventTouchUpInside];
-	[self.view addSubview: floatingCreateButton];
+	azureFloatingButtonView = [AzureFloatingButtonView new];
+	azureFloatingButtonView.delegate = self;
+	[self.view addSubview: azureFloatingButtonView];
 
-	copyPinToastView = [UIView new];
-	copyPinToastView.alpha = 0;
-	copyPinToastView.backgroundColor = kAzureTintColor;
-	copyPinToastView.layer.cornerCurve = kCACornerCurveContinuous;
-	copyPinToastView.layer.cornerRadius = 20;
-	copyPinToastView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: copyPinToastView];
-
-	copiedPinLabel = [UILabel new];
-	copiedPinLabel.font = [UIFont systemFontOfSize: 14];
-	copiedPinLabel.text = @"Copied!";
-	copiedPinLabel.textColor = UIColor.labelColor;
-	copiedPinLabel.textAlignment = NSTextAlignmentCenter;
-	copiedPinLabel.translatesAutoresizingMaskIntoConstraints = NO;
-	[copyPinToastView addSubview: copiedPinLabel];
-
-	[copyPinToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
-	bottomAnchorConstraint = [copyPinToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant : 50];
-	bottomAnchorConstraint.active = YES;
-	[copyPinToastView.widthAnchor constraintEqualToConstant: 120].active = YES;
-	[copyPinToastView.heightAnchor constraintEqualToConstant: 40].active = YES;
-
-	[copiedPinLabel.centerXAnchor constraintEqualToAnchor: copyPinToastView.centerXAnchor].active = YES;
-	[copiedPinLabel.centerYAnchor constraintEqualToAnchor: copyPinToastView.centerYAnchor].active = YES;
+	azureToastView = [AzureToastView new];
+	[self.view addSubview: azureToastView];
 
 }
 
 
-- (void)fadeToast {
-
-	[UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
-
-		bottomAnchorConstraint.constant = -20;
-		copyPinToastView.alpha = 1;
-
-		[self.view layoutIfNeeded];
-
-	} completion:^(BOOL finished) {
-
-		[UIView animateWithDuration:0.5 delay:0.2 options:UIViewAnimationOptionCurveEaseIn animations:^{
-
-			CATransform3D rotation = CATransform3DIdentity;
-			rotation.m34 = 1.0 / - 500; // idfk what this does but ok :lul:
-			rotation = CATransform3DRotate(rotation, 360.0 * M_PI / 360, 0, 1, 0);
-			copyPinToastView.layer.transform = rotation;
-			copiedPinLabel.layer.transform = rotation;
-
-			[self.view layoutIfNeeded];
-
-		} completion:^(BOOL finished) {
-
-			[UIView animateWithDuration:0.5 delay:0.5 options:UIViewAnimationOptionCurveEaseIn animations:^{
-
-				bottomAnchorConstraint.constant = 50;
-				copyPinToastView.alpha = 0;
-
-				[self.view layoutIfNeeded];
-
-			} completion:^(BOOL finished) {
-
-				copyPinToastView.layer.transform = CATransform3DIdentity;
-				copiedPinLabel.layer.transform = CATransform3DIdentity;
-
-			}];
-
-		}];
-
-	}];
-
-}
-
-
-- (void)animateViewWithAlpha:(CGFloat)alpha translateX:(CGFloat)tx translateY:(CGFloat)ty forScrollView:(UIScrollView *)theScrollView {
+- (void)animateViewWithAlpha:(CGFloat)alpha translateX:(CGFloat)tx translateY:(CGFloat)ty {
 
 	[UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
-		floatingCreateButton.alpha = alpha;
-		floatingCreateButton.transform = CGAffineTransformMakeTranslation(tx, ty);
+		azureFloatingButtonView.floatingCreateButton.alpha = alpha;
+		azureFloatingButtonView.floatingCreateButton.transform = CGAffineTransformMakeTranslation(tx, ty);
 
 	} completion:nil];
 
@@ -418,13 +335,12 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
-	if(-scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 30)
+	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60)
 
-		[self animateViewWithAlpha:0 translateX:100 translateY:0 forScrollView: scrollView];
+		[self animateViewWithAlpha:0 translateX:100 translateY:0];
 
-	else [self animateViewWithAlpha:1 translateX:1 translateY:1 forScrollView: scrollView];
+	else [self animateViewWithAlpha:1 translateX:1 translateY:1];
 
 }
-
 
 @end
