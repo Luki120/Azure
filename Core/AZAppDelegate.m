@@ -22,7 +22,12 @@
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	BOOL usesBiometrics = [defaults boolForKey: @"useBiometrics"];
 	if(usesBiometrics) unsafePortalDispatch();
-	else window.rootViewController = [AzureRootVC new];
+	else {
+		window.rootViewController = [AzureRootVC new];
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+			checkIfJailbroken();
+		});
+	}
 
  	UINavigationBar.appearance.shadowImage = [UIImage new];
 	UINavigationBar.appearance.translucent = NO;
@@ -117,7 +122,9 @@ static void unsafePortalDispatch() {
 			else {
 
 				strongWindow.rootViewController = [AzureRootVC new];
-				checkIfJailbroken();
+				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+					checkIfJailbroken();
+				});
 
 			}
 
