@@ -8,5 +8,5 @@
 #import "Views/AzureToastView.h"
 
 
-@interface AzureTableVC : UITableViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, PinCodeVCDelegate>
+@interface AzureTableVC : UIViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, PinCodeVCDelegate, UITableViewDataSource, UITableViewDelegate>
 @end

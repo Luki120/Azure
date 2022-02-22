@@ -10,6 +10,7 @@
 	PinCodeVC *pinCodeVC;
 	QRCodeVC *qrCodeVC;
 	UINavigationController *navVC;
+	UITableView *azureTableView;
 
 }
 
@@ -20,7 +21,6 @@
 	if(!self) return nil;
 
 	// Custom initialization
-
 	[self setupViews];
 	[self setupObservers];
 	[self setupImagesDict];
@@ -29,9 +29,39 @@
 	pinCodeVC = [PinCodeVC new];
 	pinCodeVC.delegate = self;
 
-	[self.tableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
+	[azureTableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
 
 	return self;
+
+}
+
+
+// ! Views
+
+- (void)setupViews {
+
+	azureTableView = [UITableView new];
+	azureTableView.dataSource = self;
+	azureTableView.delegate = self;
+	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.view addSubview: azureTableView];
+
+	azureFloatingButtonView = [AzureFloatingButtonView new];
+	azureFloatingButtonView.delegate = self;
+	[self.view addSubview: azureFloatingButtonView];
+
+	azureToastView = [AzureToastView new];
+	[self.view addSubview: azureToastView];
+
+}
+
+
+- (void)setupObservers {
+
+	[NSNotificationCenter.defaultCenter removeObserver:self];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
 
 }
 
@@ -55,23 +85,12 @@
 }
 
 
-- (void)setupObservers {
-
-	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
-
-}
-
-
 - (void)viewDidLoad {
 
 	[super viewDidLoad];
 
 	// Do any additional setup after loading the view, typically from a nib.
-
-	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-	self.tableView.backgroundColor = UIColor.systemBackgroundColor;
+	self.view.backgroundColor = UIColor.systemBackgroundColor;
 
 }
 
@@ -80,8 +99,13 @@
 
 	[super viewDidLayoutSubviews];
 
-	[azureFloatingButtonView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -20].active = YES;
-	[azureFloatingButtonView.trailingAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.trailingAnchor constant: -25].active = YES;
+	[azureTableView.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor].active = YES;
+	[azureTableView.bottomAnchor constraintEqualToAnchor: azureFloatingButtonView.topAnchor constant: -15].active = YES;
+	[azureTableView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
+	[azureTableView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;	
+
+	[azureFloatingButtonView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -15].active = YES;
+	[azureFloatingButtonView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant: -25].active = YES;
 	[azureFloatingButtonView.widthAnchor constraintEqualToConstant: 60].active = YES;
 	[azureFloatingButtonView.heightAnchor constraintEqualToConstant: 60].active = YES;
 
@@ -96,10 +120,10 @@
 	[super viewWillAppear: animated];
 
 	/*--- Disabling the scrolling in the SwiftUI Form also
-	likes to disable the scrolling in all the objC table views :KayneWtf:
+	likes to disable the scrolling in all the objC table views :KanyeWTF:
 	so we gotta do a little forcing to reenable it :nfr: ---*/
 
-	self.tableView.scrollEnabled = YES;
+	azureTableView.scrollEnabled = YES;
 
 }
 
@@ -157,7 +181,7 @@
 
 			[[TOTPManager sharedInstance]->issuersArray removeObjectAtIndex: indexPath.row];
 			[[TOTPManager sharedInstance]->secretHashesArray removeObjectAtIndex: indexPath.row];
-			[self.tableView reloadData];
+			[azureTableView reloadData];
 
 			[[TOTPManager sharedInstance] saveDefaults];
 
@@ -190,7 +214,7 @@
 
 	[[TOTPManager sharedInstance]->issuersArray removeAllObjects];
 	[[TOTPManager sharedInstance]->secretHashesArray removeAllObjects];
-	[self.tableView reloadData];
+	[azureTableView reloadData];
 
 	[[TOTPManager sharedInstance] saveDefaults];
 
@@ -297,34 +321,8 @@
 
 - (void)shouldDismissVC {
 
-	[self.tableView reloadData];
+	[azureTableView reloadData];
 	[self dismissViewControllerAnimated:YES completion:nil];
-
-}
-
-
-// ! Views
-
-- (void)setupViews {
-
-	azureFloatingButtonView = [AzureFloatingButtonView new];
-	azureFloatingButtonView.delegate = self;
-	[self.view addSubview: azureFloatingButtonView];
-
-	azureToastView = [AzureToastView new];
-	[self.view addSubview: azureToastView];
-
-}
-
-
-- (void)animateViewWithAlpha:(CGFloat)alpha translateX:(CGFloat)tx translateY:(CGFloat)ty {
-
-	[UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-
-		azureFloatingButtonView.floatingCreateButton.alpha = alpha;
-		azureFloatingButtonView.floatingCreateButton.transform = CGAffineTransformMakeTranslation(tx, ty);
-
-	} completion:nil];
 
 }
 
@@ -333,9 +331,9 @@
 
 	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60)
 
-		[self animateViewWithAlpha:0 translateX:100 translateY:0];
+		[azureFloatingButtonView animateViewWithAlpha:0 translateX:100 translateY:0];
 
-	else [self animateViewWithAlpha:1 translateX:1 translateY:1];
+	else [azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
 
 }
 
