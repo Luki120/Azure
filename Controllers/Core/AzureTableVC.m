@@ -78,7 +78,8 @@
 		@"kraken": [UIImage imageNamed: @"Kraken"],
 		@"snapchat": [UIImage imageNamed: @"Snapchat"],
 		@"paypal": [UIImage imageNamed: @"PayPal"],
-		@"twitter": [UIImage imageNamed: @"Twitter"]
+		@"twitter": [UIImage imageNamed: @"Twitter"],
+		@"zoho": [UIImage imageNamed: @"ZohoMail"]
 
 	};
 
