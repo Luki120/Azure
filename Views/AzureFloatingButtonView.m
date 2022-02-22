@@ -41,7 +41,6 @@
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
 
 	[super traitCollectionDidChange: previousTraitCollection];
-
 	self.floatingCreateButton.layer.shadowColor = kUserInterfaceStyle ? UIColor.whiteColor.CGColor : UIColor.blackColor.CGColor;
 
 }
@@ -49,6 +48,18 @@
 - (void)didTapButton {
 
 	[self.delegate didTapFloatingButton];
+
+}
+
+
+- (void)animateViewWithAlpha:(CGFloat)alpha translateX:(CGFloat)tx translateY:(CGFloat)ty {
+
+	[UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+		self.floatingCreateButton.alpha = alpha;
+		self.floatingCreateButton.transform = CGAffineTransformMakeTranslation(tx, ty);
+
+	} completion:nil];
 
 }
 
