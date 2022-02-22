@@ -14,6 +14,8 @@
 
 }
 
+// ! Lifecycle
+
 - (id)init {
 
 	self = [super init];
@@ -35,8 +37,6 @@
 
 }
 
-
-// ! Views
 
 - (void)setupViews {
 
@@ -128,7 +128,7 @@
 }
 
 
-// MARK: UITableViewDataSource
+// ! UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
@@ -161,7 +161,7 @@
 }
 
 
-// MARK: UITableViewDelegate
+// ! UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
@@ -208,7 +208,7 @@
 }
 
 
-// MARK: NSNotificationCenter
+// ! NSNotificationCenter
 
 - (void)purgeData {
 
@@ -233,7 +233,7 @@
 }
 
 
-// MARK: Buttons
+// ! Buttons
 
 - (UIBarButtonItem *)getCreateButtonItem {
 
@@ -303,7 +303,7 @@
 }
 
 
-// MARK: AzurePinCodeCellDelegate
+// ! AzurePinCodeCellDelegate
 
 - (void)didTapInfoButton:(AzurePinCodeCell *)cell {
 
@@ -317,7 +317,7 @@
 }
 
 
-// MARK: PinCodeVCDelegate
+// ! PinCodeVCDelegate
 
 - (void)shouldDismissVC {
 
