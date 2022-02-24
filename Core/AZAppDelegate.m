@@ -14,6 +14,7 @@
 	window = [UIWindow new];
 	window.frame = UIScreen.mainScreen.bounds;
 	window.tintColor = kAzureTintColor;
+	window.backgroundColor = UIColor.systemBackgroundColor;
 	window.rootViewController = [strongClass new];
 	[window makeKeyAndVisible];
 

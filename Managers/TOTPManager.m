@@ -20,12 +20,10 @@
 
 	self = [super init];
 
-	if(self) {
+	if(!self) return nil;
 
-		issuersArray = [NSUserDefaults.standardUserDefaults arrayForKey: @"Issuers"].mutableCopy ?: [NSMutableArray new];
-		secretHashesArray = [NSUserDefaults.standardUserDefaults arrayForKey: @"Hashes"].mutableCopy ?: [NSMutableArray new];
-
-	}
+	issuersArray = [NSUserDefaults.standardUserDefaults arrayForKey: @"Issuers"].mutableCopy ?: [NSMutableArray new];
+	secretHashesArray = [NSUserDefaults.standardUserDefaults arrayForKey: @"Hashes"].mutableCopy ?: [NSMutableArray new];
 
 	return self;
 
