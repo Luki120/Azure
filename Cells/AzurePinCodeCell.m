@@ -5,34 +5,32 @@
 
 	UIStackView *issuersStackView;
 	UILabel *pinLabel;
-	UIButton *infoButton;
 	UIButton *copyPinButton;
+	UIButton *infoButton;
 	PieView *pieView;
 	UIStackView *buttonsStackView;
 	TOTPGenerator *generator;
 
 }
 
+// ! Lifecycle
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
 
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
 
-	if(self) {
+	if(!self) return nil;
 
-		// Custom initialization
+	// Custom initialization
+	[self setupUI];
 
-		[self setupUI];
+	NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
-		NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
+		[pieView animateShapeLayer];
+		[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:YES];
 
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-
-			[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:YES];
-
-		});
-
-	}
+	});
 
 	return self;
 
@@ -55,33 +53,12 @@
 }
 
 
-- (NSInteger)generateTimestamp {
-
-	NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
-	if(timestamp % 30 != 0) timestamp -= timestamp % 30;
-	return timestamp;
-
-}
-
-
-- (void)setSecret:(NSString *)secret {
-
-	NSData *secretData = [NSData dataWithBase32String: secret];
-	generator = [[TOTPGenerator alloc] initWithSecret:secretData algorithm:kOTPGeneratorSHA1Algorithm digits:6 period:30];
-	[self regeneratePIN];
-
-}
-
-
 - (void)setupUI {
 
-	NSString *pinCode = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self generateTimestamp]]];
+	NSString *pinCode = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self getLastUNIXTimetamp]]];
 
 	issuersStackView = [UIStackView new];
-	issuersStackView.axis = UILayoutConstraintAxisHorizontal;
-	issuersStackView.spacing = 10;
-	issuersStackView.distribution = UIStackViewDistributionFill;
-	issuersStackView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self createStackViewWithStackView: issuersStackView];
 	[self.contentView addSubview: issuersStackView];
 
 	issuerImageView = [UIImageView new];
@@ -97,28 +74,28 @@
 	[issuersStackView addArrangedSubview: pinLabel];
 
 	buttonsStackView = [UIStackView new];
-	buttonsStackView.axis = UILayoutConstraintAxisHorizontal;
-	buttonsStackView.spacing = 10;
-	buttonsStackView.distribution = UIStackViewDistributionFill;
-	buttonsStackView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self createStackViewWithStackView: buttonsStackView];
 	[self.contentView addSubview: buttonsStackView];
 
 	copyPinButton = [UIButton new];
-	copyPinButton.tintColor = UIColor.labelColor;
-	[copyPinButton setImage: [UIImage systemImageNamed:@"paperclip"] forState: UIControlStateNormal];
-	[copyPinButton addTarget: self action:@selector(didTapCopyPinButton) forControlEvents: UIControlEventTouchUpInside];
-	[buttonsStackView addArrangedSubview: copyPinButton];
-
 	infoButton = [UIButton new];
-	infoButton.tintColor = UIColor.labelColor;
-	[infoButton setImage: [UIImage systemImageNamed:@"info.circle"] forState: UIControlStateNormal];
-	[infoButton addTarget: self action:@selector(didTapButton) forControlEvents: UIControlEventTouchUpInside];
+	[self createButtonWithButton:copyPinButton
+		withImage:[UIImage systemImageNamed: @"paperclip"]
+		forSelector:@selector(didTapCopyPinButton)
+	];
+	[buttonsStackView addArrangedSubview: copyPinButton];
+	[self createButtonWithButton:infoButton
+		withImage:[UIImage systemImageNamed: @"info.circle"]
+		forSelector:@selector(didTapButton)
+	];
+
 	[buttonsStackView addArrangedSubview: infoButton];
 
-	pieView = [[PieView alloc] initWithFrame: CGRectMake(0,0,12,12) fromAngle: -90 toAngle: 270 strokeColor: kAzureTintColor];
-	[buttonsStackView addArrangedSubview: pieView];
+	NSInteger currentUNIXTimestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
+	CGFloat startingSliceAngle = ((currentUNIXTimestamp - [self getLastUNIXTimetamp]) * 360.0) / 30.0;
 
-	[pieView animateShapeLayer];
+	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: -startingSliceAngle toAngle: 360 - startingSliceAngle strokeColor: kAzureTintColor];
+	[buttonsStackView addArrangedSubview: pieView];
 
 }
 
@@ -138,24 +115,22 @@
 }
 
 
+- (void)didTapCopyPinButton {
+
+	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+	pasteboard.string = pinLabel.text;
+	[NSNotificationCenter.defaultCenter postNotificationName: @"fadeInOutToast" object: nil];
+
+}
+
+
 - (void)didTapButton {
 
 	[self.delegate didTapInfoButton: self];
 
 }
 
-
-- (void)didTapCopyPinButton {
-
-	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-	pasteboard.string = pinLabel.text;
-
-	[NSNotificationCenter.defaultCenter postNotificationName: @"fadeInOutToast" object: nil];
-
-}
-
-
-// MARK: NSTimer
+// ! NSTimer
 
 - (void)regeneratePIN {
 
@@ -165,12 +140,49 @@
 	transition.type = kCATransitionFade;
 	transition.duration = 0.8f;
 	transition.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
-
 	[pinLabel.layer addAnimation: transition forKey: nil];
 
-	pinLabel.text = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self generateTimestamp]]];
+	pinLabel.text = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self getLastUNIXTimetamp]]];
 
 }
 
+// ! Pin code generation logic
+
+- (NSInteger)getLastUNIXTimetamp {
+
+	NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
+	if(timestamp % 30 != 0) timestamp -= timestamp % 30;
+	return timestamp;
+
+}
+
+
+- (void)setSecret:(NSString *)secret {
+
+	NSData *secretData = [NSData dataWithBase32String: secret];
+	generator = [[TOTPGenerator alloc] initWithSecret:secretData algorithm:kOTPGeneratorSHA1Algorithm digits:6 period:30];
+	[self regeneratePIN];
+
+}
+
+// ! Reusable funcs
+
+- (void)createStackViewWithStackView:(UIStackView *)stackView {
+
+	stackView.axis = UILayoutConstraintAxisHorizontal;
+	stackView.spacing = 10;
+	stackView.distribution = UIStackViewDistributionFill;
+	stackView.translatesAutoresizingMaskIntoConstraints = NO;
+
+}
+
+
+- (void)createButtonWithButton:(UIButton *)button withImage:(UIImage *)image forSelector:(SEL)selector {
+
+	button.tintColor = UIColor.labelColor;
+	[button setImage: image forState: UIControlStateNormal];
+	[button addTarget: self action:selector forControlEvents: UIControlEventTouchUpInside];
+
+}
 
 @end
