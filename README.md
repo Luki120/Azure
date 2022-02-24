@@ -38,7 +38,7 @@
 
 ## Credits
 
-* Azure uses open source components from [Google Authenticator](https://github.com/google/google-authenticator/tree/master/mobile/ios)
+* Azure uses open source components from [Google Authenticator](https://github.com/google/google-authenticator/tree/master/mobile/ios), which are licensed under the [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## LICENSE
 
