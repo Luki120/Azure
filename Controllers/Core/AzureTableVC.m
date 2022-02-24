@@ -101,7 +101,7 @@
 	[super viewDidLayoutSubviews];
 
 	[azureTableView.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor].active = YES;
-	[azureTableView.bottomAnchor constraintEqualToAnchor: azureFloatingButtonView.topAnchor constant: -15].active = YES;
+	[azureTableView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor].active = YES;
 	[azureTableView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
 	[azureTableView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;	
 
@@ -156,6 +156,8 @@
 
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
 	cell->issuerImageView.tintColor = image ? nil : UIColor.labelColor;
+
+//	[[TOTPManager sharedInstance]->issuersArray sortUsingSelector: @selector(localizedCaseInsensitiveCompare:)];
 
 	return cell;
 
@@ -280,8 +282,6 @@
 	navVC = [[UINavigationController alloc] initWithRootViewController: qrCodeVC];
 
 	qrCodeVC.title = @"Scan QR Code";
-	qrCodeVC.navigationController.navigationBar.translucent = NO;
-	qrCodeVC.navigationController.navigationBar.barTintColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
 
 	UIBarButtonItem *leftButtonItem = [[UIBarButtonItem alloc]
 		initWithImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
@@ -300,6 +300,8 @@
 	qrCodeVC.navigationItem.rightBarButtonItem = rightButtonItem;
 	navVC.modalPresentationStyle = UIModalPresentationFullScreen;
 	[self presentViewController:navVC animated:YES completion:nil];
+
+	[NSNotificationCenter.defaultCenter postNotificationName:@"fuckingCursedShitNeededForTheThingToDoTheThingyNotification" object:nil];
 
 }
 
@@ -330,9 +332,10 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
-	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60)
+	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60 
+		|| scrollView.contentOffset.y <= self.view.safeAreaInsets.bottom - 22)
 
-		[azureFloatingButtonView animateViewWithAlpha:0 translateX:100 translateY:0];
+		[azureFloatingButtonView animateViewWithAlpha:0 translateX:100 translateY:1];
 
 	else [azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
 
