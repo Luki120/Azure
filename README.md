@@ -16,7 +16,7 @@
 * Purge all data.
 * Scan QR codes.
 
-* To do:
+## To do:
 
 * - [ ] IPA support.
 * - [x] Identify most common issuers with their respective app logo.
