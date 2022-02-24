@@ -12,20 +12,20 @@
 
 }
 
+// ! Lifecycle
+
 - (id)init {
 
 	self = [super init];
 
-	if(self) {
+	if(!self) return nil;
 
-		[self setupUI];
+	[self setupUI];
 
-		[pinCodesTableView registerClass: UITableViewCell.class forCellReuseIdentifier: @"Cell"];
+	[pinCodesTableView registerClass: UITableViewCell.class forCellReuseIdentifier: @"Cell"];
 
-		[NSNotificationCenter.defaultCenter removeObserver:self];
-		[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
-
-	}
+	[NSNotificationCenter.defaultCenter removeObserver:self];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
 
 	return self;
 
@@ -37,8 +37,7 @@
 	[super viewDidLoad];
 
 	// Do any additional setup after loading the view, typically from a nib.
-
-	self.view.backgroundColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
+	self.view.backgroundColor = UIColor.systemBackgroundColor;
 
 }
 
@@ -46,7 +45,6 @@
 - (void)viewDidLayoutSubviews {
 
 	[super viewDidLayoutSubviews];
-
 	[self layoutUI];
 
 }
@@ -55,17 +53,7 @@
 - (void)viewWillAppear:(BOOL)animated {
 
 	[super viewWillAppear: animated];
-
 	pinCodesTableView.scrollEnabled = YES;
-
-}
-
-
-- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
-
-	[super traitCollectionDidChange: previousTraitCollection];
-
-	self.view.backgroundColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
 
 }
 
@@ -75,47 +63,36 @@
 	pinCodesTableView = [[UITableView alloc] initWithFrame: CGRectZero style: UITableViewStyleGrouped];
 	pinCodesTableView.dataSource = self;
 	pinCodesTableView.delegate = self;
-	pinCodesTableView.scrollEnabled = YES;
-	pinCodesTableView.backgroundColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
+	pinCodesTableView.backgroundColor = UIColor.systemBackgroundColor;
 	pinCodesTableView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview: pinCodesTableView];
 
 	issuerStackView = [UIStackView new];
-	issuerStackView.axis = UILayoutConstraintAxisHorizontal;
-	issuerStackView.spacing = 10;
-	issuerStackView.distribution = UIStackViewDistributionFill;
-	issuerStackView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self createStackViewWithStackView: issuerStackView];
 
 	issuerLabel = [UILabel new];
-	issuerLabel.font = [UIFont systemFontOfSize: 14];
-	issuerLabel.text = @"Issuer:";
-	issuerLabel.textColor = UIColor.labelColor;
+	[self createLabelWithLabel:issuerLabel withText: @"Issuer:"];
 	[issuerStackView addArrangedSubview: issuerLabel];
 
 	issuerTextField = [UITextField new];
-	issuerTextField.font = [UIFont systemFontOfSize: 14];
-	issuerTextField.delegate = self;
-	issuerTextField.textColor = UIColor.labelColor;
-	issuerTextField.placeholder = @"For example: GitHub";
-	issuerTextField.returnKeyType = UIReturnKeyNext;
+	[self createTextFieldWithTextField:issuerTextField
+		withPlaceholder:@"For example: GitHub"
+		returnKeyType:UIReturnKeyNext
+	];
 	[issuerStackView addArrangedSubview: issuerTextField];
 
 	secretHashStackView = [UIStackView new];
-	secretHashStackView.axis = UILayoutConstraintAxisHorizontal;
-	secretHashStackView.spacing = 10;
-	secretHashStackView.distribution = UIStackViewDistributionFill;
-	secretHashStackView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self createStackViewWithStackView: secretHashStackView];
 
 	secretHashLabel = [UILabel new];
-	secretHashLabel.font = [UIFont systemFontOfSize: 14];
-	secretHashLabel.text = @"Secret hash:";
-	secretHashLabel.textColor = UIColor.labelColor;
+	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash"];
 	[secretHashStackView addArrangedSubview: secretHashLabel];
 
 	secretTextField = [UITextField new];
-	secretTextField.font = [UIFont systemFontOfSize: 14];
-	secretTextField.delegate = self;
-	secretTextField.placeholder = @"Enter Secret";
+	[self createTextFieldWithTextField:secretTextField
+		withPlaceholder:@"Enter Secret"
+		returnKeyType:UIReturnKeyDefault
+	];
 	[secretHashStackView addArrangedSubview: secretTextField];
 
 }
@@ -130,8 +107,67 @@
 
 }
 
+// ! NSNotificationCenter
 
-// MARK: UITableViewDataSource
+- (void)shouldSaveData {
+
+	if(issuerTextField.text.length > 0 && secretTextField.text.length > 0) {
+
+		[[TOTPManager sharedInstance]->issuersArray addObject: issuerTextField.text];
+		[[TOTPManager sharedInstance]->secretHashesArray addObject: secretTextField.text];
+		[[TOTPManager sharedInstance] saveDefaults];
+
+		[self.delegate shouldDismissVC];
+
+		issuerTextField.text = @"";
+		secretTextField.text = @"";
+
+	}
+
+	else {
+
+		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message: @"Please fill out both forms." preferredStyle: UIAlertControllerStyleAlert];
+		UIAlertAction *dismissAction = [UIAlertAction actionWithTitle: @"Got it" style: UIAlertActionStyleDefault handler: nil];
+		[alertController addAction: dismissAction];
+		[self presentViewController: alertController animated: YES completion: nil];
+
+	}
+
+}
+
+// ! Reusable funcs
+
+- (void)createStackViewWithStackView:(UIStackView *)stackView {
+
+	stackView.axis = UILayoutConstraintAxisHorizontal;
+	stackView.spacing = 10;
+	stackView.distribution = UIStackViewDistributionFill;
+	stackView.translatesAutoresizingMaskIntoConstraints = NO;	
+
+}
+
+
+- (void)createLabelWithLabel:(UILabel *)label withText:(NSString *)text {
+
+	label.font = [UIFont systemFontOfSize: 14];
+	label.text = text;
+	label.textColor = UIColor.labelColor;
+
+}
+
+
+- (void)createTextFieldWithTextField:(UITextField *)textField
+	withPlaceholder:(NSString *)placeholder
+	returnKeyType:(UIReturnKeyType)returnKeyType {
+
+	textField.font = [UIFont systemFontOfSize: 14];
+	textField.delegate = self;
+	textField.placeholder = placeholder;
+	textField.returnKeyType = returnKeyType;
+
+}
+
+// ! UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
@@ -143,7 +179,6 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
 	UITableViewCell *cell = [pinCodesTableView dequeueReusableCellWithIdentifier: @"Cell" forIndexPath: indexPath];
-
 	cell.backgroundColor = UIColor.clearColor;
 
 	switch(indexPath.row) {
@@ -151,7 +186,6 @@
 		case 0:
 
 			[cell.contentView addSubview: issuerStackView];
-
 			[issuerStackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
 			[issuerStackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 			break;
@@ -159,7 +193,6 @@
 		case 1:
 
 			[cell.contentView addSubview: secretHashStackView];
-
 			[secretHashStackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
 			[secretHashStackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 			break;
@@ -170,8 +203,7 @@
 
 }
 
-
-// MARK: UITableViewDelegate
+// ! UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
@@ -179,8 +211,7 @@
 
 }
 
-
-// MARK: UITextFieldDelegate
+// ! UITextFieldDelegate
 
  - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 
@@ -196,39 +227,5 @@
 	return YES;
 
 }
-
-
-// MARK: NSNotificationCenter
-
-- (void)shouldSaveData {
-
-	if(issuerTextField.text.length > 0 && secretTextField.text.length > 0) {
-
-		[[TOTPManager sharedInstance]->issuersArray addObject: issuerTextField.text];
-		[[TOTPManager sharedInstance]->secretHashesArray addObject: secretTextField.text];
-
-		[[TOTPManager sharedInstance] saveDefaults];
-
-		[self.delegate shouldDismissVC];
-
-		issuerTextField.text = @"";
-		secretTextField.text = @"";
-
-	}
-
-	else {
-
-		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message: @"Please fill out both forms." preferredStyle: UIAlertControllerStyleAlert];
-
-		UIAlertAction *dismissAction = [UIAlertAction actionWithTitle: @"Got it" style: UIAlertActionStyleDefault handler: nil];
-
-		[alertController addAction: dismissAction];
-
-		[self presentViewController: alertController animated: YES completion: nil];
-
-	}
-
-}
-
 
 @end
