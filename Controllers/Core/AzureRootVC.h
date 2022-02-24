@@ -2,5 +2,5 @@
 #import "Controllers/Core/AzureTableVC.h"
 
 
-@interface AzureRootVC : UITabBarController
+@interface AzureRootVC : UITabBarController <UITabBarControllerDelegate>
 @end
