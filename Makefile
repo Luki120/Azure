@@ -2,8 +2,8 @@ TARGET := iphone:clang:latest:latest
 INSTALL_TARGET_PROCESSES = Azure
 APPLICATION_NAME = Azure
 
-# Azure_FILES = $(wildcard Categories/*.m) $(wildcard Cells/*.m) $(wildcard Controllers/Core/*.m) $(wildcard Controllers/Swift/*.swift) $(wildcard Core/*.m) $(wildcard Libraries/*.m) $(wildcard Managers/*.m) $(wildcard Views/*.swift)
-Azure_FILES = $(shell find . -name "*.m") $(shell find . -name "*.swift")
+Azure_FILES = $(wildcard Sources/Categories/*.m) $(wildcard Sources/Cells/*.m) $(wildcard Sources/Controllers/Core/*.m) $(wildcard Sources/Controllers/Swift/*.swift) $(wildcard Sources/Core/*.m) $(wildcard Sources/Libraries/*.m) $(wildcard Sources/Managers/*.m) $(wildcard Sources/Views/*.m) $(wildcard Sources/Views/*.swift)
+#Azure_FILES = $(shell find . -name "*.m") $(shell find . -name "*.swift")
 Azure_CFLAGS = -fobjc-arc
 Azure_FRAMEWORKS = UIKit CoreGraphics
 

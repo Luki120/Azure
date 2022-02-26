@@ -1,5 +1,5 @@
 #import "Azure-Swift.h"
-#import "Controllers/Core/AzureTableVC.h"
+#import "Sources/Controllers/Core/AzureTableVC.h"
 
 
 @interface AzureRootVC : UITabBarController <UITabBarControllerDelegate>

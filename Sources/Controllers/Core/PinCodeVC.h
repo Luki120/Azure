@@ -1,6 +1,6 @@
 @import UIKit;
-#import "Constants/Constants.h"
-#import "Managers/TOTPManager.h"
+#import "Sources/Constants/Constants.h"
+#import "Sources/Managers/TOTPManager.h"
 
 
 @protocol PinCodeVCDelegate <NSObject>

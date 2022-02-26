@@ -1,4 +1,4 @@
-#import "AZAppDelegate.h"
+#import "Sources/Core/AZAppDelegate.h"
 
 
 int main(int argc, char *argv[]) {

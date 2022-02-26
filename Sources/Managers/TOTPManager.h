@@ -1,7 +1,7 @@
 @import Foundation;
-#import "Controllers/Core/PinCodeVC.h"
-#import "Libraries/TOTPGenerator.h"
-#import "Libraries/MF_Base32Additions.h"
+#import "Sources/Controllers/Core/PinCodeVC.h"
+#import "Sources/Libraries/TOTPGenerator.h"
+#import "Sources/Libraries/MF_Base32Additions.h"
 
 
 @interface TOTPManager : NSObject {
@@ -10,6 +10,6 @@
 	@public NSMutableArray *secretHashesArray;
 
 }
-+ (TOTPManager *)sharedInstance;
 - (void)saveDefaults;
++ (TOTPManager *)sharedInstance;
 @end
