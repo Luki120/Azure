@@ -97,6 +97,9 @@
 	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: -startingSliceAngle toAngle: 360 - startingSliceAngle strokeColor: kAzureMintTintColor];
 	[buttonsStackView addArrangedSubview: pieView];
 
+	UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapCell)];
+	[self.contentView addGestureRecognizer: tapRecognizer];	
+
 }
 
 
@@ -120,6 +123,13 @@
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = pinLabel.text;
 	[NSNotificationCenter.defaultCenter postNotificationName: @"fadeInOutToast" object: nil];
+
+}
+
+
+- (void)didTapCell {
+
+	[self.delegate didTapCell: self];
 
 }
 

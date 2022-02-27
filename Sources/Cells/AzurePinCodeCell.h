@@ -9,6 +9,7 @@
 
 @protocol AzurePinCodeCellDelegate <NSObject>
 
+@required - (void)didTapCell:(AzurePinCodeCell *)cell;
 @required - (void)didTapInfoButton:(AzurePinCodeCell *)cell;
 
 @end
