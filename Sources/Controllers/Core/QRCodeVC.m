@@ -1,5 +1,6 @@
 #import "QRCodeVC.h"
 
+
 @implementation QRCodeVC {
 
 	AVAudioPlayer *audioPlayer;
@@ -118,8 +119,7 @@
 
 - (void)doTheThing {
 
-	// cursed af, but it works to fix the issue where the animations only work once 🤷🏼‍♂️
-
+	// cursed af, but it works to fix the issue where the animations only work once
 	self.navigationController.delegate = nil;
 	self.navigationController.delegate = self;
 
