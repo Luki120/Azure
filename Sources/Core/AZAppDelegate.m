@@ -13,7 +13,7 @@
 
 	window = [UIWindow new];
 	window.frame = UIScreen.mainScreen.bounds;
-	window.tintColor = kAzureTintColor;
+	window.tintColor = kAzureLilacTintColor;
 	window.backgroundColor = UIColor.systemBackgroundColor;
 	window.rootViewController = [strongClass new];
 	[window makeKeyAndVisible];
@@ -68,7 +68,7 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 	addressLabel = [UILabel new];
 	addressLabel.alpha = 0;
 	addressLabel.font = [UIFont systemFontOfSize: 12];
-	addressLabel.text = [NSString stringWithFormat: @"%p", &self];
+//	addressLabel.text = [NSString stringWithFormat: @"%p", &self];
 	addressLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
 	addressLabel.textColor = UIColor.systemGrayColor;
 	addressLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -80,7 +80,7 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 	quitButton = [UIButton new];
 	quitButton.alpha = 0;
 	quitButton.transform = CGAffineTransformMakeScale(0.1, 0.1);
-	quitButton.backgroundColor = kAzureTintColor;
+	quitButton.backgroundColor = kAzureMintTintColor;
 	quitButton.layer.cornerCurve = kCACornerCurveContinuous;
 	quitButton.layer.cornerRadius = 20;
 	quitButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -117,6 +117,8 @@ static void unsafePortalDispatch() {
 					addressLabel.transform = CGAffineTransformMakeScale(1, 1);
 
 				} completion: nil];
+
+				addressLabel.text = [NSString stringWithFormat: @"ERROR: %@", error];
 
 			}
 

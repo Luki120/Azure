@@ -19,11 +19,14 @@
 	UINavigationController *firstNav = [[UINavigationController alloc] initWithRootViewController: firstVC];
 	UINavigationController *secondNav = [[UINavigationController alloc] initWithRootViewController: secondVC];
 
-	firstNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home" image:[UIImage systemImageNamed:@"lock.shield.fill"] tag:0];
-	secondNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings" image:[UIImage systemImageNamed:@"gear"] tag:1];
+	UIImage *lockImage = [UIImage imageWithContentsOfFile: @"/Library/Application Support/Azure/lock.png"];
+	UIImage *gearImage = [[UIImage systemImageNamed: @"gearshape.fill"] imageWithConfiguration: [UIImageSymbolConfiguration configurationWithPointSize:18]];
+
+	firstNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home" image:lockImage tag:0];
+	secondNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Settings" image:gearImage tag:1];
 
 	NSArray *tabBarControllers = @[firstNav, secondNav];
-	self.viewControllers = tabBarControllers;   
+	self.viewControllers = tabBarControllers;
 
 	return self;
 
