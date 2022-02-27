@@ -68,7 +68,7 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 	addressLabel = [UILabel new];
 	addressLabel.alpha = 0;
 	addressLabel.font = [UIFont systemFontOfSize: 12];
-//	addressLabel.text = [NSString stringWithFormat: @"%p", &self];
+	addressLabel.text = [NSString stringWithFormat: @"%p", &self];
 	addressLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
 	addressLabel.textColor = UIColor.systemGrayColor;
 	addressLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -105,7 +105,7 @@ static void unsafePortalDispatch() {
 
 		dispatch_async(dispatch_get_main_queue(), ^{
 
-			if(!success) {
+			if(!success && error.code != -5) {
 
 				strongWindow.rootViewController = [strongClass new];
 
@@ -117,8 +117,6 @@ static void unsafePortalDispatch() {
 					addressLabel.transform = CGAffineTransformMakeScale(1, 1);
 
 				} completion: nil];
-
-				addressLabel.text = [NSString stringWithFormat: @"ERROR: %@", error];
 
 			}
 
