@@ -1,7 +1,11 @@
 #import "TOTPManager.h"
 
 
-@implementation TOTPManager
+@implementation TOTPManager {
+
+	NSUserDefaults *defaults;
+
+}
 
 
 + (TOTPManager *)sharedInstance {
@@ -22,8 +26,11 @@
 
 	if(!self) return nil;
 
-	issuersArray = [NSUserDefaults.standardUserDefaults arrayForKey: @"Issuers"].mutableCopy ?: [NSMutableArray new];
-	secretHashesArray = [NSUserDefaults.standardUserDefaults arrayForKey: @"Hashes"].mutableCopy ?: [NSMutableArray new];
+	defaults = [NSUserDefaults standardUserDefaults];
+
+	issuersArray = [defaults arrayForKey: @"Issuers"].mutableCopy ?: [NSMutableArray new];
+	secretHashesArray = [defaults arrayForKey: @"Hashes"].mutableCopy ?: [NSMutableArray new];
+	selectedRow = [defaults integerForKey: @"encryptionType"];
 
 	return self;
 
@@ -32,9 +39,15 @@
 
 - (void)saveDefaults {
 
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	[defaults setObject: issuersArray forKey: @"Issuers"];
 	[defaults setObject: secretHashesArray forKey: @"Hashes"];
+
+}
+
+
+- (void)saveEncryptionType {
+
+	[defaults setInteger:selectedRow forKey: @"encryptionType"];
 
 }
 

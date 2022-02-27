@@ -6,10 +6,12 @@
 
 @interface TOTPManager : NSObject {
 
+	@public NSInteger selectedRow;
 	@public NSMutableArray *issuersArray;
 	@public NSMutableArray *secretHashesArray;
 
 }
 - (void)saveDefaults;
+- (void)saveEncryptionType;
 + (TOTPManager *)sharedInstance;
 @end
