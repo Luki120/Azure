@@ -171,7 +171,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-	return 2;
+	return 3;
 
 }
 
@@ -197,6 +197,13 @@
 			[secretHashStackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 			break;
 
+		case 2:
+
+			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+			cell.textLabel.font = [UIFont systemFontOfSize: 14];
+			cell.textLabel.text = @"Algorithm";
+			break;
+
 	}
 
 	return cell;
@@ -208,6 +215,9 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
 	[tableView deselectRowAtIndexPath: indexPath animated: YES];
+	if(indexPath.row != 2) return;
+
+	[NSNotificationCenter.defaultCenter postNotificationName:@"pushAlgorithmVC" object:nil];
 
 }
 
