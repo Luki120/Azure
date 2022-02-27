@@ -60,8 +60,9 @@
 - (void)setupObservers {
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(pushAlgorithmVC) name:@"pushAlgorithmVC" object:nil];
 
 }
 
@@ -143,7 +144,6 @@
 	AzurePinCodeCell *cell = [tableView dequeueReusableCellWithIdentifier: kIdentifier forIndexPath: indexPath];
 
 	cell.delegate = self;
-	cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	cell.backgroundColor = UIColor.clearColor;
 
 	cell->issuer = [TOTPManager sharedInstance]->issuersArray[indexPath.row];
@@ -213,6 +213,18 @@
 
 // ! NSNotificationCenter
 
+- (void)fillOutHash {
+
+	pinCodeVC->secretTextField.text = [UIPasteboard generalPasteboard].string;
+	pinCodeVC->secretTextField.secureTextEntry = YES;
+
+	pinCodeVC.title = @"Add Pin Code";
+	pinCodeVC.navigationItem.rightBarButtonItem = [self getCreateButtonItem];
+	[navVC pushViewController: pinCodeVC animated: YES];
+
+}
+
+
 - (void)purgeData {
 
 	[[TOTPManager sharedInstance]->issuersArray removeAllObjects];
@@ -224,14 +236,11 @@
 }
 
 
-- (void)fillOutHash {
+- (void)pushAlgorithmVC {
 
-	pinCodeVC->secretTextField.text = [UIPasteboard generalPasteboard].string;
-	pinCodeVC->secretTextField.secureTextEntry = YES;
-
-	pinCodeVC.title = @"Add Pin Code";
-	pinCodeVC.navigationItem.rightBarButtonItem = [self getCreateButtonItem];
-	[navVC pushViewController: pinCodeVC animated: YES];
+	AlgorithmVC *algorithmVC = [AlgorithmVC new];
+	algorithmVC.title = @"Algorithm";
+	[navVC pushViewController:algorithmVC animated:YES];
 
 }
 
@@ -298,6 +307,7 @@
 
 	qrCodeVC.navigationItem.leftBarButtonItem = leftButtonItem;
 	qrCodeVC.navigationItem.rightBarButtonItem = rightButtonItem;
+	navVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
 	navVC.modalPresentationStyle = UIModalPresentationFullScreen;
 	[self presentViewController:navVC animated:YES completion:nil];
 
@@ -305,20 +315,25 @@
 
 }
 
-
 // ! AzurePinCodeCellDelegate
 
-- (void)didTapInfoButton:(AzurePinCodeCell *)cell {
+- (void)didTapCell:(AzurePinCodeCell *)cell {
 
-	NSString *message = [NSString stringWithFormat: @"Issuer: %@ \nSecret hash: %@", cell->issuer, cell->hash];
+	azureToastView->toastViewLabel.text = @"Copied hash!";
+	[azureToastView fadeInOutToastView];
 
-	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
-	UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Got it" style:UIAlertActionStyleDefault handler:nil];
-	[alertController addAction: dismissAction];
-	[self presentViewController:alertController animated:YES completion: nil];
+	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+	pasteboard.string = cell->hash;
 
 }
 
+
+- (void)didTapInfoButton:(AzurePinCodeCell *)cell {
+
+	azureToastView->toastViewLabel.text = [NSString stringWithFormat: @"Issuer: %@", cell->issuer];
+	[azureToastView fadeInOutToastView];
+
+}
 
 // ! PinCodeVCDelegate
 
