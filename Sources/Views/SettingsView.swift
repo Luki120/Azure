@@ -6,7 +6,7 @@ struct SettingsView: View {
 
 	@AppStorage("useBiometrics") private var shouldUseBiometricsToggle = false
 
-	@Environment (\.colorScheme) private var colorScheme
+	@Environment(\.colorScheme) private var colorScheme
 
 	@State private var shouldShowWarningAlert = false
 	@State private var shouldShowAuroraSheet = false
@@ -15,7 +15,9 @@ struct SettingsView: View {
 
 	private let auroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.auroraswiftui"
 	private let coraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswiftui"
-	private let sourceCodeURL = "https://github.com/Luki120/iOS-Apps/tree/main/Azure"
+	private let sourceCodeURL = "https://github.com/Luki120/Azure"
+
+	private let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
 
 	init() {
 		UITableView.appearance().backgroundColor = .clear
@@ -31,12 +33,12 @@ struct SettingsView: View {
 				Section(header: Text("Settings")) {
 
 					Toggle("Use biometrics", isOn: $shouldUseBiometricsToggle)
-						.toggleStyle(SwitchToggleStyle(tint: Color(.systemTeal)))
+						.toggleStyle(SwitchToggleStyle(tint: kAzureMintTintColor))
 
 					Button("Purge data") {
 						shouldShowWarningAlert.toggle()
 					}
-					.foregroundColor(Color(.systemRed))
+					.foregroundColor(kAzureMintTintColor)
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),

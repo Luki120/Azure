@@ -20,7 +20,7 @@
 
 	self.floatingCreateButton = [UIButton new];
 	self.floatingCreateButton.tintColor = UIColor.labelColor;
-	self.floatingCreateButton.backgroundColor = kAzureTintColor;
+	self.floatingCreateButton.backgroundColor = kAzureMintTintColor;
 	self.floatingCreateButton.layer.shadowColor = kUserInterfaceStyle ? UIColor.whiteColor.CGColor : UIColor.blackColor.CGColor;
 	self.floatingCreateButton.layer.cornerRadius = 30;
 	self.floatingCreateButton.layer.shadowRadius = 8;

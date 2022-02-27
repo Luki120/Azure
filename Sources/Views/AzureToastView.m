@@ -31,7 +31,7 @@
 
 	copyPinToastView = [UIView new];
 	copyPinToastView.alpha = 0;
-	copyPinToastView.backgroundColor = kAzureTintColor;
+	copyPinToastView.backgroundColor = kAzureMintTintColor;
 	copyPinToastView.layer.cornerCurve = kCACornerCurveContinuous;
 	copyPinToastView.layer.cornerRadius = 20;
 	copyPinToastView.translatesAutoresizingMaskIntoConstraints = NO;

@@ -13,7 +13,7 @@
 
 	window = [UIWindow new];
 	window.frame = UIScreen.mainScreen.bounds;
-	window.tintColor = kAzureTintColor;
+	window.tintColor = kAzureLilacTintColor;
 	window.backgroundColor = UIColor.systemBackgroundColor;
 	window.rootViewController = [strongClass new];
 	[window makeKeyAndVisible];
@@ -80,7 +80,7 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 	quitButton = [UIButton new];
 	quitButton.alpha = 0;
 	quitButton.transform = CGAffineTransformMakeScale(0.1, 0.1);
-	quitButton.backgroundColor = kAzureTintColor;
+	quitButton.backgroundColor = kAzureMintTintColor;
 	quitButton.layer.cornerCurve = kCACornerCurveContinuous;
 	quitButton.layer.cornerRadius = 20;
 	quitButton.translatesAutoresizingMaskIntoConstraints = NO;
@@ -105,7 +105,7 @@ static void unsafePortalDispatch() {
 
 		dispatch_async(dispatch_get_main_queue(), ^{
 
-			if(!success) {
+			if(!success && error.code != -5) {
 
 				strongWindow.rootViewController = [strongClass new];
 

@@ -202,7 +202,7 @@
 
 	}];
 
-	action.backgroundColor = kAzureTintColor;
+	action.backgroundColor = kAzureMintTintColor;
 
 	UISwipeActionsConfiguration *actions = [UISwipeActionsConfiguration configurationWithActions: @[action]];
 

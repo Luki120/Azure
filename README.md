@@ -22,7 +22,7 @@
 * - [x] Identify most common issuers with their respective app logo.
 * - [ ] More UIKit animations.
 * - [ ] Support for different SHA hashing encryption methods. (Low priority)
-* - [ ] UI color scheme overhaul/redesign.
+* - [x] UI color scheme overhaul/redesign.
 
 ## Socials
 

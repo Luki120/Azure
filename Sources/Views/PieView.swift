@@ -9,7 +9,7 @@ import UIKit
 
 	private var fromAngle:CGFloat = 0
 	private var toAngle:CGFloat = 0
-	private var strokeColor = UIColor.systemTeal
+	private var strokeColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)

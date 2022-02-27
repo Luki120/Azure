@@ -94,7 +94,7 @@
 	NSInteger currentUNIXTimestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
 	CGFloat startingSliceAngle = ((currentUNIXTimestamp - [self getLastUNIXTimetamp]) * 360.0) / 30.0;
 
-	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: -startingSliceAngle toAngle: 360 - startingSliceAngle strokeColor: kAzureTintColor];
+	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: -startingSliceAngle toAngle: 360 - startingSliceAngle strokeColor: kAzureMintTintColor];
 	[buttonsStackView addArrangedSubview: pieView];
 
 }
