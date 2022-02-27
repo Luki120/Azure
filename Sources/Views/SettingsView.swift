@@ -15,7 +15,7 @@ struct SettingsView: View {
 
 	private let auroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.auroraswiftui"
 	private let coraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswiftui"
-	private let sourceCodeURL = "https://github.com/Luki120/iOS-Apps/tree/main/Azure"
+	private let sourceCodeURL = "https://github.com/Luki120/Azure"
 
 	private let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
 
