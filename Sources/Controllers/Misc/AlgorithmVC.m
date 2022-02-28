@@ -4,6 +4,7 @@
 @implementation AlgorithmVC {
 
 	NSInteger selectedRow;
+	NSMutableArray *algorithmTableArray;
 
 }
 
@@ -12,6 +13,11 @@
 	self = [super initWithStyle: UITableViewStyleGrouped];
 
 	if(!self) return nil;
+
+	algorithmTableArray = [NSMutableArray new];
+	[algorithmTableArray addObject: @"SHA1"];
+	[algorithmTableArray addObject: @"SHA256"];
+	[algorithmTableArray addObject: @"SHA512"];
 
 	[self.tableView registerClass:UITableViewCell.class forCellReuseIdentifier: @"VanillaCell"];
 
@@ -23,7 +29,7 @@
 - (void)viewDidLoad {
 
 	// Do any additional setup after loading the view, typically from a nib.
-	self.view.backgroundColor = kUserInterfaceStyle ? UIColor.blackColor : UIColor.whiteColor;
+	self.view.backgroundColor = UIColor.systemBackgroundColor;
 
 }
 
@@ -31,7 +37,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-	return 3;
+	return algorithmTableArray.count;
 
 }
 
@@ -45,14 +51,7 @@
 	cell.accessoryType = selectedRow == indexPath.row ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
 	cell.backgroundColor = UIColor.clearColor;
 	cell.textLabel.font = [UIFont systemFontOfSize: 14];
-
-	switch(indexPath.row) {
-
-		case 0: cell.textLabel.text = @"SHA1"; break;
-		case 1: cell.textLabel.text = @"SHA256"; break;
-		case 2: cell.textLabel.text = @"SHA512"; break;
-
-	}
+	cell.textLabel.text = algorithmTableArray[indexPath.row];
 
 	return cell;
 
@@ -64,7 +63,7 @@
 
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	[TOTPManager sharedInstance]->selectedRow = indexPath.row;
-	[[TOTPManager sharedInstance] saveEncryptionType];
+	[[TOTPManager sharedInstance] saveSelectedRow];
 	[tableView reloadData];
 
 }
