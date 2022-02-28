@@ -1,7 +1,6 @@
 @import Foundation;
-#import "Sources/Controllers/Core/PinCodeVC.h"
-#import "Sources/Libraries/TOTPGenerator.h"
 #import "Sources/Libraries/MF_Base32Additions.h"
+#import "Sources/Libraries/TOTPGenerator.h"
 
 
 @interface TOTPManager : NSObject {
@@ -12,6 +11,6 @@
 
 }
 - (void)saveDefaults;
-- (void)saveEncryptionType;
+- (void)saveSelectedRow;
 + (TOTPManager *)sharedInstance;
 @end

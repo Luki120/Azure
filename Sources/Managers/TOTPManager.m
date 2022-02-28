@@ -30,7 +30,7 @@
 
 	issuersArray = [defaults arrayForKey: @"Issuers"].mutableCopy ?: [NSMutableArray new];
 	secretHashesArray = [defaults arrayForKey: @"Hashes"].mutableCopy ?: [NSMutableArray new];
-	selectedRow = [defaults integerForKey: @"encryptionType"];
+	selectedRow = [defaults integerForKey: @"selectedRow"];
 
 	return self;
 
@@ -45,11 +45,10 @@
 }
 
 
-- (void)saveEncryptionType {
+- (void)saveSelectedRow {
 
-	[defaults setInteger:selectedRow forKey: @"encryptionType"];
+	[defaults setInteger: selectedRow forKey: @"selectedRow"];
 
 }
-
 
 @end
