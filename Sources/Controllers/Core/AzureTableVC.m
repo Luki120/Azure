@@ -148,7 +148,25 @@
 
 	cell->issuer = [TOTPManager sharedInstance]->issuersArray[indexPath.row];
 	cell->hash = [TOTPManager sharedInstance]->secretHashesArray[indexPath.row];
-	[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row]];
+
+	switch([TOTPManager sharedInstance]->selectedRow) {
+
+		case 0:
+
+			[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row] withAlgorithm: kOTPGeneratorSHA1Algorithm];			
+			break;
+
+		case 1:
+
+			[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row] withAlgorithm: kOTPGeneratorSHA256Algorithm];			
+			break;
+
+		case 2:
+
+			[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row] withAlgorithm: kOTPGeneratorSHA512Algorithm];			
+			break;
+
+	}
 
 	UIImage *image = imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize: CGSizeMake(30, 30)];
