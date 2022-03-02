@@ -56,6 +56,8 @@
 	NSUInteger fromIndex = [tabViewControllers indexOfObject: tabBarController.selectedViewController];
 	NSUInteger toIndex = [tabViewControllers indexOfObject: viewController];
 
+	if(fromView == toView) return NO;
+
 	[UIView transitionFromView:fromView
 		toView:toView
 		duration:0.5
