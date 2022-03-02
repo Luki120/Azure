@@ -20,7 +20,7 @@
 
 * - [ ] IPA support.
 * - [x] Identify most common issuers with their respective app logo.
-* - [ ] More UIKit animations.
+* - [x] More UIKit animations.
 * - [ ] Support for different SHA hashing encryption methods. (Low priority)
 * - [x] UI color scheme overhaul/redesign.
 
