@@ -8,6 +8,7 @@
 	@public NSInteger selectedRow;
 	@public NSMutableArray *issuersArray;
 	@public NSMutableArray *secretHashesArray;
+	@public NSMutableArray *encryptionTypesArray;
 
 }
 - (void)saveDefaults;

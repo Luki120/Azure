@@ -148,25 +148,11 @@
 
 	cell->issuer = [TOTPManager sharedInstance]->issuersArray[indexPath.row];
 	cell->hash = [TOTPManager sharedInstance]->secretHashesArray[indexPath.row];
-
-	switch([TOTPManager sharedInstance]->selectedRow) {
-
-		case 0:
-
-			[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row] withAlgorithm: kOTPGeneratorSHA1Algorithm];			
-			break;
-
-		case 1:
-
-			[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row] withAlgorithm: kOTPGeneratorSHA256Algorithm];			
-			break;
-
-		case 2:
-
-			[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row] withAlgorithm: kOTPGeneratorSHA512Algorithm];			
-			break;
-
-	}
+	[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row]
+		withAlgorithm: [[TOTPManager sharedInstance]->encryptionTypesArray count] == 0
+		? kOTPGeneratorSHA1Algorithm 
+		: [TOTPManager sharedInstance]->encryptionTypesArray[indexPath.row]
+	];
 
 	UIImage *image = imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize: CGSizeMake(30, 30)];
@@ -202,6 +188,7 @@
 
 			[[TOTPManager sharedInstance]->issuersArray removeObjectAtIndex: indexPath.row];
 			[[TOTPManager sharedInstance]->secretHashesArray removeObjectAtIndex: indexPath.row];
+			[[TOTPManager sharedInstance]->encryptionTypesArray removeObjectAtIndex: indexPath.row];
 			[azureTableView reloadData];
 
 			[[TOTPManager sharedInstance] saveDefaults];
@@ -247,6 +234,7 @@
 
 	[[TOTPManager sharedInstance]->issuersArray removeAllObjects];
 	[[TOTPManager sharedInstance]->secretHashesArray removeAllObjects];
+	[[TOTPManager sharedInstance]->encryptionTypesArray removeAllObjects];
 	[azureTableView reloadData];
 
 	[[TOTPManager sharedInstance] saveDefaults];
@@ -259,6 +247,23 @@
 	AlgorithmVC *algorithmVC = [AlgorithmVC new];
 	algorithmVC.title = @"Algorithm";
 	[navVC pushViewController:algorithmVC animated:YES];
+
+}
+
+
+- (void)saveEncryptionType {
+
+	NSMutableArray *encryptionTypesArray = [TOTPManager sharedInstance]->encryptionTypesArray;
+
+	switch([TOTPManager sharedInstance]->selectedRow) {
+
+	    case 0: [encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm]; break;
+	    case 1: [encryptionTypesArray addObject: kOTPGeneratorSHA256Algorithm]; break;
+	    case 2: [encryptionTypesArray addObject: kOTPGeneratorSHA512Algorithm]; break;
+
+	}
+
+	[[TOTPManager sharedInstance] saveDefaults];
 
 }
 
@@ -291,6 +296,7 @@
 - (void)didTapCreateButton {
 
 	[NSNotificationCenter.defaultCenter postNotificationName: @"checkIfDataShouldBeSaved" object: nil];
+	[self saveEncryptionType];
 
 }
 
@@ -368,7 +374,7 @@
 	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60 
 		|| scrollView.contentOffset.y <= self.view.safeAreaInsets.bottom - 22)
 
-		[azureFloatingButtonView animateViewWithAlpha:0 translateX:100 translateY:1];
+		[azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
 
 	else [azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
 

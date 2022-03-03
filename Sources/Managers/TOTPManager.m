@@ -30,6 +30,7 @@
 
 	issuersArray = [defaults arrayForKey: @"Issuers"].mutableCopy ?: [NSMutableArray new];
 	secretHashesArray = [defaults arrayForKey: @"Hashes"].mutableCopy ?: [NSMutableArray new];
+	encryptionTypesArray = [defaults arrayForKey: @"encryptionTypes"].mutableCopy ?: [NSMutableArray new];
 	selectedRow = [defaults integerForKey: @"selectedRow"];
 
 	return self;
@@ -41,6 +42,7 @@
 
 	[defaults setObject: issuersArray forKey: @"Issuers"];
 	[defaults setObject: secretHashesArray forKey: @"Hashes"];
+	[defaults setObject: encryptionTypesArray forKey: @"encryptionTypes"];
 
 }
 
