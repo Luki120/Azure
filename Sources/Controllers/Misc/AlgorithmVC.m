@@ -4,7 +4,7 @@
 @implementation AlgorithmVC {
 
 	NSInteger selectedRow;
-	NSMutableArray *algorithmTableArray;
+	NSArray *algorithmTableArray;
 
 }
 
@@ -14,10 +14,7 @@
 
 	if(!self) return nil;
 
-	algorithmTableArray = [NSMutableArray new];
-	[algorithmTableArray addObject: @"SHA1"];
-	[algorithmTableArray addObject: @"SHA256"];
-	[algorithmTableArray addObject: @"SHA512"];
+	algorithmTableArray = [NSArray arrayWithObjects: @"SHA1", @"SHA256", @"SHA512", nil];
 
 	[self.tableView registerClass:UITableViewCell.class forCellReuseIdentifier: @"VanillaCell"];
 
@@ -27,6 +24,8 @@
 
 
 - (void)viewDidLoad {
+
+	[super viewDidLoad];
 
 	// Do any additional setup after loading the view, typically from a nib.
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
