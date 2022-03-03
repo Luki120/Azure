@@ -54,7 +54,7 @@
 
 - (void)animateViewWithAlpha:(CGFloat)alpha translateX:(CGFloat)tx translateY:(CGFloat)ty {
 
-	[UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.1 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
 		self.floatingCreateButton.alpha = alpha;
 		self.floatingCreateButton.transform = CGAffineTransformMakeTranslation(tx, ty);
