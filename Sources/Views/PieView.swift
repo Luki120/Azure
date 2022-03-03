@@ -9,7 +9,7 @@ import UIKit
 
 	private var fromAngle:CGFloat = 0
 	private var toAngle:CGFloat = 0
-	private var strokeColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
+	private var strokeColor = UIColor.kAzureMintTintColor
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
@@ -58,7 +58,6 @@ import UIKit
 		pathAnimation.toValue = 1.0;
 		pathAnimation.repeatCount = .infinity
 		pathAnimation.isRemovedOnCompletion = false
-
 		circleLayer.add(pathAnimation, forKey: "strokeEndAnimation")
 
 	}
@@ -73,5 +72,12 @@ private extension CGFloat {
 		return self * CGFloat(Double.pi) / 180.0
 
 	}
+
+}
+
+
+private extension UIColor {
+
+	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
 
 }
