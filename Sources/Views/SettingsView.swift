@@ -42,7 +42,7 @@ struct SettingsView: View {
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),
-							message: Text("YO DUDE!! Hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈."),
+							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈."),
 							primaryButton: .destructive(Text("I'm sure")) {
 								NotificationCenter.default.post(name: Notification.Name("purgeDataDone"), object: nil)
 							},
@@ -117,8 +117,6 @@ private struct SafariView: UIViewControllerRepresentable {
 
 	}
 
-	func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {
-
-	}
+	func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
 
 }
