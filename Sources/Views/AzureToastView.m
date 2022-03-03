@@ -62,12 +62,12 @@
 - (void)fadeInOutCopyPinToastView {
 
 	toastViewLabel.text = @"Copied!";
-	[self fadeInOutToastView];
+	[self fadeInOutToastViewWithFinalDelay: 0.2];
 
 }
 
 
-- (void)fadeInOutToastView {
+- (void)fadeInOutToastViewWithFinalDelay:(CGFloat)delay {
 
 	[UIView animateViewWithDelay:0 withAnimations:^ {
 
@@ -82,7 +82,7 @@
 
 		} withCompletion:^(BOOL finished) {
 
-			[UIView animateViewWithDelay:0.5 withAnimations:^ {
+			[UIView animateViewWithDelay:delay withAnimations:^ {
 
 				[self animateToastViewWithConstraintConstant: 50 andAlpha: 0];
 

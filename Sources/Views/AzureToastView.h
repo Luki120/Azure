@@ -7,6 +7,6 @@
 	@public UILabel *toastViewLabel;
 
 }
-- (void)fadeInOutToastView;
+- (void)fadeInOutToastViewWithFinalDelay:(CGFloat)delay;
 - (void)animateToastViewWithConstraintConstant:(CGFloat)constant andAlpha:(CGFloat)alpha;
 @end

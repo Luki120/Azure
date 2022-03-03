@@ -344,7 +344,7 @@
 - (void)didTapCell:(AzurePinCodeCell *)cell {
 
 	azureToastView->toastViewLabel.text = @"Copied hash!";
-	[azureToastView fadeInOutToastView];
+	[azureToastView fadeInOutToastViewWithFinalDelay: 0.2];
 
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = cell->hash;
@@ -355,7 +355,7 @@
 - (void)didTapInfoButton:(AzurePinCodeCell *)cell {
 
 	azureToastView->toastViewLabel.text = [NSString stringWithFormat: @"Issuer: %@", cell->issuer];
-	[azureToastView fadeInOutToastView];
+	[azureToastView fadeInOutToastViewWithFinalDelay: 0.2];
 
 }
 
