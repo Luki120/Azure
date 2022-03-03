@@ -98,7 +98,7 @@
 	[buttonsStackView addArrangedSubview: pieView];
 
 	UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapCell)];
-	[self.contentView addGestureRecognizer: tapRecognizer];	
+	[self.contentView addGestureRecognizer: tapRecognizer];
 
 }
 
