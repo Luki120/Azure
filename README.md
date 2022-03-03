@@ -18,10 +18,14 @@
 
 ## To do:
 
-* - [ ] IPA support.
+* - [ ] Bottom sheet menu when tapping the floating button with options to either import a QR code, scan one or enter the hash manually.
 * - [x] Identify most common issuers with their respective app logo.
+* - [ ] IPA support. (Low priority)
+* - [ ] Credits and license stuff in the app itself. (Low priority)
 * - [x] More UIKit animations.
-* - [ ] Support for different SHA hashing encryption methods. (Low priority)
+* - [ ] Placeholder UI for main table view when no issuers were added yet.
+* - [x] Replace stock iOS alert when trying to create a new issuer without filling all blanks with Azure's toast view.
+* - [x] Support for different SHA hashing encryption methods.
 * - [x] UI color scheme overhaul/redesign.
 
 ## Socials

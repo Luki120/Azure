@@ -9,6 +9,7 @@
 	UILabel *secretHashLabel;
 	UITextField *issuerTextField;
 	UITableView *pinCodesTableView;
+	AzureToastView *azToastView;
 
 }
 
@@ -21,7 +22,6 @@
 	if(!self) return nil;
 
 	[self setupUI];
-
 	[pinCodesTableView registerClass: UITableViewCell.class forCellReuseIdentifier: @"Cell"];
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
@@ -85,7 +85,7 @@
 	[self createStackViewWithStackView: secretHashStackView];
 
 	secretHashLabel = [UILabel new];
-	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash"];
+	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash:"];
 	[secretHashStackView addArrangedSubview: secretHashLabel];
 
 	secretTextField = [UITextField new];
@@ -94,6 +94,9 @@
 		returnKeyType:UIReturnKeyDefault
 	];
 	[secretHashStackView addArrangedSubview: secretTextField];
+
+	azToastView = [AzureToastView new];
+	[self.view addSubview: azToastView];
 
 }
 
@@ -104,6 +107,9 @@
 	[pinCodesTableView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor].active = YES;
 	[pinCodesTableView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
 	[pinCodesTableView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
+
+	[azToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -5].active = YES;
+	[azToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
 }
 
@@ -126,10 +132,8 @@
 
 	else {
 
-		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message: @"Please fill out both forms." preferredStyle: UIAlertControllerStyleAlert];
-		UIAlertAction *dismissAction = [UIAlertAction actionWithTitle: @"Got it" style: UIAlertActionStyleDefault handler: nil];
-		[alertController addAction: dismissAction];
-		[self presentViewController: alertController animated: YES completion: nil];
+		azToastView->toastViewLabel.text = @"Fill out both forms!";
+		[azToastView fadeInOutToastViewWithFinalDelay: 1.5];
 
 	}
 

@@ -1,6 +1,7 @@
 @import UIKit;
 #import "Sources/Constants/Constants.h"
 #import "Sources/Managers/TOTPManager.h"
+#import "Sources/Views/AzureToastView.h"
 
 
 @protocol PinCodeVCDelegate <NSObject>
