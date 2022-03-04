@@ -11,6 +11,7 @@
 	QRCodeVC *qrCodeVC;
 	UINavigationController *navVC;
 	UITableView *azureTableView;
+	UILabel *placeholderLabel;
 
 }
 
@@ -19,7 +20,6 @@
 - (id)init {
 
 	self = [super init];
-
 	if(!self) return nil;
 
 	// Custom initialization
@@ -34,35 +34,6 @@
 	[azureTableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
 
 	return self;
-
-}
-
-
-- (void)setupViews {
-
-	azureTableView = [UITableView new];
-	azureTableView.dataSource = self;
-	azureTableView.delegate = self;
-	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: azureTableView];
-
-	azureFloatingButtonView = [AzureFloatingButtonView new];
-	azureFloatingButtonView.delegate = self;
-	[self.view addSubview: azureFloatingButtonView];
-
-	azureToastView = [AzureToastView new];
-	[self.view addSubview: azureToastView];
-
-}
-
-
-- (void)setupObservers {
-
-	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(pushAlgorithmVC) name:@"pushAlgorithmVC" object:nil];
 
 }
 
@@ -87,12 +58,61 @@
 }
 
 
+- (void)setupObservers {
+
+	[NSNotificationCenter.defaultCenter removeObserver:self];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(pushAlgorithmVC) name:@"pushAlgorithmVC" object:nil];
+
+}
+
+
+- (void)configureEncryptionType {
+
+	NSMutableArray *encryptionTypesArray = [TOTPManager sharedInstance]->encryptionTypesArray;
+
+	switch([TOTPManager sharedInstance]->selectedRow) {
+	    case 0: [encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm]; break;
+	    case 1: [encryptionTypesArray addObject: kOTPGeneratorSHA256Algorithm]; break;
+	    case 2: [encryptionTypesArray addObject: kOTPGeneratorSHA512Algorithm]; break;
+	}
+
+	[[TOTPManager sharedInstance] saveDefaults];
+
+}
+
+
+- (void)configurePinCodeVCForPush {
+
+	pinCodeVC.title = @"Add Pin Code";
+	pinCodeVC.navigationItem.rightBarButtonItem = [self getBarButtonItemWithImage:
+		[UIImage systemImageNamed:@"checkmark.circle.fill"]
+		forSelector:@selector(didTapCreateButton)
+	];
+	[navVC pushViewController:pinCodeVC animated:YES];
+
+}
+
+
 - (void)viewDidLoad {
 
 	[super viewDidLoad];
 
 	// Do any additional setup after loading the view, typically from a nib.
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
+
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+
+	[super viewWillAppear: animated];
+
+	/*--- Disabling the scrolling in the SwiftUI Form also
+	likes to disable the scrolling in all the objC table views :KanyeWTF:
+	so we gotta do a little forcing to reenable it :nfr: ---*/
+	azureTableView.scrollEnabled = YES;
 
 }
 
@@ -114,26 +134,61 @@
 	[azureToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -5].active = YES;
 	[azureToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
-}
-
-
-- (void)viewWillAppear:(BOOL)animated {
-
-	[super viewWillAppear: animated];
-
-	/*--- Disabling the scrolling in the SwiftUI Form also
-	likes to disable the scrolling in all the objC table views :KanyeWTF:
-	so we gotta do a little forcing to reenable it :nfr: ---*/
-
-	azureTableView.scrollEnabled = YES;
+	[placeholderLabel.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
+	[placeholderLabel.centerYAnchor constraintEqualToAnchor: self.view.centerYAnchor].active = YES;
+	[placeholderLabel.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor constant: 10].active = YES;
+	[placeholderLabel.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant: -10].active = YES;
 
 }
 
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+
+	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60 
+		|| scrollView.contentOffset.y <= self.view.safeAreaInsets.bottom - 22)
+
+		[azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
+
+	else [azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
+
+}
+
+// ! NSNotificationCenter
+
+- (void)fillOutHash {
+
+	pinCodeVC->secretTextField.text = [UIPasteboard generalPasteboard].string;
+	pinCodeVC->secretTextField.secureTextEntry = YES;
+	[self configurePinCodeVCForPush];
+
+}
+
+
+- (void)purgeData {
+
+	[[TOTPManager sharedInstance]->issuersArray removeAllObjects];
+	[[TOTPManager sharedInstance]->secretHashesArray removeAllObjects];
+	[[TOTPManager sharedInstance]->encryptionTypesArray removeAllObjects];
+	[azureTableView reloadData];
+
+	[[TOTPManager sharedInstance] saveDefaults];
+
+}
+
+
+- (void)pushAlgorithmVC {
+
+	AlgorithmVC *algorithmVC = [AlgorithmVC new];
+	algorithmVC.title = @"Algorithm";
+	[navVC pushViewController:algorithmVC animated:YES];
+
+}
 
 // ! UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
+	[self animateViewsWhenNecessary];
 	return [TOTPManager sharedInstance]->secretHashesArray.count;
 
 }
@@ -179,7 +234,9 @@
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-	UIContextualAction *action = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"Delete" handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+	UIContextualAction *action = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+		title:@"Delete"
+		handler:^(UIContextualAction *action, UIView *sourceView, void (^completionHandler)(BOOL)) {
 
 		NSString *message = [NSString stringWithFormat: @"You're about to delete the code for the issuer named %@ ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to.", [TOTPManager sharedInstance]->issuersArray[indexPath.row]];
 
@@ -198,7 +255,7 @@
 		}];
 		UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Oops" style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
 
-			completionHandler(NO);
+			completionHandler(YES);
 
 		}];
 		[alertController addAction: confirmAction];
@@ -210,93 +267,33 @@
 	action.backgroundColor = kAzureMintTintColor;
 
 	UISwipeActionsConfiguration *actions = [UISwipeActionsConfiguration configurationWithActions: @[action]];
-
 	return actions;
 
 }
 
+// ! Bar items & selectors
 
-// ! NSNotificationCenter
+- (UIBarButtonItem *)getBarButtonItemWithImage:(UIImage *)image forSelector:(SEL)selector {
 
-- (void)fillOutHash {
-
-	pinCodeVC->secretTextField.text = [UIPasteboard generalPasteboard].string;
-	pinCodeVC->secretTextField.secureTextEntry = YES;
-
-	pinCodeVC.title = @"Add Pin Code";
-	pinCodeVC.navigationItem.rightBarButtonItem = [self getCreateButtonItem];
-	[navVC pushViewController: pinCodeVC animated: YES];
-
-}
-
-
-- (void)purgeData {
-
-	[[TOTPManager sharedInstance]->issuersArray removeAllObjects];
-	[[TOTPManager sharedInstance]->secretHashesArray removeAllObjects];
-	[[TOTPManager sharedInstance]->encryptionTypesArray removeAllObjects];
-	[azureTableView reloadData];
-
-	[[TOTPManager sharedInstance] saveDefaults];
-
-}
-
-
-- (void)pushAlgorithmVC {
-
-	AlgorithmVC *algorithmVC = [AlgorithmVC new];
-	algorithmVC.title = @"Algorithm";
-	[navVC pushViewController:algorithmVC animated:YES];
-
-}
-
-
-- (void)saveEncryptionType {
-
-	NSMutableArray *encryptionTypesArray = [TOTPManager sharedInstance]->encryptionTypesArray;
-
-	switch([TOTPManager sharedInstance]->selectedRow) {
-
-	    case 0: [encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm]; break;
-	    case 1: [encryptionTypesArray addObject: kOTPGeneratorSHA256Algorithm]; break;
-	    case 2: [encryptionTypesArray addObject: kOTPGeneratorSHA512Algorithm]; break;
-
-	}
-
-	[[TOTPManager sharedInstance] saveDefaults];
-
-}
-
-
-// ! Buttons
-
-- (UIBarButtonItem *)getCreateButtonItem {
-
-	UIBarButtonItem *createButtonItem = [[UIBarButtonItem alloc]
-		initWithImage:[UIImage systemImageNamed:@"checkmark.circle.fill"]
+	UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc]
+		initWithImage:image
 		style:UIBarButtonItemStyleDone
 		target:self
-		action:@selector(didTapCreateButton)
+		action:selector
 	];
 
-	return createButtonItem;
+	return barButtonItem;
 
 }
 
 
-- (void)didTapComposeButton {
-
-	pinCodeVC.title = @"Add Pin Code";
-	pinCodeVC.navigationItem.rightBarButtonItem = [self getCreateButtonItem];
-	[navVC pushViewController: pinCodeVC animated: YES];
-
-}
+- (void)didTapComposeButton { [self configurePinCodeVCForPush]; }
 
 
 - (void)didTapCreateButton {
 
 	[NSNotificationCenter.defaultCenter postNotificationName: @"checkIfDataShouldBeSaved" object: nil];
-	[self saveEncryptionType];
+	[self configureEncryptionType];
 
 }
 
@@ -313,24 +310,17 @@
 - (void)didTapFloatingButton {
 
 	navVC = [[UINavigationController alloc] initWithRootViewController: qrCodeVC];
-
 	qrCodeVC.title = @"Scan QR Code";
 
-	UIBarButtonItem *leftButtonItem = [[UIBarButtonItem alloc]
-		initWithImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
-		style:UIBarButtonItemStyleDone
-		target:self
-		action:@selector(didTapDismissButton)
+	qrCodeVC.navigationItem.leftBarButtonItem = [self getBarButtonItemWithImage:
+		[UIImage systemImageNamed:@"xmark.circle.fill"]
+		forSelector:@selector(didTapDismissButton)
+	];
+	qrCodeVC.navigationItem.rightBarButtonItem = [self getBarButtonItemWithImage:
+		[UIImage systemImageNamed:@"square.and.pencil"]
+		forSelector:@selector(didTapComposeButton)
 	];
 
-	UIBarButtonItem *rightButtonItem = [[UIBarButtonItem alloc] 
-		initWithBarButtonSystemItem:UIBarButtonSystemItemCompose
-		target:self
-		action:@selector(didTapComposeButton)
-	];
-
-	qrCodeVC.navigationItem.leftBarButtonItem = leftButtonItem;
-	qrCodeVC.navigationItem.rightBarButtonItem = rightButtonItem;
 	navVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
 	navVC.modalPresentationStyle = UIModalPresentationFullScreen;
 	[self presentViewController:navVC animated:YES completion:nil];
@@ -368,15 +358,52 @@
 
 }
 
+// ! Views
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+- (void)setupViews {
 
-	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60 
-		|| scrollView.contentOffset.y <= self.view.safeAreaInsets.bottom - 22)
+	azureTableView = [UITableView new];
+	azureTableView.dataSource = self;
+	azureTableView.delegate = self;
+	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.view addSubview: azureTableView];
 
-		[azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
+	azureFloatingButtonView = [AzureFloatingButtonView new];
+	azureFloatingButtonView.delegate = self;
+	[self.view addSubview: azureFloatingButtonView];
 
-	else [azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
+	azureToastView = [AzureToastView new];
+	[self.view addSubview: azureToastView];
+
+	placeholderLabel = [UILabel new];
+	placeholderLabel.font = [UIFont systemFontOfSize: 16];
+	placeholderLabel.text = @"No issuers were added yet. Tap the + button in order to add one.";
+	placeholderLabel.textColor = UIColor.placeholderTextColor;
+	placeholderLabel.numberOfLines = 0;
+	placeholderLabel.textAlignment = NSTextAlignmentCenter;
+	placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.view addSubview: placeholderLabel];
+
+}
+
+
+- (void)animateViewsWhenNecessary {
+
+	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+
+		if([TOTPManager sharedInstance]->secretHashesArray.count == 0) {
+			azureTableView.alpha = 0;
+			placeholderLabel.alpha = 1;
+			placeholderLabel.transform = CGAffineTransformMakeScale(1, 1);
+		}
+		else {
+			azureTableView.alpha = 1;
+			placeholderLabel.alpha = 0;
+			placeholderLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
+		}
+
+	} completion: nil];
 
 }
 
