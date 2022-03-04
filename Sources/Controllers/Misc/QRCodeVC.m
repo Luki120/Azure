@@ -76,7 +76,7 @@
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
 
 	NSString *outputString = nil;
-	if(metadataObjects == nil && metadataObjects.count <= 0) return;
+	if(metadataObjects == nil || metadataObjects.count <= 0) return;
 
 	AVMetadataMachineReadableCodeObject *metadataObject = [metadataObjects objectAtIndex:0];
 	outputString = [metadataObject stringValue];
