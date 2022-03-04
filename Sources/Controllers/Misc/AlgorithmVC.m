@@ -11,11 +11,9 @@
 - (id)init {
 
 	self = [super initWithStyle: UITableViewStyleGrouped];
-
 	if(!self) return nil;
 
 	algorithmTableArray = [NSArray arrayWithObjects: @"SHA1", @"SHA256", @"SHA512", nil];
-
 	[self.tableView registerClass:UITableViewCell.class forCellReuseIdentifier: @"VanillaCell"];
 
 	return self;
@@ -46,6 +44,8 @@
 	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"VanillaCell" forIndexPath:indexPath];
 
 	selectedRow = [TOTPManager sharedInstance]->selectedRow;
+	NSDictionary *userInfoDict = @{ @"selectedRow": [NSNumber numberWithInteger: selectedRow] };
+	[NSNotificationCenter.defaultCenter postNotificationName:@"updateAlgorithmLabel" object:nil userInfo: userInfoDict];
 
 	cell.accessoryType = selectedRow == indexPath.row ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
 	cell.backgroundColor = UIColor.clearColor;
