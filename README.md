@@ -23,7 +23,7 @@
 * - [ ] IPA support. (Low priority)
 * - [ ] Credits and license stuff in the app itself. (Low priority)
 * - [x] More UIKit animations.
-* - [ ] Placeholder UI for main table view when no issuers were added yet.
+* - [x] Placeholder UI for main table view when no issuers were added yet.
 * - [x] Replace stock iOS alert when trying to create a new issuer without filling all blanks with Azure's toast view.
 * - [x] Support for different SHA hashing encryption methods.
 * - [x] UI color scheme overhaul/redesign.
