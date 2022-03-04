@@ -7,6 +7,7 @@
 	UIStackView *secretHashStackView;
 	UILabel *issuerLabel;
 	UILabel *secretHashLabel;
+	UILabel *algorithmLabel;
 	UITextField *issuerTextField;
 	UITableView *pinCodesTableView;
 	AzureToastView *azToastView;
@@ -18,7 +19,6 @@
 - (id)init {
 
 	self = [super init];
-
 	if(!self) return nil;
 
 	[self setupUI];
@@ -26,6 +26,7 @@
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateAlgorithmLabel:) name:@"updateAlgorithmLabel" object:nil];
 
 	return self;
 
@@ -71,7 +72,7 @@
 	[self createStackViewWithStackView: issuerStackView];
 
 	issuerLabel = [UILabel new];
-	[self createLabelWithLabel:issuerLabel withText: @"Issuer:"];
+	[self createLabelWithLabel:issuerLabel withText: @"Issuer:" andTextColor: UIColor.labelColor];
 	[issuerStackView addArrangedSubview: issuerLabel];
 
 	issuerTextField = [UITextField new];
@@ -85,7 +86,7 @@
 	[self createStackViewWithStackView: secretHashStackView];
 
 	secretHashLabel = [UILabel new];
-	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash:"];
+	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash:" andTextColor: UIColor.labelColor];
 	[secretHashStackView addArrangedSubview: secretHashLabel];
 
 	secretTextField = [UITextField new];
@@ -97,6 +98,33 @@
 
 	azToastView = [AzureToastView new];
 	[self.view addSubview: azToastView];
+
+	algorithmLabel = [UILabel new];
+	[self createLabelWithLabel:algorithmLabel withText:nil andTextColor: UIColor.placeholderTextColor];
+	algorithmLabel.textAlignment = NSTextAlignmentCenter;
+	algorithmLabel.translatesAutoresizingMaskIntoConstraints = NO;
+
+	[self configureAlgorithmLabelWithSelectedRow: [TOTPManager sharedInstance]->selectedRow];
+
+}
+
+
+- (void)configureAlgorithmLabelWithSelectedRow:(NSInteger)selectedRow {
+
+	switch(selectedRow) {
+		case 0: algorithmLabel.text = @"SHA1"; break;
+		case 1: algorithmLabel.text = @"SHA256"; break;
+		case 2: algorithmLabel.text = @"SHA512"; break;
+	}
+
+}
+
+
+- (void)updateAlgorithmLabel:(NSNotification *)notification {
+
+	NSDictionary *userInfoDict = notification.userInfo;
+	NSInteger selectedRow = [[userInfoDict objectForKey: @"selectedRow"] integerValue];
+	[self configureAlgorithmLabelWithSelectedRow: selectedRow];
 
 }
 
@@ -117,25 +145,20 @@
 
 - (void)shouldSaveData {
 
-	if(issuerTextField.text.length > 0 && secretTextField.text.length > 0) {
-
-		[[TOTPManager sharedInstance]->issuersArray addObject: issuerTextField.text];
-		[[TOTPManager sharedInstance]->secretHashesArray addObject: secretTextField.text];
-		[[TOTPManager sharedInstance] saveDefaults];
-
-		[self.delegate shouldDismissVC];
-
-		issuerTextField.text = @"";
-		secretTextField.text = @"";
-
-	}
-
-	else {
-
-		azToastView->toastViewLabel.text = @"Fill out both forms!";
+	if(issuerTextField.text.length <= 0 || secretTextField.text.length <= 0) {
+		azToastView->toastViewLabel.text = @"Fill out both forms.";
 		[azToastView fadeInOutToastViewWithFinalDelay: 1.5];
-
+		return;
 	}
+
+	[[TOTPManager sharedInstance]->issuersArray addObject: issuerTextField.text];
+	[[TOTPManager sharedInstance]->secretHashesArray addObject: secretTextField.text];
+	[[TOTPManager sharedInstance] saveDefaults];
+
+	[self.delegate shouldDismissVC];
+
+	issuerTextField.text = @"";
+	secretTextField.text = @"";
 
 }
 
@@ -151,11 +174,13 @@
 }
 
 
-- (void)createLabelWithLabel:(UILabel *)label withText:(NSString *)text {
+- (void)createLabelWithLabel:(UILabel *)label
+	withText:(NSString *_Nullable)text
+	andTextColor:(UIColor *)textColor {
 
 	label.font = [UIFont systemFontOfSize: 14];
 	label.text = text;
-	label.textColor = UIColor.labelColor;
+	label.textColor = textColor;
 
 }
 
@@ -206,6 +231,10 @@
 			cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 			cell.textLabel.font = [UIFont systemFontOfSize: 14];
 			cell.textLabel.text = @"Algorithm";
+
+			[cell.contentView addSubview: algorithmLabel];
+			[algorithmLabel.trailingAnchor constraintEqualToAnchor: cell.contentView.trailingAnchor constant: -20].active = YES;
+			[algorithmLabel.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 			break;
 
 	}
