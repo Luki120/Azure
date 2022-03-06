@@ -18,7 +18,7 @@
 
 ## To do:
 
-* - [ ] Bottom sheet menu when tapping the floating button with options to either import a QR code, scan one or enter the hash manually.
+* - [x] Bottom sheet menu when tapping the floating button with options to either import a QR code, scan one or enter the hash manually.
 * - [x] Identify most common issuers with their respective app logo.
 * - [ ] IPA support. (Low priority)
 * - [ ] Credits and license stuff in the app itself. (Low priority)
