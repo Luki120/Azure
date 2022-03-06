@@ -25,6 +25,7 @@
 * - [x] More UIKit animations.
 * - [x] Placeholder UI for main table view when no issuers were added yet.
 * - [x] Replace stock iOS alert when trying to create a new issuer without filling all blanks with Azure's toast view.
+* - [ ] Search bar in main view controller.
 * - [x] Support for different SHA hashing encryption methods.
 * - [x] UI color scheme overhaul/redesign.
 
