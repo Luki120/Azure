@@ -73,7 +73,9 @@
 }
 
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
+- (void)captureOutput:(AVCaptureOutput *)captureOutput
+	didOutputMetadataObjects:(NSArray *)metadataObjects
+	fromConnection:(AVCaptureConnection *)connection {
 
 	NSString *outputString = nil;
 	if(metadataObjects == nil || metadataObjects.count <= 0) return;
@@ -86,23 +88,11 @@
 
 	if(!outputString) return;
 
-	NSURL *url = [[NSURL alloc] initWithString: outputString];
-	NSURLComponents *components = [NSURLComponents componentsWithURL: url resolvingAgainstBaseURL: NO];
-	NSArray *queryItems = components.queryItems;
-
-	for(NSURLQueryItem *queryItem in queryItems) {
-
-		if(![queryItem.name isEqualToString: @"secret"]) break;
-
-		NSString *secretHash = queryItem.value;
-		UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-		pasteboard.string = secretHash;
-
-	}
-
-	[NSNotificationCenter.defaultCenter postNotificationName: @"qrCodeScanDone" object: nil];
+	[[TOTPManager sharedInstance] makeURLOutOfOtPauthString: outputString];
+	[NSNotificationCenter.defaultCenter postNotificationName:@"qrCodeScanDone" object:nil];
 
 }
+
 
 - (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
 	animationControllerForOperation:(UINavigationControllerOperation)operation

@@ -23,7 +23,6 @@
 - (id)init {
 
 	self = [super init];
-
 	if(!self) return nil;
 
 	defaults = [NSUserDefaults standardUserDefaults];
@@ -50,6 +49,30 @@
 - (void)saveSelectedRow {
 
 	[defaults setInteger: selectedRow forKey: @"selectedRow"];
+
+}
+
+
+- (void)makeURLOutOfOtPauthString:(NSString *)string {
+
+	NSURL *url = [[NSURL alloc] initWithString: string];
+	NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+	NSArray *queryItems = components.queryItems;
+
+	for(NSURLQueryItem *queryItem in queryItems) {
+
+		if([queryItem.name isEqualToString: @"issuer"])
+			[[TOTPManager sharedInstance]->issuersArray addObject: queryItem.value];
+
+		else if([queryItem.name isEqualToString: @"secret"])
+			[[TOTPManager sharedInstance]->secretHashesArray addObject: queryItem.value];
+
+		else if([queryItem.name isEqualToString: @"algorithm"])
+			[[TOTPManager sharedInstance]->encryptionTypesArray addObject: queryItem.value];
+
+		[[TOTPManager sharedInstance] saveDefaults];
+
+	}
 
 }
 
