@@ -7,11 +7,10 @@
 	AzureToastView *azureToastView;
 	NSLayoutConstraint *bottomAnchorConstraint;
 	NSDictionary *imagesDict;
-	PinCodeVC *pinCodeVC;
-	QRCodeVC *qrCodeVC;
 	UINavigationController *navVC;
 	UITableView *azureTableView;
 	UILabel *placeholderLabel;
+	NSDictionary *jsonDict;
 
 }
 
@@ -26,10 +25,6 @@
 	[self setupViews];
 	[self setupObservers];
 	[self setupImagesDict];
-
-	qrCodeVC = [QRCodeVC new];
-	pinCodeVC = [PinCodeVC new];
-	pinCodeVC.delegate = self;
 
 	[azureTableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
 
@@ -61,36 +56,8 @@
 - (void)setupObservers {
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fillOutHash) name:@"qrCodeScanDone" object:nil];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(pushAlgorithmVC) name:@"pushAlgorithmVC" object:nil];
-
-}
-
-
-- (void)configureEncryptionType {
-
-	NSMutableArray *encryptionTypesArray = [TOTPManager sharedInstance]->encryptionTypesArray;
-
-	switch([TOTPManager sharedInstance]->selectedRow) {
-	    case 0: [encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm]; break;
-	    case 1: [encryptionTypesArray addObject: kOTPGeneratorSHA256Algorithm]; break;
-	    case 2: [encryptionTypesArray addObject: kOTPGeneratorSHA512Algorithm]; break;
-	}
-
-	[[TOTPManager sharedInstance] saveDefaults];
-
-}
-
-
-- (void)configurePinCodeVCForPush {
-
-	pinCodeVC.title = @"Add Pin Code";
-	pinCodeVC.navigationItem.rightBarButtonItem = [self getBarButtonItemWithImage:
-		[UIImage systemImageNamed:@"checkmark.circle.fill"]
-		forSelector:@selector(didTapCreateButton)
-	];
-	[navVC pushViewController:pinCodeVC animated:YES];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldReloadTableViewData) name:@"reloadData" object:nil];
 
 }
 
@@ -142,6 +109,14 @@
 }
 
 
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+
+	[super traitCollectionDidChange: previousTraitCollection];
+	azureTableView.backgroundColor = kUserInterfaceStyle ? UIColor.systemBackgroundColor : UIColor.secondarySystemBackgroundColor;
+
+}
+
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
 	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60 
@@ -155,15 +130,6 @@
 
 // ! NSNotificationCenter
 
-- (void)fillOutHash {
-
-	pinCodeVC->secretTextField.text = [UIPasteboard generalPasteboard].string;
-	pinCodeVC->secretTextField.secureTextEntry = YES;
-	[self configurePinCodeVCForPush];
-
-}
-
-
 - (void)purgeData {
 
 	[[TOTPManager sharedInstance]->issuersArray removeAllObjects];
@@ -176,13 +142,7 @@
 }
 
 
-- (void)pushAlgorithmVC {
-
-	AlgorithmVC *algorithmVC = [AlgorithmVC new];
-	algorithmVC.title = @"Algorithm";
-	[navVC pushViewController:algorithmVC animated:YES];
-
-}
+- (void)shouldReloadTableViewData { [azureTableView reloadData]; }
 
 // ! UITableViewDataSource
 
@@ -216,12 +176,18 @@
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
 	cell->issuerImageView.tintColor = image ? nil : UIColor.labelColor;
 
+	jsonDict = @{
+		@"Issuer": [TOTPManager sharedInstance]->issuersArray[indexPath.row],
+		@"Secret": [TOTPManager sharedInstance]->secretHashesArray[indexPath.row],
+		@"Encryption type": [TOTPManager sharedInstance]->encryptionTypesArray[indexPath.row]
+	};
+
+//	[self writeJSONToFileAndExport];
 //	[[TOTPManager sharedInstance]->issuersArray sortUsingSelector: @selector(localizedCaseInsensitiveCompare:)];
 
 	return cell;
 
 }
-
 
 // ! UITableViewDelegate
 
@@ -271,61 +237,13 @@
 
 }
 
-// ! Bar items & selectors
-
-- (UIBarButtonItem *)getBarButtonItemWithImage:(UIImage *)image forSelector:(SEL)selector {
-
-	UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc]
-		initWithImage:image
-		style:UIBarButtonItemStyleDone
-		target:self
-		action:selector
-	];
-
-	return barButtonItem;
-
-}
-
-
-- (void)didTapComposeButton { [self configurePinCodeVCForPush]; }
-
-
-- (void)didTapCreateButton {
-
-	[NSNotificationCenter.defaultCenter postNotificationName: @"checkIfDataShouldBeSaved" object: nil];
-	[self configureEncryptionType];
-
-}
-
-
-- (void)didTapDismissButton {
-
-	[self dismissViewControllerAnimated:YES completion:nil];
-
-}
-
-
 // ! AzureFloatingButtonViewDelegate
 
 - (void)didTapFloatingButton {
 
-	navVC = [[UINavigationController alloc] initWithRootViewController: qrCodeVC];
-	qrCodeVC.title = @"Scan QR Code";
-
-	qrCodeVC.navigationItem.leftBarButtonItem = [self getBarButtonItemWithImage:
-		[UIImage systemImageNamed:@"xmark.circle.fill"]
-		forSelector:@selector(didTapDismissButton)
-	];
-	qrCodeVC.navigationItem.rightBarButtonItem = [self getBarButtonItemWithImage:
-		[UIImage systemImageNamed:@"square.and.pencil"]
-		forSelector:@selector(didTapComposeButton)
-	];
-
-	navVC.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-	navVC.modalPresentationStyle = UIModalPresentationFullScreen;
-	[self presentViewController:navVC animated:YES completion:nil];
-
-	[NSNotificationCenter.defaultCenter postNotificationName:@"fuckingCursedShitNeededForTheThingToDoTheThingyNotification" object:nil];
+	ModalSheetVC *modalSheetVC = [ModalSheetVC new];
+	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+	[self presentViewController:modalSheetVC animated:NO completion: nil];
 
 }
 
@@ -349,15 +267,6 @@
 
 }
 
-// ! PinCodeVCDelegate
-
-- (void)shouldDismissVC {
-
-	[azureTableView reloadData];
-	[self dismissViewControllerAnimated:YES completion:nil];
-
-}
-
 // ! Views
 
 - (void)setupViews {
@@ -366,6 +275,7 @@
 	azureTableView.dataSource = self;
 	azureTableView.delegate = self;
 	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+	azureTableView.backgroundColor = kUserInterfaceStyle ? UIColor.systemBackgroundColor : UIColor.secondarySystemBackgroundColor;
 	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview: azureTableView];
 
@@ -384,6 +294,12 @@
 	placeholderLabel.textAlignment = NSTextAlignmentCenter;
 	placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview: placeholderLabel];
+
+/*	self.navigationItem.rightBarButtonItem = [UIBarButtonItem 
+		getBarButtonItemWithImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
+		forTarget:self
+		forSelector:@selector(didTapBackupExportButton)
+	];*/
 
 }
 
@@ -406,5 +322,31 @@
 	} completion: nil];
 
 }
+
+
+/*- (void)didTapBackupExportButton {
+
+}*/
+
+
+/*- (void)writeJSONToFileAndExport {
+
+	NSString *azureDir = @"/var/mobile/Documents/Azure";
+	NSString *filePath = @"/var/mobile/Documents/Azure/AzureBackup.json";
+	NSFileManager *fileM = [NSFileManager defaultManager];
+
+	if(![fileM createDirectoryAtPath:azureDir withIntermediateDirectories:NO attributes:nil error:nil])
+		[fileM createDirectoryAtPath:azureDir withIntermediateDirectories:NO attributes:nil error:nil];
+
+	if(![fileM fileExistsAtPath: filePath]) [fileM createFileAtPath:filePath contents:nil attributes:nil];
+
+	NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath: filePath];
+	[fileHandle seekToEndOfFile];
+
+	NSData *serializedData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil];
+	[fileHandle writeData: serializedData];
+	[fileHandle closeFile];
+
+}*/
 
 @end

@@ -4,11 +4,12 @@
 #import "Sources/Cells/AzurePinCodeCell.h"
 #import "Sources/Constants/Constants.h"
 #import "Sources/Controllers/Misc/AlgorithmVC.h"
+#import "Sources/Controllers/Misc/ModalSheetVC.h"
 #import "Sources/Controllers/Misc/PinCodeVC.h"
 #import "Sources/Controllers/Misc/QRCodeVC.h"
 #import "Sources/Views/AzureFloatingButtonView.h"
 #import "Sources/Views/AzureToastView.h"
 
 
-@interface AzureTableVC : UIViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, PinCodeVCDelegate, UITableViewDataSource, UITableViewDelegate>
+@interface AzureTableVC : UIViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, UITableViewDataSource, UITableViewDelegate>
 @end
