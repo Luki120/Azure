@@ -69,31 +69,29 @@
 	[self.view addSubview: pinCodesTableView];
 
 	issuerStackView = [UIStackView new];
+	secretHashStackView = [UIStackView new];
 	[self createStackViewWithStackView: issuerStackView];
+	[self createStackViewWithStackView: secretHashStackView];
 
 	issuerLabel = [UILabel new];
+	secretHashLabel = [UILabel new];
 	[self createLabelWithLabel:issuerLabel withText: @"Issuer:" andTextColor: UIColor.labelColor];
-	[issuerStackView addArrangedSubview: issuerLabel];
+	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash:" andTextColor: UIColor.labelColor];
 
 	issuerTextField = [UITextField new];
+	secretTextField = [UITextField new];
 	[self createTextFieldWithTextField:issuerTextField
 		withPlaceholder:@"For example: GitHub"
 		returnKeyType:UIReturnKeyNext
 	];
-	[issuerStackView addArrangedSubview: issuerTextField];
-
-	secretHashStackView = [UIStackView new];
-	[self createStackViewWithStackView: secretHashStackView];
-
-	secretHashLabel = [UILabel new];
-	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash:" andTextColor: UIColor.labelColor];
-	[secretHashStackView addArrangedSubview: secretHashLabel];
-
-	secretTextField = [UITextField new];
 	[self createTextFieldWithTextField:secretTextField
 		withPlaceholder:@"Enter Secret"
 		returnKeyType:UIReturnKeyDefault
 	];
+
+	[issuerStackView addArrangedSubview: issuerLabel];
+	[issuerStackView addArrangedSubview: issuerTextField];
+	[secretHashStackView addArrangedSubview: secretHashLabel];
 	[secretHashStackView addArrangedSubview: secretTextField];
 
 	azToastView = [AzureToastView new];
@@ -105,6 +103,8 @@
 	algorithmLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
 	[self configureAlgorithmLabelWithSelectedRow: [TOTPManager sharedInstance]->selectedRow];
+
+	[issuerTextField becomeFirstResponder];
 
 }
 
@@ -193,6 +193,7 @@
 	textField.delegate = self;
 	textField.placeholder = placeholder;
 	textField.returnKeyType = returnKeyType;
+	textField.translatesAutoresizingMaskIntoConstraints = NO;
 
 }
 
@@ -217,6 +218,8 @@
 			[cell.contentView addSubview: issuerStackView];
 			[issuerStackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
 			[issuerStackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
+			[issuerTextField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
+			[issuerTextField.heightAnchor constraintEqualToConstant: 44].active = YES;
 			break;
 
 		case 1:
@@ -224,6 +227,8 @@
 			[cell.contentView addSubview: secretHashStackView];
 			[secretHashStackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
 			[secretHashStackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
+			[secretTextField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
+			[secretTextField.heightAnchor constraintEqualToConstant: 44].active = YES;
 			break;
 
 		case 2:
@@ -250,7 +255,7 @@
 	[tableView deselectRowAtIndexPath: indexPath animated: YES];
 	if(indexPath.row != 2) return;
 
-	[NSNotificationCenter.defaultCenter postNotificationName:@"pushAlgorithmVC" object:nil];
+	[self.delegate pushAlgorithmVC];
 
 }
 
