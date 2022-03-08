@@ -97,41 +97,44 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 
 - (void)didTapQuitButton { abort(); }
 
-static void unsafePortalDispatch() {
+void unsafePortalDispatch() {
 
-	LAContext *context = [LAContext new];
+	AuthManager *authManager = [AuthManager new];
 
-	[context evaluatePolicy:LAPolicyDeviceOwnerAuthentication localizedReason:@"Azure needs you to authenticate in order to access the app." reply:^(BOOL success, NSError *error) {
+	[authManager setupAuthWithReason:@"Azure needs you to authenticate in order to access the app."
+		reply:^(BOOL success, NSError *error) {
 
-		dispatch_async(dispatch_get_main_queue(), ^{
+			dispatch_async(dispatch_get_main_queue(), ^{
 
-			if(!success && error.code != -5) {
+				if(!success && error.code != -5) {
 
-				strongWindow.rootViewController = [strongClass new];
+					strongWindow.rootViewController = [strongClass new];
 
-				[UIView animateWithDuration:0.5 delay:0.8 options:UIViewAnimationOptionCurveEaseIn animations:^{
+					[UIView animateWithDuration:0.5 delay:0.8 options:UIViewAnimationOptionCurveEaseIn animations:^{
 
-					addressLabel.alpha = 0.5;
-					quitButton.alpha = 1;
-					quitButton.transform = CGAffineTransformMakeScale(1, 1);
-					addressLabel.transform = CGAffineTransformMakeScale(1, 1);
+						addressLabel.alpha = 0.5;
+						quitButton.alpha = 1;
+						quitButton.transform = CGAffineTransformMakeScale(1, 1);
+						addressLabel.transform = CGAffineTransformMakeScale(1, 1);
 
-				} completion: nil];
+					} completion: nil];
 
-			}
+				}
 
-			else {
+				else {
 
-				strongWindow.rootViewController = [AzureRootVC new];
-				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-					checkIfJailbroken();
-				});
+					strongWindow.rootViewController = [AzureRootVC new];
+					dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+						checkIfJailbroken();
+					});
 
-			}
+				}
 
-		});
+			});
 
-	}];
+		}
+
+	];
 
 }
 
@@ -140,7 +143,6 @@ static void checkIfJailbroken() {
 	NSFileManager *fileM = [NSFileManager defaultManager];
 
 	// very basic, but tbh idrgaf to get crazy about it, so this will suffice
-
 	if(![fileM fileExistsAtPath: kCheckra1n]
 		&& ![fileM fileExistsAtPath: kTaurine]
 		&& ![fileM fileExistsAtPath: kUnc0ver]) return;
