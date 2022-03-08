@@ -5,44 +5,37 @@ import SafariServices
 struct SettingsView: View {
 
 	@AppStorage("useBiometrics") private var shouldUseBiometricsToggle = false
-
 	@Environment(\.colorScheme) private var colorScheme
 
 	@State private var shouldShowWarningAlert = false
 	@State private var shouldShowAuroraSheet = false
 	@State private var shouldShowCoraSheet = false
-	@State private var shouldShowSourceCodeSheet = false
-
-	private let auroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.auroraswiftui"
-	private let coraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswiftui"
-	private let sourceCodeURL = "https://github.com/Luki120/Azure"
-
-	private let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
-
-	init() {
-		UITableView.appearance().backgroundColor = .clear
-		UITableView.appearance().isScrollEnabled = false
-	}
+	@State private var shouldShowCreditsSheet = false
 
 	var body: some View {
 
 		VStack {
 
-			Form {
+			List {
 
 				Section(header: Text("Settings")) {
 
 					Toggle("Use biometrics", isOn: $shouldUseBiometricsToggle)
-						.toggleStyle(SwitchToggleStyle(tint: kAzureMintTintColor))
+						.toggleStyle(SwitchToggleStyle(tint: Constants.kAzureMintTintColor))
+
+					Button("Make backup") {
+						NotificationCenter.default.post(name: Notification.Name("makeBackup"), object: nil)
+					}
+					.foregroundColor(Color(.label))
 
 					Button("Purge data") {
 						shouldShowWarningAlert.toggle()
 					}
-					.foregroundColor(kAzureMintTintColor)
+					.foregroundColor(Constants.kAzureMintTintColor)
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),
-							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈."),
+							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈. Also keep in mind that this won't remove 2FA from your accounts, make sure you disable 2FA from the issuers' settings in order to prevent being locked out"),
 							primaryButton: .destructive(Text("I'm sure")) {
 								NotificationCenter.default.post(name: Notification.Name("purgeDataDone"), object: nil)
 							},
@@ -52,49 +45,99 @@ struct SettingsView: View {
 					}
 
 				}
-				.listRowBackground(colorScheme == .dark ? Color.black : Color.white)
 
 				Section(header: Text("Other apps you may like")) {
 
-					Button("Aurora") { shouldShowAuroraSheet.toggle() }
-						.foregroundColor(Color(.label))
-						.sheet(isPresented: $shouldShowAuroraSheet) {
-							SafariView(url: URL(string: auroraDepictionURL))
-						}
+					VStack(alignment: .leading) {
 
-					Button("Cora") { shouldShowCoraSheet.toggle() }
-						.foregroundColor(Color(.label))
-						.sheet(isPresented: $shouldShowCoraSheet) {
-							SafariView(url: URL(string: coraDepictionURL))
-						}
+						Button("Aurora") { shouldShowAuroraSheet.toggle() }
+							.foregroundColor(Color(.label))
+							.sheet(isPresented: $shouldShowAuroraSheet) {
+								SafariView(url: URL(string: Constants.kAuroraDepictionURL))
+							}
 
-				}
-				.listRowBackground(colorScheme == .dark ? Color.black : Color.white)
+						Text("Vanilla password manager")
+							.foregroundColor(.gray)
+							.font(.system(size: 10))
 
-			}
+					}
 
-			Section(footer: Text("")) {
+					VStack(alignment: .leading) {
 
-				VStack {
+						Button("Cora") { shouldShowCoraSheet.toggle() }
+							.foregroundColor(Color(.label))
+							.sheet(isPresented: $shouldShowCoraSheet) {
+								SafariView(url: URL(string: Constants.kCoraDepictionURL))
+							}
 
-					Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
-						.font(.system(size: 15.5))
-						.foregroundColor(.gray)
-						.sheet(isPresented: $shouldShowSourceCodeSheet) {
-							SafariView(url: URL(string: sourceCodeURL))
-						}
+						Text("See your device's uptime in less clicks")
+							.foregroundColor(.gray)
+							.font(.system(size: 10))
 
-					Text("2022 © Luki120")
-						.font(.system(size: 10))
-						.foregroundColor(.gray)
-						.padding(.top, 5)
+					}
 
 				}
 
+				Section(header: Text("Misc")) {
+
+					Button("Credits") { shouldShowCreditsSheet.toggle() }
+						.foregroundColor(Color(.label))
+						.sheet(isPresented: $shouldShowCreditsSheet) { creditsView }
+
+				}
+
 			}
-			.padding(.top, 25)
+			.listStyle(InsetGroupedListStyle())
 
 		}
+
+	}
+
+	@State private var shouldShowLicenseSheet = false
+	@State private var shouldShowSourceCodeSheet = false
+	@State private var shouldShowGoogleAuthenticatorSheet = false
+	@State private var shouldShowFlatIconSheet = false
+
+	private var creditsView: some View {
+
+		List {
+
+			Section(header: Text("Azure")) {
+
+				Button("LICENSE") { shouldShowLicenseSheet.toggle() }
+					.foregroundColor(Color(.label))
+					.sheet(isPresented: $shouldShowLicenseSheet) {
+						SafariView(url: URL(string: Constants.kLicenseURL))
+					}
+
+				Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
+					.foregroundColor(Color(.label))
+					.sheet(isPresented: $shouldShowSourceCodeSheet) {
+						SafariView(url: URL(string: Constants.kSourceCodeURL))
+					}
+
+			}
+			Section(header: Text("Credits")) {
+
+				Button("Google Authenticator") { shouldShowGoogleAuthenticatorSheet.toggle() }
+					.foregroundColor(Color(.label))
+					.sheet(isPresented: $shouldShowGoogleAuthenticatorSheet) {
+						SafariView(url: URL(string: Constants.kGoogleAuthenticatorURL))
+					}
+
+				Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
+					.foregroundColor(Color(.label))
+					.sheet(isPresented: $shouldShowFlatIconSheet) {
+						SafariView(url: URL(string: Constants.kFlatIconURL))
+					}
+
+			}
+			Section(footer: Text("Azure uses open source components from Google Authenticator, which are licensed under the Apache-2.0 License.")) {}
+			Section(footer: Text("2022 © Luki120")) {}
+
+		}
+		.padding(.top, 25)
+		.listStyle(InsetGroupedListStyle())
 
 	}
 
@@ -106,17 +149,23 @@ private struct SafariView: UIViewControllerRepresentable {
 	let url: URL?
 
 	func makeUIViewController(context: Context) -> SFSafariViewController {
-
 		let fallbackURL = URL(string: "https://github.com/Luki120")! // this 100% exists so it's safe
-
-		guard let url = url else {
-			return SFSafariViewController(url: fallbackURL)
-		}
-
+		guard let url = url else { return SFSafariViewController(url: fallbackURL) }
 		return SFSafariViewController(url: url)
-
 	}
 
 	func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
+
+}
+
+private struct Constants {
+
+	static let kAuroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.auroraswiftui"
+	static let kCoraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswiftui"
+	static let kSourceCodeURL = "https://github.com/Luki120/Azure"
+	static let kFlatIconURL = "https://www.flaticon.com/free-icons/caps-lock"
+	static let kGoogleAuthenticatorURL = "https://github.com/google/google-authenticator"
+	static let kLicenseURL = "https://github.com/Luki120/Azure/blob/main/LICENSE"
+	static let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
 
 }
