@@ -2,11 +2,6 @@
 #import "Sources/Constants/Constants.h"
 
 
-@interface AzureToastView : UIView {
-
-	@public UILabel *toastViewLabel;
-
-}
-- (void)fadeInOutToastViewWithFinalDelay:(CGFloat)delay;
-- (void)animateToastViewWithConstraintConstant:(CGFloat)constant andAlpha:(CGFloat)alpha;
+@interface AzureToastView : UIView
+- (void)fadeInOutToastViewWithMessage:(NSString *)message finalDelay:(CGFloat)delay;
 @end

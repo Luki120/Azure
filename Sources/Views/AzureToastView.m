@@ -4,6 +4,7 @@
 @implementation AzureToastView {
 
 	UIView *toastView;
+	UILabel *toastViewLabel;
 	NSLayoutConstraint *bottomAnchorConstraint;
 
 }
@@ -11,13 +12,12 @@
 - (id)init {
 
 	self = [super init];
-
 	if(!self) return nil;
 
 	[self setupToastView];
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeInOutCopyPinToastView) name:@"fadeInOutToast" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeInOutCopyPinToastView) name:@"fadeInOutCopyPinToast" object:nil];
 
 	return self;
 
@@ -61,8 +61,15 @@
 
 - (void)fadeInOutCopyPinToastView {
 
-	toastViewLabel.text = @"Copied!";
-	[self fadeInOutToastViewWithFinalDelay: 0.2];
+	[self fadeInOutToastViewWithMessage:@"Copied!" finalDelay:0.2];
+
+}
+
+
+- (void)fadeInOutToastViewWithMessage:(NSString *)message finalDelay:(CGFloat)delay {
+
+	toastViewLabel.text = message;
+	[self fadeInOutToastViewWithFinalDelay: delay];
 
 }
 
