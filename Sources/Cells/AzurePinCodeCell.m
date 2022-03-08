@@ -122,7 +122,7 @@
 
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = pinLabel.text;
-	[NSNotificationCenter.defaultCenter postNotificationName: @"fadeInOutToast" object: nil];
+	[NSNotificationCenter.defaultCenter postNotificationName:@"fadeInOutCopyPinToast" object:nil];
 
 }
 
