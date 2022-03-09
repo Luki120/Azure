@@ -28,8 +28,9 @@
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
 		[pieView animateShapeLayer];
-		[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:YES];
-
+		[self performSelector:@selector(startTimer) withObject:self afterDelay:30 - timestamp % 30];
+		[NSTimer scheduledTimerWithTimeInterval:30 - timestamp % 30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:NO];
+		
 	});
 
 	return self;
@@ -94,7 +95,7 @@
 	NSInteger currentUNIXTimestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
 	CGFloat startingSliceAngle = ((currentUNIXTimestamp - [self getLastUNIXTimetamp]) * 360.0) / 30.0;
 
-	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: -startingSliceAngle toAngle: 360 - startingSliceAngle strokeColor: kAzureMintTintColor];
+	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: startingSliceAngle strokeColor: kAzureMintTintColor];
 	[buttonsStackView addArrangedSubview: pieView];
 
 	UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapCell)];
@@ -153,6 +154,13 @@
 	[pinLabel.layer addAnimation: transition forKey: nil];
 
 	pinLabel.text = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self getLastUNIXTimetamp]]];
+
+}
+
+
+- (void)startTimer {
+
+	[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:YES];
 
 }
 

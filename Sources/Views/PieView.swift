@@ -6,9 +6,9 @@ import UIKit
 @objc public class PieView: UIView {
 
 	private let circleLayer = CAShapeLayer()
+	private let π = Double.pi
 
-	private var fromAngle:CGFloat = 0
-	private var toAngle:CGFloat = 0
+	private var fromAngle:Double = 0
 	private var strokeColor = UIColor.kAzureMintTintColor
 
 	override init(frame: CGRect) {
@@ -20,10 +20,9 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	@objc public convenience init(frame:CGRect, fromAngle:CGFloat, toAngle:CGFloat, strokeColor:UIColor) {
+	@objc public convenience init(frame:CGRect, fromAngle:Double, strokeColor:UIColor) {
 		self.init(frame: frame)
 		self.fromAngle = fromAngle
-		self.toAngle = toAngle
 		self.strokeColor = strokeColor
 	}
 
@@ -31,8 +30,8 @@ import UIKit
 
 		super.layoutSubviews()
 
-		let startAngle:CGFloat = fromAngle.toRadians()
-		let endAngle:CGFloat = toAngle.toRadians()
+		let startAngle:CGFloat = CGFloat(-0.5 * π)
+		let endAngle:CGFloat = CGFloat(1.5 * π)
 		let center = CGPoint(x: 12, y: 12)
 		let radius:CGFloat = 6
 		let path = UIBezierPath(arcCenter: center, radius: radius, startAngle: startAngle, endAngle: endAngle, clockwise: true)
@@ -52,29 +51,53 @@ import UIKit
 
 	@objc public func animateShapeLayer() {
 
-		let pathAnimation = CABasicAnimation(keyPath: "strokeEnd")
-		pathAnimation.duration = 30;
-		pathAnimation.fromValue = 0.0;
-		pathAnimation.toValue = 1.0;
-		pathAnimation.repeatCount = .infinity
-		pathAnimation.isRemovedOnCompletion = false
-		circleLayer.add(pathAnimation, forKey: "strokeEndAnimation")
+        let pathAnimation = CABasicAnimation(keyPath: "strokeEnd")
+        pathAnimation.delegate = self
+        setupAnimation(pathAnimation,
+            withDuration: 30 - (30 * (fromAngle / 360.0)),
+            fromValue: fromAngle / 360.0,
+            repeatCount: 1,
+            removedOnCompletion: true
+        )
+        circleLayer.add(pathAnimation, forKey: "strokeEndAnimation")
 
-	}
+    }
 
+	private func setupAnimation(_ animation: CABasicAnimation,
+        withDuration: Double,
+        fromValue: Double,
+        repeatCount: Float,
+        removedOnCompletion: Bool
+    ) {
+
+        animation.duration = withDuration;
+        animation.fromValue = fromValue;
+        animation.toValue = 1.0;
+        animation.repeatCount = repeatCount
+        animation.isRemovedOnCompletion = removedOnCompletion
+
+    }
+	
 }
 
 
-private extension CGFloat {
+extension PieView: CAAnimationDelegate {
 
-	func toRadians() -> CGFloat {
+    public func animationDidStop(_ anim: CAAnimation, finished isFinished: Bool) {
 
-		return self * CGFloat(Double.pi) / 180.0
+        guard isFinished else { return }
+        let newAnimation = CABasicAnimation(keyPath: "strokeEnd")
+        setupAnimation(newAnimation,
+            withDuration: 30,
+            fromValue: 0.0,
+            repeatCount: .infinity,
+            removedOnCompletion: false
+        )
+        circleLayer.add(newAnimation, forKey: "newAnimation")
 
-	}
+    }
 
 }
-
 
 private extension UIColor {
 
