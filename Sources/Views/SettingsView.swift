@@ -35,7 +35,7 @@ struct SettingsView: View {
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),
-							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈. Also keep in mind that this won't remove 2FA from your accounts, make sure you disable 2FA from the issuers' settings in order to prevent being locked out"),
+							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈. Also keep in mind that this won't remove 2FA from your accounts, so make sure you disable it from the issuers' settings in order to prevent being locked out."),
 							primaryButton: .destructive(Text("I'm sure")) {
 								NotificationCenter.default.post(name: Notification.Name("purgeDataDone"), object: nil)
 							},
