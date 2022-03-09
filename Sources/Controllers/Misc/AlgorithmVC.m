@@ -61,8 +61,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
-	[TOTPManager sharedInstance]->selectedRow = indexPath.row;
-	[[TOTPManager sharedInstance] saveSelectedRow];
+	[[TOTPManager sharedInstance] feedSelectedRowWithRow: indexPath.row];
 	[tableView reloadData];
 
 }

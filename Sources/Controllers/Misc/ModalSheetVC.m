@@ -53,15 +53,7 @@
 
 - (void)configureEncryptionType {
 
-	NSMutableArray *encryptionTypesArray = [TOTPManager sharedInstance]->encryptionTypesArray;
-
-	switch([TOTPManager sharedInstance]->selectedRow) {
-		case 0: [encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm]; break;
-		case 1: [encryptionTypesArray addObject: kOTPGeneratorSHA256Algorithm]; break;
-		case 2: [encryptionTypesArray addObject: kOTPGeneratorSHA512Algorithm]; break;
-	}
-
-	[[TOTPManager sharedInstance] saveDefaults];
+	[[TOTPManager sharedInstance] configureEncryptionType];
 
 }
 

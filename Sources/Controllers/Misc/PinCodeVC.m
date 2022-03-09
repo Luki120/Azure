@@ -9,6 +9,7 @@
 	UILabel *secretHashLabel;
 	UILabel *algorithmLabel;
 	UITextField *issuerTextField;
+	UITextField *secretTextField;
 	UITableView *pinCodesTableView;
 	AzureToastView *azToastView;
 
@@ -146,14 +147,13 @@
 - (void)shouldSaveData {
 
 	if(issuerTextField.text.length <= 0 || secretTextField.text.length <= 0) {
-		azToastView->toastViewLabel.text = @"Fill out both forms.";
-		[azToastView fadeInOutToastViewWithFinalDelay: 1.5];
+		[azToastView fadeInOutToastViewWithMessage:@"Fill out both forms." finalDelay: 1.5];
 		return;
 	}
 
-	[[TOTPManager sharedInstance]->issuersArray addObject: issuerTextField.text];
-	[[TOTPManager sharedInstance]->secretHashesArray addObject: secretTextField.text];
-	[[TOTPManager sharedInstance] saveDefaults];
+	[[TOTPManager sharedInstance] feedIssuersArrayWithObject:issuerTextField.text
+		andSecretHashesArray:secretTextField.text
+	];
 
 	[self.delegate shouldDismissVC];
 
@@ -197,6 +197,18 @@
 
 }
 
+
+- (void)configureConstraintsForStackView:(UIStackView *)stackView
+	andTextField:(UITextField *)textField
+	forCell:(UITableViewCell *)cell {
+
+	[stackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
+	[stackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
+	[textField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
+	[textField.heightAnchor constraintEqualToConstant: 44].active = YES;
+
+}
+
 // ! UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -216,19 +228,13 @@
 		case 0:
 
 			[cell.contentView addSubview: issuerStackView];
-			[issuerStackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
-			[issuerStackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
-			[issuerTextField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
-			[issuerTextField.heightAnchor constraintEqualToConstant: 44].active = YES;
+			[self configureConstraintsForStackView:issuerStackView andTextField:issuerTextField forCell:cell];
 			break;
 
 		case 1:
 
 			[cell.contentView addSubview: secretHashStackView];
-			[secretHashStackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
-			[secretHashStackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
-			[secretTextField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
-			[secretTextField.heightAnchor constraintEqualToConstant: 44].active = YES;
+			[self configureConstraintsForStackView:secretHashStackView andTextField:secretTextField forCell:cell];
 			break;
 
 		case 2:
