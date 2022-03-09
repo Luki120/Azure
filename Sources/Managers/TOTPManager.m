@@ -37,18 +37,64 @@
 }
 
 
+- (void)feedSelectedRowWithRow:(NSInteger)row {
+
+	selectedRow = row;
+	[defaults setInteger: selectedRow forKey: @"selectedRow"];
+
+}
+
+
+- (void)feedIssuersArrayWithObject:(NSString *)obj andSecretHashesArray:(NSString *)object {
+
+	[issuersArray addObject: obj];
+	[secretHashesArray addObject: object];
+
+	[self saveDefaults];
+
+}
+
+
+- (void)configureEncryptionType {
+
+	switch(selectedRow) {
+		case 0: [encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm]; break;
+		case 1: [encryptionTypesArray addObject: kOTPGeneratorSHA256Algorithm]; break;
+		case 2: [encryptionTypesArray addObject: kOTPGeneratorSHA512Algorithm]; break;
+	}
+
+	[self saveDefaults];
+
+}
+
+
+- (void)removeObjectAtIndexForArrays:(NSInteger)indexPathForRow {
+
+	[issuersArray removeObjectAtIndex: indexPathForRow];
+	[secretHashesArray removeObjectAtIndex: indexPathForRow];
+	[encryptionTypesArray removeObjectAtIndex: indexPathForRow];
+
+	[self saveDefaults];
+
+}
+
+
+- (void)removeAllObjectsFromArrays {
+
+	[issuersArray removeAllObjects];
+	[secretHashesArray removeAllObjects];
+	[encryptionTypesArray removeAllObjects];
+
+	[self saveDefaults];
+
+}
+
+
 - (void)saveDefaults {
 
 	[defaults setObject: issuersArray forKey: @"Issuers"];
 	[defaults setObject: secretHashesArray forKey: @"Hashes"];
 	[defaults setObject: encryptionTypesArray forKey: @"encryptionTypes"];
-
-}
-
-
-- (void)saveSelectedRow {
-
-	[defaults setInteger: selectedRow forKey: @"selectedRow"];
 
 }
 
@@ -62,15 +108,15 @@
 	for(NSURLQueryItem *queryItem in queryItems) {
 
 		if([queryItem.name isEqualToString: @"issuer"])
-			[[TOTPManager sharedInstance]->issuersArray addObject: queryItem.value];
+			[issuersArray addObject: queryItem.value];
 
 		else if([queryItem.name isEqualToString: @"secret"])
-			[[TOTPManager sharedInstance]->secretHashesArray addObject: queryItem.value];
+			[secretHashesArray addObject: queryItem.value];
 
 		else if([queryItem.name isEqualToString: @"algorithm"])
-			[[TOTPManager sharedInstance]->encryptionTypesArray addObject: queryItem.value];
+			[encryptionTypesArray addObject: queryItem.value];
 
-		[[TOTPManager sharedInstance] saveDefaults];
+		[self saveDefaults];
 
 	}
 

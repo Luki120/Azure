@@ -10,8 +10,11 @@
 	@public NSMutableArray *encryptionTypesArray;
 
 }
-- (void)saveDefaults;
-- (void)saveSelectedRow;
+- (void)feedSelectedRowWithRow:(NSInteger)row;
 - (void)makeURLOutOfOtPauthString:(NSString *)string;
+- (void)feedIssuersArrayWithObject:(NSString *)obj andSecretHashesArray:(NSString *)object;
+- (void)removeAllObjectsFromArrays;
+- (void)removeObjectAtIndexForArrays:(NSInteger)indexPath;
+- (void)configureEncryptionType;
 + (TOTPManager *)sharedInstance;
 @end
