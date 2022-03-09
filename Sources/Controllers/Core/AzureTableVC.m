@@ -5,12 +5,9 @@
 
 	AzureFloatingButtonView *azureFloatingButtonView;	
 	AzureToastView *azureToastView;
-	NSLayoutConstraint *bottomAnchorConstraint;
 	NSDictionary *imagesDict;
-	UINavigationController *navVC;
 	UITableView *azureTableView;
 	UILabel *placeholderLabel;
-	NSDictionary *jsonDict;
 
 }
 
@@ -25,6 +22,10 @@
 	[self setupViews];
 	[self setupObservers];
 	[self setupImagesDict];
+
+/*	[NSUserDefaults.standardUserDefaults removeObjectForKey: @"Issuers"];
+	[NSUserDefaults.standardUserDefaults removeObjectForKey: @"Hashes"];
+	[NSUserDefaults.standardUserDefaults removeObjectForKey: @"encryptionTypes"];*/
 
 	[azureTableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
 
@@ -57,6 +58,7 @@
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
+	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldMakeBackup) name:@"makeBackup" object:nil];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldReloadTableViewData) name:@"reloadData" object:nil];
 
 }
@@ -132,12 +134,36 @@
 
 - (void)purgeData {
 
-	[[TOTPManager sharedInstance]->issuersArray removeAllObjects];
-	[[TOTPManager sharedInstance]->secretHashesArray removeAllObjects];
-	[[TOTPManager sharedInstance]->encryptionTypesArray removeAllObjects];
+	[[TOTPManager sharedInstance] removeAllObjectsFromArrays];
 	[azureTableView reloadData];
 
-	[[TOTPManager sharedInstance] saveDefaults];
+}
+
+
+- (void)shouldMakeBackup {
+
+	[UIView transitionWithView:self.tabBarController.view duration:0.5 options:UIViewAnimationOptionTransitionFlipFromRight animations:^{
+
+		[self.tabBarController setSelectedIndex: 0];
+
+	} completion:nil];
+
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+
+		if([TOTPManager sharedInstance]->secretHashesArray.count == 0) {
+			[azureToastView fadeInOutToastViewWithMessage:@"Nothing to backup." finalDelay:0.5];
+			return;
+		}
+
+		AuthManager *authManager = [AuthManager new];
+		[authManager setupAuthWithReason:@"Azure needs you to authenticate in order to verify your identity for a sensitive operation."
+			reply:^(BOOL success, NSError *error) {
+				dispatch_async(dispatch_get_main_queue(), ^{ if(success) [self makeBackup]; });
+			}
+
+		];
+
+	});
 
 }
 
@@ -176,13 +202,6 @@
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
 	cell->issuerImageView.tintColor = image ? nil : UIColor.labelColor;
 
-	jsonDict = @{
-		@"Issuer": [TOTPManager sharedInstance]->issuersArray[indexPath.row],
-		@"Secret": [TOTPManager sharedInstance]->secretHashesArray[indexPath.row],
-		@"Encryption type": [TOTPManager sharedInstance]->encryptionTypesArray[indexPath.row]
-	};
-
-//	[self writeJSONToFileAndExport];
 //	[[TOTPManager sharedInstance]->issuersArray sortUsingSelector: @selector(localizedCaseInsensitiveCompare:)];
 
 	return cell;
@@ -209,12 +228,8 @@
 		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
 		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
 
-			[[TOTPManager sharedInstance]->issuersArray removeObjectAtIndex: indexPath.row];
-			[[TOTPManager sharedInstance]->secretHashesArray removeObjectAtIndex: indexPath.row];
-			[[TOTPManager sharedInstance]->encryptionTypesArray removeObjectAtIndex: indexPath.row];
+			[[TOTPManager sharedInstance] removeObjectAtIndexForArrays: indexPath.row];
 			[azureTableView reloadData];
-
-			[[TOTPManager sharedInstance] saveDefaults];
 
 			completionHandler(YES);
 
@@ -251,8 +266,7 @@
 
 - (void)didTapCell:(AzurePinCodeCell *)cell {
 
-	azureToastView->toastViewLabel.text = @"Copied hash!";
-	[azureToastView fadeInOutToastViewWithFinalDelay: 0.2];
+	[azureToastView fadeInOutToastViewWithMessage:@"Copied hash!" finalDelay:0.2];
 
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = cell->hash;
@@ -262,8 +276,8 @@
 
 - (void)didTapInfoButton:(AzurePinCodeCell *)cell {
 
-	azureToastView->toastViewLabel.text = [NSString stringWithFormat: @"Issuer: %@", cell->issuer];
-	[azureToastView fadeInOutToastViewWithFinalDelay: 0.2];
+	NSString *message = [NSString stringWithFormat:@"Issuer: %@", cell->issuer];
+	[azureToastView fadeInOutToastViewWithMessage:message finalDelay:0.2];
 
 }
 
@@ -295,11 +309,21 @@
 	placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview: placeholderLabel];
 
-/*	self.navigationItem.rightBarButtonItem = [UIBarButtonItem 
-		getBarButtonItemWithImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
-		forTarget:self
-		forSelector:@selector(didTapBackupExportButton)
-	];*/
+//	[self setupSearchController];
+
+}
+
+
+- (void)setupSearchController {
+
+	UISearchController *searchC = [[UISearchController alloc] initWithSearchResultsController: nil];
+	searchC.searchBar.delegate = self;
+	searchC.searchResultsUpdater = self;
+	searchC.obscuresBackgroundDuringPresentation = NO;
+
+	self.definesPresentationContext = YES;
+	self.navigationItem.searchController = searchC;
+	self.extendedLayoutIncludesOpaqueBars = YES;
 
 }
 
@@ -324,29 +348,47 @@
 }
 
 
-/*- (void)didTapBackupExportButton {
+- (void)makeBackup {
 
-}*/
+	BackupManager *backupManager = [BackupManager new];
+	[backupManager constructJSONDictOutOfCurrentTableView:azureTableView
+		withNumberOfRowsInSection:0
+	];
+
+	UIAlertController *successController = [UIAlertController alertControllerWithTitle:@"Azure" message:@"Do you want to view your backup in Filza now?" preferredStyle:UIAlertControllerStyleActionSheet];
+	UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
+
+		NSString *pathToFilza = [@"filza://view" stringByAppendingString: kAzurePath];
+		NSURL *backupURLPath = [NSURL URLWithString: pathToFilza];
+		[UIApplication.sharedApplication openURL:backupURLPath options:@{} completionHandler:nil];
+
+	}];
+
+	UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Later" style:UIAlertActionStyleDefault handler:nil];
+	[successController addAction: confirmAction];
+	[successController addAction: dismissAction];
+	[self presentViewController:successController animated:YES completion:nil];
+
+}
+
+// ! UISearchResultsUpdating
+
+- (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
+
+/*	NSString *searchedString = searchController.searchBar.text;
+	[self updateWithFilteredContent: searchedString];
+	[azureTableView reloadData];*/
+
+}
 
 
-/*- (void)writeJSONToFileAndExport {
+- (void)updateWithFilteredContent:(NSString *)searchString {
 
-	NSString *azureDir = @"/var/mobile/Documents/Azure";
-	NSString *filePath = @"/var/mobile/Documents/Azure/AzureBackup.json";
-	NSFileManager *fileM = [NSFileManager defaultManager];
+/*	NSString *textToSearch = [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
-	if(![fileM createDirectoryAtPath:azureDir withIntermediateDirectories:NO attributes:nil error:nil])
-		[fileM createDirectoryAtPath:azureDir withIntermediateDirectories:NO attributes:nil error:nil];
+	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"SELF CONTAINS[cd] %@", textToSearch];
+	[[TOTPManager sharedInstance]->issuersArray filteredArrayUsingPredicate:thePredicate];*/
 
-	if(![fileM fileExistsAtPath: filePath]) [fileM createFileAtPath:filePath contents:nil attributes:nil];
-
-	NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath: filePath];
-	[fileHandle seekToEndOfFile];
-
-	NSData *serializedData = [NSJSONSerialization dataWithJSONObject:jsonDict options:0 error:nil];
-	[fileHandle writeData: serializedData];
-	[fileHandle closeFile];
-
-}*/
+}
 
 @end

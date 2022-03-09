@@ -9,7 +9,9 @@
 #import "Sources/Controllers/Misc/QRCodeVC.h"
 #import "Sources/Views/AzureFloatingButtonView.h"
 #import "Sources/Views/AzureToastView.h"
+#import "Sources/Managers/AuthManager.h"
+#import "Sources/Managers/BackupManager.h"
 
 
-@interface AzureTableVC : UIViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, UITableViewDataSource, UITableViewDelegate>
+@interface AzureTableVC : UIViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UITableViewDataSource, UITableViewDelegate>
 @end
