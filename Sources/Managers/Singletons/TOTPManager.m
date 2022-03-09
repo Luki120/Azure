@@ -49,8 +49,7 @@
 
 	[issuersArray addObject: obj];
 	[secretHashesArray addObject: object];
-
-	[self saveDefaults];
+	[self configureEncryptionType];
 
 }
 

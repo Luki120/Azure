@@ -1,4 +1,4 @@
-#import "Sources/Controllers/Misc/ModalSheetVC.h"
+#import "ModalSheetVC.h"
 
 
 @implementation ModalSheetVC {
@@ -47,13 +47,6 @@
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(createIssuerOutOfQRCode) name:@"qrCodeScanDone" object:nil];
-
-}
-
-
-- (void)configureEncryptionType {
-
-	[[TOTPManager sharedInstance] configureEncryptionType];
 
 }
 
@@ -498,7 +491,6 @@
 - (void)didTapComposeButton {
 
 	[NSNotificationCenter.defaultCenter postNotificationName:@"checkIfDataShouldBeSaved" object:nil];
-	[self configureEncryptionType];
 
 }
 
