@@ -1,6 +1,8 @@
 #import "TOTPManager.h"
 
 
+static dispatch_once_t onceToken;
+
 @implementation TOTPManager {
 
 	NSUserDefaults *defaults;
@@ -104,6 +106,9 @@
 	NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
 	NSArray *queryItems = components.queryItems;
 
+	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+	pasteboard.string = string;
+
 	for(NSURLQueryItem *queryItem in queryItems) {
 
 		if([queryItem.name isEqualToString: @"issuer"])
@@ -115,9 +120,17 @@
 		else if([queryItem.name isEqualToString: @"algorithm"])
 			[encryptionTypesArray addObject: queryItem.value];
 
+		if(![queryItem.name isEqualToString: @"algorithm"]) {
+			dispatch_once(&onceToken, ^{
+				[encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm];
+			});
+		}
+
 		[self saveDefaults];
 
 	}
+
+	onceToken = 0;
 
 }
 
