@@ -1,5 +1,5 @@
 #import "Sources/Constants/Constants.h"
-#import "Sources/Managers/TOTPManager.h"
+#import "Sources/Managers/Singletons/TOTPManager.h"
 
 
 @interface AlgorithmVC : UITableViewController

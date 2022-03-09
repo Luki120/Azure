@@ -1,7 +1,7 @@
 @import UIKit;
 #import "Azure-Swift.h"
 #import "Sources/Constants/Constants.h"
-#import "Sources/Managers/TOTPManager.h"
+#import "Sources/Managers/Singletons/TOTPManager.h"
 
 
 @class AzurePinCodeCell;

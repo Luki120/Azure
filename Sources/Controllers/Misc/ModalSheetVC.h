@@ -2,7 +2,7 @@
 #import "Sources/Controllers/Misc/AlgorithmVC.h"
 #import "Sources/Controllers/Misc/PinCodeVC.h"
 #import "Sources/Controllers/Misc/QRCodeVC.h"
-#import "Sources/Managers/TOTPManager.h"
+#import "Sources/Managers/Singletons/TOTPManager.h"
 
 
 @interface ModalSheetVC : UIViewController <PinCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
