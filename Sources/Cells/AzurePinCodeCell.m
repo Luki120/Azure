@@ -167,11 +167,20 @@
 }
 
 
-- (void)setSecret:(NSString *)secret withAlgorithm:(NSString *)algorithm {
+- (void)setSecret:(NSString *)secret withAlgorithm:(NSString *)algorithm allowingForTransition:(BOOL)allowed {
 
 	NSData *secretData = [NSData dataWithBase32String: secret];
 	generator = [[TOTPGenerator alloc] initWithSecret:secretData algorithm:algorithm digits:6 period:30];
-	[self regeneratePIN];
+	if(allowed) [self regeneratePIN];
+	else [self regeneratePINWithoutTransitions];
+
+}
+
+
+- (void)regeneratePINWithoutTransitions {
+
+	pinLabel.text = @"";
+	pinLabel.text = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self getLastUNIXTimetamp]]];
 
 }
 
