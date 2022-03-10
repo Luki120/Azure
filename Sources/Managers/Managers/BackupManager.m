@@ -1,12 +1,7 @@
 #import "BackupManager.h"
 
 
-@implementation BackupManager {
-
-	NSMutableArray *entriesArray;
-
-}
-
+@implementation BackupManager
 
 - (id)init {
 
@@ -18,18 +13,18 @@
 }
 
 
-- (void)constructJSONDictOutOfCurrentTableView:(UITableView *)tableView
-	withNumberOfRowsInSection:(NSInteger)section {
+- (void)makeDataOutOfJSON {
 
-	entriesArray = [NSMutableArray new];
-	for(NSInteger i = 0; i < [tableView numberOfRowsInSection:section]; i++) {
-		NSMutableDictionary *jsonDict = [NSMutableDictionary new];
-		[jsonDict setObject:[TOTPManager sharedInstance]->issuersArray[i] forKey:@"Issuer"];
-		[jsonDict setObject:[TOTPManager sharedInstance]->secretHashesArray[i] forKey:@"Secret"];
-		[jsonDict setObject:[TOTPManager sharedInstance]->encryptionTypesArray[i] forKey:@"Encryption type"];
+	NSData *jsonData = [[NSData alloc] initWithContentsOfFile: kAzurePath];
+	NSMutableArray *jsonArray = [NSMutableArray new];
+	jsonArray = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
+	[TOTPManager sharedInstance]->entriesArray = jsonArray;
+	[[TOTPManager sharedInstance] saveDefaults];
 
-		[entriesArray addObject: jsonDict];
-	}
+}
+
+
+- (void)makeJSONOutOfData {
 
 	NSFileManager *fileM = [NSFileManager defaultManager];
 
@@ -49,7 +44,10 @@
 	NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath: kAzurePath];
 	[fileHandle seekToEndOfFile];
 
-	NSData *serializedData = [NSJSONSerialization dataWithJSONObject:entriesArray options:0 error:nil];
+	NSData *serializedData = [NSJSONSerialization dataWithJSONObject:[TOTPManager sharedInstance]->entriesArray
+		options:0
+		error:nil
+	];
 	[fileHandle writeData: serializedData];
 	[fileHandle closeFile];
 
