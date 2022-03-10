@@ -5,16 +5,15 @@
 @interface TOTPManager : NSObject {
 
 	@public NSInteger selectedRow;
-	@public NSMutableArray *issuersArray;
-	@public NSMutableArray *secretHashesArray;
-	@public NSMutableArray *encryptionTypesArray;
+	@public NSMutableArray *entriesArray;
 
 }
 - (void)feedSelectedRowWithRow:(NSInteger)row;
+- (void)feedDictionaryWithObject:(NSString *)obj andObject:(NSString *)object;
+- (void)configureEncryptionTypeForDict:(NSMutableDictionary *)dict;
+- (void)removeObjectAtIndexPathForRow:(NSUInteger)row;
+- (void)removeAllObjectsFromArray;
+- (void)saveDefaults;
 - (void)makeURLOutOfOtPauthString:(NSString *)string;
-- (void)feedIssuersArrayWithObject:(NSString *)obj andSecretHashesArray:(NSString *)object;
-- (void)removeAllObjectsFromArrays;
-- (void)removeObjectAtIndexForArrays:(NSInteger)indexPath;
-- (void)configureEncryptionType;
 + (TOTPManager *)sharedInstance;
 @end
