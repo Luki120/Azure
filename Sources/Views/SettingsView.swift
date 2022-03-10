@@ -132,9 +132,8 @@ struct SettingsView: View {
 					}
 
 			}
-			Section(footer: Text("Azure uses open source components from Google Authenticator, which are licensed under the Apache-2.0 License.")) {}
-			Section(footer: Text("Lock icon created by Freepik - Flat icon.")) {}
-			Section(footer: Text("2022 © Luki120")) {}
+
+			Section(footer: Text("Azure uses open source components from Google Authenticator, which are licensed under the Apache-2.0 License.\n\nLock icon created by Freepik - Flat icon.\n\n2022 © Luki120 ")) {}
 
 		}
 		.padding(.top, 25)
