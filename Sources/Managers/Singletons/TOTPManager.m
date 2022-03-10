@@ -1,8 +1,6 @@
 #import "TOTPManager.h"
 
 
-static dispatch_once_t onceToken;
-
 @implementation TOTPManager {
 
 	NSUserDefaults *defaults;
@@ -29,10 +27,8 @@ static dispatch_once_t onceToken;
 
 	defaults = [NSUserDefaults standardUserDefaults];
 
-	issuersArray = [defaults arrayForKey: @"Issuers"].mutableCopy ?: [NSMutableArray new];
-	secretHashesArray = [defaults arrayForKey: @"Hashes"].mutableCopy ?: [NSMutableArray new];
-	encryptionTypesArray = [defaults arrayForKey: @"encryptionTypes"].mutableCopy ?: [NSMutableArray new];
 	selectedRow = [defaults integerForKey: @"selectedRow"];
+	entriesArray = [defaults arrayForKey: @"entriesArray"].mutableCopy ?: [NSMutableArray new];
 
 	return self;
 
@@ -42,50 +38,47 @@ static dispatch_once_t onceToken;
 - (void)feedSelectedRowWithRow:(NSInteger)row {
 
 	selectedRow = row;
-	[defaults setInteger: selectedRow forKey: @"selectedRow"];
+	[defaults setInteger:selectedRow forKey:@"selectedRow"];
 
 }
 
 
-- (void)feedIssuersArrayWithObject:(NSString *)obj andSecretHashesArray:(NSString *)object {
+- (void)feedDictionaryWithObject:(NSString *)obj andObject:(NSString *)object {
 
-	[issuersArray addObject: obj];
-	[secretHashesArray addObject: object];
-	[self configureEncryptionType];
+	NSMutableDictionary *issuersDict = [NSMutableDictionary new];
+
+	[issuersDict setObject:obj forKey:@"Issuer"];
+	[issuersDict setObject:object forKey:@"Secret"];
+	[self configureEncryptionTypeForDict: issuersDict];
+
+	[entriesArray addObject: issuersDict];
+	[self saveDefaults];
 
 }
 
 
-- (void)configureEncryptionType {
+- (void)configureEncryptionTypeForDict:(NSMutableDictionary *)dict {
 
 	switch(selectedRow) {
-		case 0: [encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm]; break;
-		case 1: [encryptionTypesArray addObject: kOTPGeneratorSHA256Algorithm]; break;
-		case 2: [encryptionTypesArray addObject: kOTPGeneratorSHA512Algorithm]; break;
+		case 0: [dict setObject:kOTPGeneratorSHA1Algorithm forKey:@"encryptionType"]; break;
+		case 1: [dict setObject:kOTPGeneratorSHA256Algorithm forKey:@"encryptionType"]; break;
+		case 2: [dict setObject:kOTPGeneratorSHA512Algorithm forKey:@"encryptionType"]; break;
 	}
 
+}
+
+
+- (void)removeObjectAtIndexPathForRow:(NSUInteger)row {
+
+	[entriesArray removeObjectAtIndex: row];
 	[self saveDefaults];
 
 }
 
 
-- (void)removeObjectAtIndexForArrays:(NSInteger)indexPathForRow {
+- (void)removeAllObjectsFromArray {
 
-	[issuersArray removeObjectAtIndex: indexPathForRow];
-	[secretHashesArray removeObjectAtIndex: indexPathForRow];
-	[encryptionTypesArray removeObjectAtIndex: indexPathForRow];
-
-	[self saveDefaults];
-
-}
-
-
-- (void)removeAllObjectsFromArrays {
-
-	[issuersArray removeAllObjects];
-	[secretHashesArray removeAllObjects];
-	[encryptionTypesArray removeAllObjects];
-
+	[entriesArray removeAllObjects];
 	[self saveDefaults];
 
 }
@@ -93,9 +86,7 @@ static dispatch_once_t onceToken;
 
 - (void)saveDefaults {
 
-	[defaults setObject: issuersArray forKey: @"Issuers"];
-	[defaults setObject: secretHashesArray forKey: @"Hashes"];
-	[defaults setObject: encryptionTypesArray forKey: @"encryptionTypes"];
+	[defaults setObject:entriesArray forKey:@"entriesArray"];
 
 }
 
@@ -106,31 +97,34 @@ static dispatch_once_t onceToken;
 	NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
 	NSArray *queryItems = components.queryItems;
 
-	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-	pasteboard.string = string;
+/*	NSScanner *scanner = [NSScanner scannerWithString: string];
+	[scanner setCharactersToBeSkipped:nil];
+	[scanner scanUpToString:@"/totp/" intoString:NULL];
+	if([scanner scanString:@"/totp/" intoString:NULL]) {
+		NSString *result = nil;
+		if([scanner scanUpToString:@"?" intoString:&result]) {}
+	}*/
+
+	NSMutableDictionary *issuerDict = [NSMutableDictionary new];
 
 	for(NSURLQueryItem *queryItem in queryItems) {
 
 		if([queryItem.name isEqualToString: @"issuer"])
-			[issuersArray addObject: queryItem.value];
+			[issuerDict setObject:queryItem.value forKey:@"Issuer"];
 
 		else if([queryItem.name isEqualToString: @"secret"])
-			[secretHashesArray addObject: queryItem.value];
+			[issuerDict setObject:queryItem.value forKey:@"Secret"];
 
 		else if([queryItem.name isEqualToString: @"algorithm"])
-			[encryptionTypesArray addObject: queryItem.value];
+			[issuerDict setObject:queryItem.value forKey:@"encryptionType"];
 
-		if(![queryItem.name isEqualToString: @"algorithm"]) {
-			dispatch_once(&onceToken, ^{
-				[encryptionTypesArray addObject: kOTPGeneratorSHA1Algorithm];
-			});
-		}
-
-		[self saveDefaults];
+		else if(![queryItem.name isEqualToString: @"algorithm"])
+			[issuerDict setObject:kOTPGeneratorSHA1Algorithm forKey:@"encryptionType"];
 
 	}
 
-	onceToken = 0;
+	[entriesArray addObject: issuerDict];
+	[self saveDefaults];
 
 }
 

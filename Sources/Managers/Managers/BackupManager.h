@@ -3,6 +3,6 @@
 
 
 @interface BackupManager : NSObject
-- (void)constructJSONDictOutOfCurrentTableView:(UITableView *)tableView
-	withNumberOfRowsInSection:(NSInteger)section;
+- (void)makeDataOutOfJSON;
+- (void)makeJSONOutOfData;
 @end

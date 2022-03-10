@@ -23,5 +23,5 @@
 
 }
 @property (nonatomic, weak) id <AzurePinCodeCellDelegate> delegate;
-- (void)setSecret:(NSString *)secret withAlgorithm:(NSString *)algorithm;
+- (void)setSecret:(NSString *)secret withAlgorithm:(NSString *)algorithm allowingForTransition:(BOOL)allowed;
 @end
