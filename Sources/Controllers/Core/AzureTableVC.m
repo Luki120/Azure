@@ -3,13 +3,13 @@
 
 @implementation AzureTableVC {
 
-	AzureFloatingButtonView *azureFloatingButtonView;	
-	AzureToastView *azureToastView;
+	BOOL isFiltered;
+	NSMutableArray *filteredArray;
 	NSDictionary *imagesDict;
 	UITableView *azureTableView;
 	UILabel *placeholderLabel;
-	NSMutableArray *filteredArray;
-	BOOL isFiltered;
+	AzureFloatingButtonView *azureFloatingButtonView;	
+	AzureToastView *azureToastView;
 
 }
 
@@ -24,7 +24,7 @@
 	[self setupViews];
 	[self setupObservers];
 	[self setupImagesDict];
-	[azureTableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
+	[azureTableView registerClass:AzurePinCodeCell.class forCellReuseIdentifier:kIdentifier];
 
 	return self;
 
@@ -80,12 +80,12 @@
 	[azureTableView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
 	[azureTableView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;	
 
-	[azureFloatingButtonView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -15].active = YES;
+	[azureFloatingButtonView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -65].active = YES;
 	[azureFloatingButtonView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant: -25].active = YES;
 	[azureFloatingButtonView.widthAnchor constraintEqualToConstant: 60].active = YES;
 	[azureFloatingButtonView.heightAnchor constraintEqualToConstant: 60].active = YES;
 
-	[azureToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -5].active = YES;
+	[azureToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -55].active = YES;
 	[azureToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
 	[placeholderLabel.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
@@ -119,7 +119,7 @@
 
 - (void)purgeData {
 
-	[[TOTPManager sharedInstance] removeAllObjectsFromArrays];
+	[[TOTPManager sharedInstance] removeAllObjectsFromArray];
 	[azureTableView reloadData];
 
 }
@@ -134,11 +134,6 @@
 	} completion:nil];
 
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-
-		if([TOTPManager sharedInstance]->secretHashesArray.count == 0) {
-			[azureToastView fadeInOutToastViewWithMessage:@"Nothing to backup." finalDelay:0.5];
-			return;
-		}
 
 		AuthManager *authManager = [AuthManager new];
 		[authManager setupAuthWithReason:@"Azure needs you to authenticate in order to verify your identity for a sensitive operation."
@@ -160,32 +155,42 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
 	[self animateViewsWhenNecessary];
-	return [TOTPManager sharedInstance]->secretHashesArray.count;
+	return isFiltered ? filteredArray.count : [TOTPManager sharedInstance]->entriesArray.count;
 
 }
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-	AzurePinCodeCell *cell = [tableView dequeueReusableCellWithIdentifier: kIdentifier forIndexPath: indexPath];
+	AzurePinCodeCell *cell = [tableView dequeueReusableCellWithIdentifier:kIdentifier forIndexPath:indexPath];
 
 	cell.delegate = self;
 	cell.backgroundColor = UIColor.clearColor;
 
-	cell->issuer = [TOTPManager sharedInstance]->issuersArray[indexPath.row];
-	cell->hash = [TOTPManager sharedInstance]->secretHashesArray[indexPath.row];
-	[cell setSecret: [TOTPManager sharedInstance]->secretHashesArray[indexPath.row]
-		withAlgorithm: [[TOTPManager sharedInstance]->encryptionTypesArray count] == 0
-		? kOTPGeneratorSHA1Algorithm 
-		: [TOTPManager sharedInstance]->encryptionTypesArray[indexPath.row]
-	];
+	if(isFiltered) {
+		cell->issuer = [filteredArray[indexPath.row] objectForKey: @"Issuer"];
+		cell->hash = [filteredArray[indexPath.row] objectForKey: @"Secret"];
+		[cell setSecret:[filteredArray[indexPath.row] objectForKey: @"Secret"]
+			withAlgorithm:[filteredArray[indexPath.row] objectForKey: @"encryptionType"]
+			allowingForTransition:NO
+		];
+	}
+
+	else {
+		cell->issuer = [[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"Issuer"];
+		cell->hash = [[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"Secret"];
+		[cell setSecret:[[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"Secret"]
+			withAlgorithm:[[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"encryptionType"]
+			allowingForTransition:NO
+		];
+	}
 
 	UIImage *image = imagesDict[cell->issuer.lowercaseString];
-	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize: CGSizeMake(30, 30)];
-	UIImage *placeholderImage = [UIImage systemImageNamed: @"photo"];
+	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
+	UIImage *placeholderImage = [[UIImage imageWithContentsOfFile: @"/Library/Application Support/Azure/lock.png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
-	cell->issuerImageView.tintColor = image ? nil : UIColor.labelColor;
+	cell->issuerImageView.tintColor = image ? nil : kAzureMintTintColor;
 
 //	[[TOTPManager sharedInstance]->issuersArray sortUsingSelector: @selector(localizedCaseInsensitiveCompare:)];
 
@@ -197,7 +202,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
-	[tableView deselectRowAtIndexPath: indexPath animated: YES];
+	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 
 }
 
@@ -208,12 +213,13 @@
 		title:@"Delete"
 		handler:^(UIContextualAction *action, UIView *sourceView, void (^completionHandler)(BOOL)) {
 
-		NSString *message = [NSString stringWithFormat: @"You're about to delete the code for the issuer named %@ ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to.", [TOTPManager sharedInstance]->issuersArray[indexPath.row]];
+		NSString *message = [NSString stringWithFormat: @"You're about to delete the code for the issuer named %@ ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to.", [[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey:@"Issuer"]];
 
 		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
 		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
 
-			[[TOTPManager sharedInstance] removeObjectAtIndexForArrays: indexPath.row];
+//			[TOTPManager sharedInstance]->entriesArray = jsonArray;
+			[[TOTPManager sharedInstance] removeObjectAtIndexPathForRow: indexPath.row];
 			[azureTableView reloadData];
 
 			completionHandler(YES);
@@ -294,7 +300,7 @@
 	placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview: placeholderLabel];
 
-//	[self setupSearchController];
+	[self setupSearchController];
 
 }
 
@@ -302,7 +308,6 @@
 - (void)setupSearchController {
 
 	UISearchController *searchC = [[UISearchController alloc] initWithSearchResultsController: nil];
-	searchC.searchBar.delegate = self;
 	searchC.searchResultsUpdater = self;
 	searchC.obscuresBackgroundDuringPresentation = NO;
 
@@ -317,7 +322,7 @@
 
 	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
 
-		if([TOTPManager sharedInstance]->secretHashesArray.count == 0) {
+		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
 			azureTableView.alpha = 0;
 			placeholderLabel.alpha = 1;
 			placeholderLabel.transform = CGAffineTransformMakeScale(1, 1);
@@ -336,45 +341,50 @@
 - (void)makeBackup {
 
 	BackupManager *backupManager = [BackupManager new];
-	[backupManager constructJSONDictOutOfCurrentTableView:azureTableView
-		withNumberOfRowsInSection:0
-	];
 
-	UIAlertController *successController = [UIAlertController alertControllerWithTitle:@"Azure" message:@"Do you want to view your backup in Filza now?" preferredStyle:UIAlertControllerStyleActionSheet];
-	UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
+	UIAlertController *backupController = [UIAlertController alertControllerWithTitle:@"Azure" message:@"What do you want to do?" preferredStyle:UIAlertControllerStyleAlert];
+	UIAlertAction *loadBackupAction = [UIAlertAction actionWithTitle:@"Load backup" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
 
-		NSString *pathToFilza = [@"filza://view" stringByAppendingString: kAzurePath];
-		NSURL *backupURLPath = [NSURL URLWithString: pathToFilza];
-		[UIApplication.sharedApplication openURL:backupURLPath options:@{} completionHandler:nil];
+		[backupManager makeDataOutOfJSON];
+
+		[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+			[azureTableView reloadData];
+
+		} completion:nil];
 
 	}];
 
-	UIAlertAction *mailAction = [UIAlertAction actionWithTitle:@"Send mail" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
+	UIAlertAction *makeBackupAction = [UIAlertAction actionWithTitle:@"Make backup" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 
-		if(![MFMailComposeViewController canSendMail]) {
-			[azureToastView fadeInOutToastViewWithMessage:@"Can't send mail." finalDelay:0.5];
+		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
+			[azureToastView fadeInOutToastViewWithMessage:@"Nothing to backup." finalDelay:0.5];
 			return;
 		}
-		[self setupMailC];
+
+		[backupManager makeJSONOutOfData];
+
+		UIAlertController *successController = [UIAlertController alertControllerWithTitle:@"Azure" message:@"Do you want to view your backup in Filza now?" preferredStyle:UIAlertControllerStyleActionSheet];
+		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
+
+			NSString *pathToFilza = [@"filza://view" stringByAppendingString: kAzurePath];
+			NSURL *backupURLPath = [NSURL URLWithString: pathToFilza];
+			[UIApplication.sharedApplication openURL:backupURLPath options:@{} completionHandler:nil];
+
+		}];
+
+		UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Later" style:UIAlertActionStyleDefault handler:nil];
+		[successController addAction: confirmAction];
+		[successController addAction: dismissAction];
+		successController.popoverPresentationController.sourceRect = self.view.bounds;
+		successController.popoverPresentationController.sourceView = self.view;
+		[self presentViewController:successController animated:YES completion:nil];
 
 	}];
 
-	UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Later" style:UIAlertActionStyleDefault handler:nil];
-	[successController addAction: confirmAction];
-	[successController addAction: mailAction];
-	[successController addAction: dismissAction];
-	[self presentViewController:successController animated:YES completion:nil];
-
-}
-
-
-- (void)setupMailC {
-
-	NSData *jsonData = [[NSData alloc] initWithContentsOfFile: kAzurePath];
-
-	MFMailComposeViewController *mailC = [MFMailComposeViewController new];
-	[mailC addAttachmentData:jsonData mimeType:@"application/json" fileName: @"AzureBackup.json"];
-	[self presentViewController:mailC animated:YES completion:nil];
+	[backupController addAction: loadBackupAction];
+	[backupController addAction: makeBackupAction];
+	[self presentViewController:backupController animated:YES completion:nil];
 
 }
 
@@ -395,9 +405,9 @@
 	isFiltered = textToSearch.length ? YES : NO;
 
 	filteredArray = [NSMutableArray new];
-	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"self CONTAINS[cd] %@", textToSearch];
+	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"Issuer CONTAINS[cd] %@", textToSearch];
 	[filteredArray removeAllObjects];
-	filteredArray = [[TOTPManager sharedInstance]->issuersArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
+	filteredArray = [[TOTPManager sharedInstance]->entriesArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
 
 }
 
