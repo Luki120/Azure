@@ -8,6 +8,7 @@
 #import "Sources/Views/AzureToastView.h"
 #import "Sources/Managers/Managers/AuthManager.h"
 #import "Sources/Managers/Managers/BackupManager.h"
+@import MessageUI;
 
 
 @interface AzureTableVC : UIViewController <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, UISearchBarDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UITableViewDataSource, UITableViewDelegate>

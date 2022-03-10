@@ -11,12 +11,11 @@
 //
 //  Unless required by applicable law or agreed to in writing, software
 //  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-//  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+//  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 //  License for the specific language governing permissions and limitations under
 //  the License.
 //
 
-#import <Foundation/Foundation.h>
 #import "OTPGenerator.h"
 
 // The TOTPGenerator class generates a one-time password (OTP) using
@@ -37,22 +36,17 @@
 //   0, Unix epoch) and is also a system parameter.
 //
 @interface TOTPGenerator : OTPGenerator
-
 // The period to use when calculating the counter.
 @property(assign, nonatomic, readonly) NSTimeInterval period;
-
 + (NSTimeInterval)defaultPeriod;
-
 // Designated initializer.
 - (id)initWithSecret:(NSData *)secret
-           algorithm:(NSString *)algorithm
-              digits:(NSUInteger)digits
-              period:(NSTimeInterval)period;
-
+	algorithm:(NSString *)algorithm
+	digits:(NSUInteger)digits
+	period:(NSTimeInterval)period;
 // Instance method to generate an OTP using the |algorithm|, |secret|,
 // |digits|, |period| and |now| values configured on the object.
 // The return value is an NSString of |digits| length, with leading
 // zero-padding as required.
 - (NSString *)generateOTPForDate:(NSDate *)date;
-
 @end

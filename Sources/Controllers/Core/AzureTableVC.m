@@ -8,6 +8,8 @@
 	NSDictionary *imagesDict;
 	UITableView *azureTableView;
 	UILabel *placeholderLabel;
+	NSMutableArray *filteredArray;
+	BOOL isFiltered;
 
 }
 
@@ -22,11 +24,6 @@
 	[self setupViews];
 	[self setupObservers];
 	[self setupImagesDict];
-
-/*	[NSUserDefaults.standardUserDefaults removeObjectForKey: @"Issuers"];
-	[NSUserDefaults.standardUserDefaults removeObjectForKey: @"Hashes"];
-	[NSUserDefaults.standardUserDefaults removeObjectForKey: @"encryptionTypes"];*/
-
 	[azureTableView registerClass: AzurePinCodeCell.class forCellReuseIdentifier: kIdentifier];
 
 	return self;
@@ -70,18 +67,6 @@
 
 	// Do any additional setup after loading the view, typically from a nib.
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
-
-}
-
-
-- (void)viewWillAppear:(BOOL)animated {
-
-	[super viewWillAppear: animated];
-
-	/*--- Disabling the scrolling in the SwiftUI Form also
-	likes to disable the scrolling in all the objC table views :KanyeWTF:
-	so we gotta do a little forcing to reenable it :nfr: ---*/
-	azureTableView.scrollEnabled = YES;
 
 }
 
@@ -364,10 +349,32 @@
 
 	}];
 
+	UIAlertAction *mailAction = [UIAlertAction actionWithTitle:@"Send mail" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
+
+		if(![MFMailComposeViewController canSendMail]) {
+			[azureToastView fadeInOutToastViewWithMessage:@"Can't send mail." finalDelay:0.5];
+			return;
+		}
+		[self setupMailC];
+
+	}];
+
 	UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Later" style:UIAlertActionStyleDefault handler:nil];
 	[successController addAction: confirmAction];
+	[successController addAction: mailAction];
 	[successController addAction: dismissAction];
 	[self presentViewController:successController animated:YES completion:nil];
+
+}
+
+
+- (void)setupMailC {
+
+	NSData *jsonData = [[NSData alloc] initWithContentsOfFile: kAzurePath];
+
+	MFMailComposeViewController *mailC = [MFMailComposeViewController new];
+	[mailC addAttachmentData:jsonData mimeType:@"application/json" fileName: @"AzureBackup.json"];
+	[self presentViewController:mailC animated:YES completion:nil];
 
 }
 
@@ -375,19 +382,22 @@
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
 
-/*	NSString *searchedString = searchController.searchBar.text;
+	NSString *searchedString = searchController.searchBar.text;
 	[self updateWithFilteredContent: searchedString];
-	[azureTableView reloadData];*/
+	[azureTableView reloadData];
 
 }
 
 
 - (void)updateWithFilteredContent:(NSString *)searchString {
 
-/*	NSString *textToSearch = [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	NSString *textToSearch = [searchString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	isFiltered = textToSearch.length ? YES : NO;
 
-	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"SELF CONTAINS[cd] %@", textToSearch];
-	[[TOTPManager sharedInstance]->issuersArray filteredArrayUsingPredicate:thePredicate];*/
+	filteredArray = [NSMutableArray new];
+	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"self CONTAINS[cd] %@", textToSearch];
+	[filteredArray removeAllObjects];
+	filteredArray = [[TOTPManager sharedInstance]->issuersArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
 
 }
 

@@ -23,10 +23,6 @@
 	pushAnimator = [PushAnimator new];
 	self.navigationController.delegate = self;
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
-
-	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(doTheThing) name:@"fuckingCursedShitNeededForTheThingToDoTheThingyNotification" object:nil];
-
 }
 
 
@@ -103,15 +99,6 @@
 	if(operation == UINavigationControllerOperationPush) return pushAnimator;
 
 	return nil;
-
-}
-
-
-- (void)doTheThing {
-
-	// cursed af, but it works to fix the issue where the animations only work once
-	self.navigationController.delegate = nil;
-	self.navigationController.delegate = self;
 
 }
 
