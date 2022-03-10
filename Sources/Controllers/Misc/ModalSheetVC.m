@@ -5,21 +5,9 @@
 
 	UIView *containerView;
 	UIView *dimmedView;
+	ModalChildView *modalChildView;
 	NSLayoutConstraint *containerViewBottomConstraint;
 	NSLayoutConstraint *containerViewHeightConstraint;
-	UIStackView *titleStackView;
-	UIStackView *buttonsStackView;
-	UIStackView *scanQRCodeStackView;
-	UIStackView *importQRStackView;
-	UIStackView *enterManuallyStackView;
-	UILabel *titleLabel;
-	UILabel *subtitleLabel;
-	UIButton *scanQRCodeButton;
-	UIButton *importQRButton;
-	UIButton *enterManuallyButton;
-	UIImageView *scanQRCodeImageView;
-	UIImageView *importQRImageView;
-	UIImageView *enterManuallyImageView;
 	PinCodeVC *pinCodeVC;
 	UINavigationController *navVC;
 
@@ -93,97 +81,9 @@
 	containerView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.view addSubview: containerView];
 
-	/* ********** STACK VIEWS ********** */
-
-	titleStackView = [UIStackView new];
-	buttonsStackView = [UIStackView new];
-	scanQRCodeStackView = [UIStackView new];
-	importQRStackView = [UIStackView new];
-	enterManuallyStackView = [UIStackView new];
-	[self createStackViewWithStackView:titleStackView
-		withAxis:UILayoutConstraintAxisVertical
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:buttonsStackView
-		withAxis:UILayoutConstraintAxisVertical
-		withSpacing:20
-	];
-	[self createStackViewWithStackView:scanQRCodeStackView
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:importQRStackView
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:enterManuallyStackView
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-
-	buttonsStackView.alpha = 0;
-	buttonsStackView.transform = CGAffineTransformMakeScale(0.1, 0.1);
-	titleStackView.alpha = 0;
-	titleStackView.transform = CGAffineTransformMakeScale(0.1, 0.1);
-
-	[containerView addSubview: titleStackView];
-	[containerView addSubview: buttonsStackView];
-	[buttonsStackView addArrangedSubview: scanQRCodeStackView];
-	[buttonsStackView addArrangedSubview: importQRStackView];
-	[buttonsStackView addArrangedSubview: enterManuallyStackView];
-
-	/* ********** LABELS ********** */
-
-	titleLabel = [UILabel new];
-	[self createLabelWithLabel:titleLabel
-		withFont:[UIFont systemFontOfSize: 16]
-		withText:@"Add issuer"
-		textColor:UIColor.labelColor
-	];
-	subtitleLabel = [UILabel new];
-	[self createLabelWithLabel:subtitleLabel
-		withFont:[UIFont systemFontOfSize: 12]
-		withText:@"Add an issuer by scanning a QR code, importing a QR image or entering the secret manually."
-		textColor:UIColor.secondaryLabelColor
-	];
-
-	/* ********** IMAGE VIEWS ********** */
-
-	scanQRCodeImageView = [UIImageView new];
-	[self createImageView:scanQRCodeImageView withImage:[UIImage systemImageNamed: @"qrcode"]];
-
-	importQRImageView = [UIImageView new];
-	[self createImageView:importQRImageView withImage:[UIImage systemImageNamed: @"square.and.arrow.up"]];
-
-	enterManuallyImageView = [UIImageView new];
-	[self createImageView:enterManuallyImageView withImage:[UIImage systemImageNamed: @"square.and.pencil"]];
-
-	/* ********** BUTTONS ********** */
-
-	scanQRCodeButton = [UIButton new];
-	[self createButtonWithButton:scanQRCodeButton
-		withTitleLabel:@"Scan QR Code"
-		forSelector:@selector(didTapScanQRCodeButton)
-	];
-	importQRButton = [UIButton new];
-	[self createButtonWithButton:importQRButton
-		withTitleLabel:@"Import QR Image"
-		forSelector:@selector(didTapImportQRImageButton)
-	];
-	enterManuallyButton = [UIButton new];
-	[self createButtonWithButton:enterManuallyButton
-		withTitleLabel:@"Enter Manually"
-		forSelector:@selector(didTapEnterManuallyButton)
-	];
-
-	[titleStackView addArrangedSubview: titleLabel];
-	[titleStackView addArrangedSubview: subtitleLabel];
-	[scanQRCodeStackView addArrangedSubview: scanQRCodeImageView];
-	[scanQRCodeStackView addArrangedSubview: scanQRCodeButton];
-	[importQRStackView addArrangedSubview: importQRImageView];
-	[importQRStackView addArrangedSubview: importQRButton];
-	[enterManuallyStackView addArrangedSubview: enterManuallyImageView];
-	[enterManuallyStackView addArrangedSubview: enterManuallyButton];	
+	modalChildView = [ModalChildView new];
+	modalChildView.delegate = self;
+	[containerView addSubview: modalChildView];
 
 	[self setupGestures];
 	[self layoutUI];
@@ -207,25 +107,10 @@
 	containerViewBottomConstraint = [containerView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor constant: kDefaultHeight];
 	containerViewBottomConstraint.active = YES;
 
-	[titleStackView.topAnchor constraintEqualToAnchor: containerView.topAnchor constant: 30].active = YES;
-	[titleStackView.centerXAnchor constraintEqualToAnchor: containerView.centerXAnchor].active = YES;
-	[titleStackView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 30].active = YES;
-	[titleStackView.trailingAnchor constraintEqualToAnchor: containerView.trailingAnchor constant: -30].active = YES;
-
-	[buttonsStackView.topAnchor constraintEqualToAnchor: titleStackView.bottomAnchor constant: 30].active = YES;
-	[buttonsStackView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 20].active = YES;
-
-	[self activateConstraintsForView: scanQRCodeImageView];
-	[self activateConstraintsForView: importQRImageView];
-	[self activateConstraintsForView: enterManuallyImageView];
-
-}
-
-
-- (void)activateConstraintsForView:(UIImageView *)view {
-
-	[view.heightAnchor constraintEqualToConstant: 25].active = YES;
-	[view.widthAnchor constraintEqualToConstant: 25].active = YES;
+	[modalChildView.topAnchor constraintEqualToAnchor: containerView.topAnchor].active = YES;
+	[modalChildView.bottomAnchor constraintEqualToAnchor: containerView.bottomAnchor].active = YES;
+	[modalChildView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor].active = YES;
+	[modalChildView.trailingAnchor constraintEqualToAnchor: containerView.trailingAnchor].active = YES;
 
 }
 
@@ -280,30 +165,7 @@
 		containerViewBottomConstraint.constant = 0;
 		[self.view layoutIfNeeded];
 
-	} completion:^(BOOL finished) {
-
-		[UIView animateWithDuration:0.5 delay:0.008 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-
-			titleStackView.alpha = 1;
-			titleStackView.transform = CGAffineTransformMakeScale(1, 1);
-
-		} completion:^(BOOL finished) {
-
-			[UIView animateWithDuration:0.5 delay:0.004 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-
-				buttonsStackView.alpha = 1;
-				buttonsStackView.transform = CGAffineTransformMakeScale(1, 1);
-
-			} completion:^(BOOL finished) {
-
-				titleStackView.transform = CGAffineTransformIdentity;
-				buttonsStackView.transform = CGAffineTransformIdentity;
-
-			}];
-
-		}];
-
-	}];
+	} completion:^(BOOL finished) { [modalChildView animateSubviews]; }];
 
 }
 
@@ -323,11 +185,7 @@
 		containerViewBottomConstraint.constant = kDefaultHeight;
 		[self.view layoutIfNeeded];
 
-	} completion:^(BOOL finished) {
-
-		[self dismissViewControllerAnimated:YES completion:nil];
-
-	}];
+	} completion:^(BOOL finished) { [self dismissViewControllerAnimated:YES completion:nil]; }];
 
 }
 
@@ -336,10 +194,7 @@
 - (void)createIssuerOutOfQRCode {
 
 	[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
-	[self dismissViewControllerAnimated:YES completion:nil];
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-		[self animateDismiss];
-	});
+	[self dismissVC];
 
 }
 
@@ -355,56 +210,6 @@
 		animations:animations
 		completion:completion
 	];
-
-}
-
-
-- (void)createStackViewWithStackView:(UIStackView *)stackView
-	withAxis:(UILayoutConstraintAxis)axis
-	withSpacing:(CGFloat)spacing {
-
-	stackView.axis = axis;
-	stackView.spacing = spacing;
-	stackView.distribution = UIStackViewDistributionFill;
-	stackView.translatesAutoresizingMaskIntoConstraints = NO;
-
-}
-
-
-- (void)createButtonWithButton:(UIButton *)button
-	withTitleLabel:(NSString *)title
-	forSelector:(SEL)selector {
-
-	button.titleLabel.font = [UIFont systemFontOfSize: 16];
-	button.translatesAutoresizingMaskIntoConstraints = NO;
-	[button setTitle:title forState: UIControlStateNormal];
-	[button setTitleColor:UIColor.labelColor forState: UIControlStateNormal];
-	[button addTarget:self action:selector forControlEvents: UIControlEventTouchUpInside];
-
-}
-
-
-- (void)createLabelWithLabel:(UILabel *)label
-	withFont:(UIFont *)font
-	withText:(NSString *)text
-	textColor:(UIColor *)textColor {
-
-	label.font = font;
-	label.text = text;
-	label.textColor = textColor;
-	label.numberOfLines = 0;
-	label.textAlignment = NSTextAlignmentCenter;
-
-}
-
-
-- (void)createImageView:(UIImageView *)imageView withImage:(UIImage *)image {
-
-	imageView.image = image;
-	imageView.tintColor = kAzureMintTintColor;
-	imageView.contentMode = UIViewContentModeScaleAspectFill;
-	imageView.clipsToBounds = YES;
-	imageView.translatesAutoresizingMaskIntoConstraints = NO;
 
 }
 
@@ -441,9 +246,9 @@
 
 }
 
-// ! Selectors
+// ! ModalChildViewDelegate
 
-- (void)didTapScanQRCodeButton {
+- (void)modalChildViewDidTapScanQRCodeButton {
 
 	QRCodeVC *qrCodeVC = [QRCodeVC new];
 	[self configureVC:qrCodeVC
@@ -457,10 +262,7 @@
 }
 
 
-- (void)didTapDismissButton { [self dismissVC]; }
-
-
-- (void)didTapImportQRImageButton {
+- (void)modalChildViewDidTapImportQRImageButton {
 
 	UIImagePickerController *pickerC = [UIImagePickerController new];
 	pickerC.delegate = self;
@@ -470,7 +272,7 @@
 }
 
 
-- (void)didTapEnterManuallyButton {
+- (void)modalChildViewDidTapEnterManuallyButton {
 
 	[self configureVC:pinCodeVC
 		withTitle:@"Enter QR Code"
@@ -487,13 +289,6 @@
 
 }
 
-
-- (void)didTapComposeButton {
-
-	[NSNotificationCenter.defaultCenter postNotificationName:@"checkIfDataShouldBeSaved" object:nil];
-
-}
-
 // ! PinCodeVCDelegate
 
 - (void)pushAlgorithmVC {
@@ -501,14 +296,6 @@
 	AlgorithmVC *algorithmVC = [AlgorithmVC new];
 	algorithmVC.title = @"Algorithm";
 	[navVC pushViewController:algorithmVC animated:YES];
-
-}
-
-
-- (void)shouldDismissVC {
-
-	[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
-	[self dismissVC];
 
 }
 
@@ -537,5 +324,24 @@
 
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker { [self dismissVC]; }
+
+
+- (void)shouldDismissVC {
+
+	[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
+	[self dismissVC];
+
+}
+
+// ! Selectors
+
+- (void)didTapComposeButton {
+
+	[NSNotificationCenter.defaultCenter postNotificationName:@"checkIfDataShouldBeSaved" object:nil];
+
+}
+
+
+- (void)didTapDismissButton { [self dismissVC]; }
 
 @end

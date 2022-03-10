@@ -3,9 +3,10 @@
 #import "Sources/Controllers/Misc/PinCodeVC.h"
 #import "Sources/Controllers/Misc/QRCodeVC.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
+#import "Sources/Views/ModalChildView.h"
 
 
-@interface ModalSheetVC : UIViewController <PinCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface ModalSheetVC : UIViewController <ModalChildViewDelegate, PinCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 @end
 
 
