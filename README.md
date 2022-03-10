@@ -7,15 +7,14 @@
 ## Features
 
 * App logos for most common issuers.
-* Backup feature.
+* Backup/import feature.
 * Biometrics.
-* Manually input QR code hashes.
+* Manually input QR code hashes, import a QR image & scan QR codes.
 * **NO** account system required.
 * **NO** email required.
 * **NO** phone number required.
 * Pleasant, clean UIKit animations.
 * Purge all data.
-* Scan QR codes.
 
 ## To do:
 
@@ -26,7 +25,7 @@
 * - [x] More UIKit animations.
 * - [x] Placeholder UI for main table view when no issuers were added yet.
 * - [x] Replace stock iOS alert when trying to create a new issuer without filling all blanks with Azure's toast view.
-* - [ ] Search bar in main view controller. (Low priority)
+* - [x] Search bar in main view controller. (Low priority)
 * - [x] Support for different SHA hashing encryption methods.
 * - [x] UI color scheme overhaul/redesign.
 

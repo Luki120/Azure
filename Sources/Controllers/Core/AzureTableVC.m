@@ -218,7 +218,6 @@
 		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
 		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
 
-//			[TOTPManager sharedInstance]->entriesArray = jsonArray;
 			[[TOTPManager sharedInstance] removeObjectAtIndexPathForRow: indexPath.row];
 			[azureTableView reloadData];
 

@@ -23,7 +23,7 @@
 	if(!self) return nil;
 
 	[self setupUI];
-	[pinCodesTableView registerClass: UITableViewCell.class forCellReuseIdentifier: @"Cell"];
+	[pinCodesTableView registerClass:UITableViewCell.class forCellReuseIdentifier:@"Cell"];
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
@@ -52,17 +52,9 @@
 }
 
 
-- (void)viewWillAppear:(BOOL)animated {
-
-	[super viewWillAppear: animated];
-	pinCodesTableView.scrollEnabled = YES;
-
-}
-
-
 - (void)setupUI {
 
-	pinCodesTableView = [[UITableView alloc] initWithFrame: CGRectZero style: UITableViewStyleGrouped];
+	pinCodesTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
 	pinCodesTableView.dataSource = self;
 	pinCodesTableView.delegate = self;
 	pinCodesTableView.backgroundColor = UIColor.systemBackgroundColor;
@@ -151,8 +143,8 @@
 		return;
 	}
 
-	[[TOTPManager sharedInstance] feedIssuersArrayWithObject:issuerTextField.text
-		andSecretHashesArray:secretTextField.text
+	[[TOTPManager sharedInstance] feedDictionaryWithObject:issuerTextField.text
+		andObject:secretTextField.text
 	];
 
 	[self.delegate shouldDismissVC];
@@ -258,7 +250,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 
-	[tableView deselectRowAtIndexPath: indexPath animated: YES];
+	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	if(indexPath.row != 2) return;
 
 	[self.delegate pushAlgorithmVC];
