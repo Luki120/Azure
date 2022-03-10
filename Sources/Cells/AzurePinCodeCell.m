@@ -18,19 +18,18 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
 
 	self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-
 	if(!self) return nil;
 
 	// Custom initialization
 	[self setupUI];
 
-	NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
+	NSInteger timestamp = ceil([NSDate.date timeIntervalSince1970]);
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
 		[pieView animateShapeLayer];
 		[self performSelector:@selector(startTimer) withObject:self afterDelay:30 - timestamp % 30];
 		[NSTimer scheduledTimerWithTimeInterval:30 - timestamp % 30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:NO];
-		
+
 	});
 
 	return self;
@@ -92,7 +91,7 @@
 
 	[buttonsStackView addArrangedSubview: infoButton];
 
-	NSInteger currentUNIXTimestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
+	NSInteger currentUNIXTimestamp = ceil([NSDate.date timeIntervalSince1970]);
 	CGFloat startingSliceAngle = ((currentUNIXTimestamp - [self getLastUNIXTimetamp]) * 360.0) / 30.0;
 
 	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: startingSliceAngle strokeColor: kAzureMintTintColor];
@@ -168,7 +167,7 @@
 
 - (NSInteger)getLastUNIXTimetamp {
 
-	NSInteger timestamp = ceil((long)[NSDate.date timeIntervalSince1970]);
+	NSInteger timestamp = ceil([NSDate.date timeIntervalSince1970]);
 	if(timestamp % 30 != 0) timestamp -= timestamp % 30;
 	return timestamp;
 
