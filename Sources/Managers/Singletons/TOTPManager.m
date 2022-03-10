@@ -118,7 +118,7 @@
 		else if([queryItem.name isEqualToString: @"algorithm"])
 			[issuerDict setObject:queryItem.value forKey:@"encryptionType"];
 
-		else if(![queryItem.name isEqualToString: @"algorithm"])
+		if([queryItem.name rangeOfString: @"algorithm"].location == NSNotFound)
 			[issuerDict setObject:kOTPGeneratorSHA1Algorithm forKey:@"encryptionType"];
 
 	}
