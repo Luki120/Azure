@@ -299,6 +299,14 @@
 
 }
 
+
+- (void)shouldDismissVC {
+
+	[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
+	[self dismissVC];
+
+}
+
 // ! UIImagePickerControllerDelegate
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
@@ -324,14 +332,6 @@
 
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker { [self dismissVC]; }
-
-
-- (void)shouldDismissVC {
-
-	[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
-	[self dismissVC];
-
-}
 
 // ! Selectors
 
