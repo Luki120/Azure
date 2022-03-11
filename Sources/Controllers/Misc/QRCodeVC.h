@@ -2,6 +2,7 @@
 #import "Sources/Managers/Animators/PopAnimator.h"
 #import "Sources/Managers/Animators/PushAnimator.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
+#import "Sources/Views/AzureToastView.h"
 
 
 @interface QRCodeVC : UIViewController <AVCaptureMetadataOutputObjectsDelegate, UINavigationControllerDelegate>

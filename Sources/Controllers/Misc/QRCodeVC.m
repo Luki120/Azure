@@ -6,6 +6,7 @@
 	AVAudioPlayer *audioPlayer;
 	AVCaptureSession *captureSession;
 	AVCaptureVideoPreviewLayer *videoPreviewLayer;
+	AzureToastView *azToastView;
 	PopAnimator *popAnimator;
 	PushAnimator *pushAnimator;
 
@@ -17,12 +18,48 @@
 	[super viewDidLoad];
 
 	// Do any additional setup after loading the view, typically from a nib.
-	[self setupScanner];
+	azToastView = [AzureToastView new];
+	[self.view addSubview: azToastView];
 
 	popAnimator = [PopAnimator new];
 	pushAnimator = [PushAnimator new];
 	self.navigationController.delegate = self;
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
+
+	AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+
+	switch(status) {
+
+		case AVAuthorizationStatusAuthorized: [self setupScanner]; break;
+		case AVAuthorizationStatusDenied:
+
+			[azToastView fadeInOutToastViewWithMessage:@"Camera access denied." finalDelay:1.5];
+			break;
+
+		case AVAuthorizationStatusNotDetermined: {
+
+			[AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+
+				dispatch_async(dispatch_get_main_queue(), ^{
+
+					if(!granted) {
+						[azToastView fadeInOutToastViewWithMessage:@"Camera access denied." finalDelay:1.5];
+						return;
+					}
+
+					[self setupScanner];
+
+				});
+
+			}];
+			break;
+
+		}
+
+		case AVAuthorizationStatusRestricted: break;
+
+	}
+
 }
 
 
@@ -38,6 +75,16 @@
 
 	[super viewWillDisappear: animated];
 	if(captureSession.isRunning) [captureSession stopRunning];
+
+}
+
+
+- (void)viewDidLayoutSubviews {
+
+	[super viewDidLayoutSubviews];
+
+	[azToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -15].active = YES;
+	[azToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
 }
 
