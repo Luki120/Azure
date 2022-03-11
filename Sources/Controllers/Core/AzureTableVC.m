@@ -96,6 +96,22 @@
 }
 
 
+- (void)viewWillAppear:(BOOL)animated {
+
+	[super viewWillAppear: animated];
+	[NSNotificationCenter.defaultCenter postNotificationName:@"resumeSliceAnimation" object:nil];
+
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated {
+
+	[super viewWillDisappear: animated];
+	[NSNotificationCenter.defaultCenter postNotificationName:@"pauseSliceAnimation" object:nil];
+
+}
+
+
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
 
 	[super traitCollectionDidChange: previousTraitCollection];
