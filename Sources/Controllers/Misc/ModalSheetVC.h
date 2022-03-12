@@ -8,8 +8,3 @@
 
 @interface ModalSheetVC : UIViewController <ModalChildViewDelegate, PinCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 @end
-
-
-// Constants
-static const CGFloat kDefaultHeight = 300;
-static const CGFloat kDismissableHeight = 200;

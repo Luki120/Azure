@@ -3,11 +3,7 @@
 
 @implementation ModalSheetVC {
 
-	UIView *containerView;
-	UIView *dimmedView;
 	ModalChildView *modalChildView;
-	NSLayoutConstraint *containerViewBottomConstraint;
-	NSLayoutConstraint *containerViewHeightConstraint;
 	PinCodeVC *pinCodeVC;
 	UINavigationController *navVC;
 
@@ -31,6 +27,14 @@
 }
 
 
+- (void)viewDidAppear:(BOOL)animated {
+
+	[super viewDidAppear:animated];
+	[modalChildView animateViews];
+
+}
+
+
 - (void)setupObservers {
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
@@ -39,53 +43,14 @@
 }
 
 
-- (void)viewDidAppear:(BOOL)animated {
-
-	[super viewDidAppear: animated];
-	[self animateDimmedView];
-	[self animateContainer];
-
-}
-
-
-- (void)viewDidLayoutSubviews {
-
-	[super viewDidLayoutSubviews];
-
-	CAShapeLayer *maskLayer = [CAShapeLayer layer];
-	maskLayer.path = [UIBezierPath bezierPathWithRoundedRect:
-		CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 300)
-		byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
-		cornerRadii:(CGSize){16, 16}].CGPath;
-
-	containerView.layer.mask = maskLayer;
-	containerView.layer.cornerCurve = kCACornerCurveContinuous;
-
-}
-
-
 - (void)setupViews {
 
 	self.view.backgroundColor = UIColor.clearColor;
 
-	// TODO: refactor to address the 'fat view controller' issue by moving all the view code to a subclass
-
-	dimmedView = [UIView new];
-	dimmedView.alpha = 0;
-	dimmedView.backgroundColor = UIColor.blackColor;
-	dimmedView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: dimmedView];
-
-	containerView = [UIView new];
-	containerView.backgroundColor = UIColor.secondarySystemBackgroundColor;
-	containerView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: containerView];
-
 	modalChildView = [ModalChildView new];
 	modalChildView.delegate = self;
-	[containerView addSubview: modalChildView];
+	[self.view addSubview: modalChildView];
 
-	[self setupGestures];
 	[self layoutUI];
 
 }
@@ -93,99 +58,10 @@
 
 - (void)layoutUI {
 
-	[dimmedView.topAnchor constraintEqualToAnchor: self.view.topAnchor].active = YES;
-	[dimmedView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor].active = YES;
-	[dimmedView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
-	[dimmedView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
-
-	[containerView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
-	[containerView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
-
-	containerViewHeightConstraint = [containerView.heightAnchor constraintEqualToConstant: kDefaultHeight];
-	containerViewHeightConstraint.active = YES;
-
-	containerViewBottomConstraint = [containerView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor constant: kDefaultHeight];
-	containerViewBottomConstraint.active = YES;
-
-	[modalChildView.topAnchor constraintEqualToAnchor: containerView.topAnchor].active = YES;
-	[modalChildView.bottomAnchor constraintEqualToAnchor: containerView.bottomAnchor].active = YES;
-	[modalChildView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor].active = YES;
-	[modalChildView.trailingAnchor constraintEqualToAnchor: containerView.trailingAnchor].active = YES;
-
-}
-
-
-- (void)setupGestures {
-
-	UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapView)];
-	[dimmedView addGestureRecognizer: tapRecognizer];
-
-	UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)];
-	[self.view addGestureRecognizer: panRecognizer];
-
-}
-
-
-- (void)didTapView { [self animateDismiss]; }
-
-
-- (void)didPan:(UIPanGestureRecognizer *)panRecognizer {
-
-	CGPoint translation = [panRecognizer translationInView: self.view];
-	CGFloat newHeight = kDefaultHeight - translation.y;
-
-	switch(panRecognizer.state) {
-
-		case UIGestureRecognizerStateChanged:
-
-			if(newHeight < kDefaultHeight) {
-				containerViewHeightConstraint.constant = newHeight;
-				containerViewHeightConstraint.active = YES;
-				[self.view layoutIfNeeded];
-			}
-			break;
-
-		case UIGestureRecognizerStateEnded:
-
-			if(newHeight < kDismissableHeight) [self animateDismiss];
-			break;
-
-		default: break;
-
-	}
-
-}
-
-// ! Animations
-
-- (void)animateContainer {
-
-	[self animateViewsWithDuration:0.3 animations:^{
-
-		containerViewBottomConstraint.constant = 0;
-		[self.view layoutIfNeeded];
-
-	} completion:^(BOOL finished) { [modalChildView animateSubviews]; }];
-
-}
-
-
-- (void)animateDimmedView {
-
-	[self animateViewsWithDuration:0.3 animations:^{ dimmedView.alpha = 0.6; } completion:nil];
-
-}
-
-
-- (void)animateDismiss {
-
-	[self animateViewsWithDuration:0.3 animations:^{
-
-		dimmedView.alpha = 0;
-		containerViewBottomConstraint.constant = kDefaultHeight;
-		[self.view layoutIfNeeded];
-
-	} completion:^(BOOL finished) { [self dismissViewControllerAnimated:YES completion:nil]; }];
+	[modalChildView.topAnchor constraintEqualToAnchor: self.view.topAnchor].active = YES;
+	[modalChildView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor].active = YES;
+	[modalChildView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
+	[modalChildView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
 
 }
 
@@ -199,20 +75,6 @@
 }
 
 // ! Reusable funcs
-
-- (void)animateViewsWithDuration:(CGFloat)duration
-	animations:(void (^)(void))animations
-	completion:(void(^)(BOOL finished))completion {
-
-	[UIView animateWithDuration:duration
-		delay:0
-		options:UIViewAnimationOptionCurveEaseIn
-		animations:animations
-		completion:completion
-	];
-
-}
-
 
 - (void)configureVC:(UIViewController *)vc
 	withTitle:(NSString *)title
@@ -241,7 +103,9 @@
 
 	[self dismissViewControllerAnimated:YES completion:nil];
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-		[self animateDismiss];
+		[modalChildView animateDismissWithCompletion:^(BOOL finished) {
+			[self dismissViewControllerAnimated:YES completion:nil];
+		}];
 	});
 
 }
@@ -286,6 +150,50 @@
 		forSelector:@selector(didTapDismissButton)
 	];
 	[self presentViewController:navVC animated:YES completion:nil];
+
+}
+
+
+- (void)modalChildViewDidTapDimmedView {
+
+	[modalChildView animateDismissWithCompletion:^(BOOL finished) {
+
+		[self dismissViewControllerAnimated:YES completion:nil];
+
+	}];
+
+}
+
+
+- (void)modalChildViewDidPanWithGesture:(UIPanGestureRecognizer *)panRecognizer
+	modifyingConstraintForView:(NSLayoutConstraint *)constraint {
+
+	CGPoint translation = [panRecognizer translationInView: self.view];
+	CGFloat newHeight = kDefaultHeight - translation.y;
+
+	switch(panRecognizer.state) {
+
+		case UIGestureRecognizerStateChanged:
+
+			if(newHeight < kDefaultHeight) {
+				constraint.constant = newHeight;
+				constraint.active = YES;
+				[self.view layoutIfNeeded];
+			}
+			break;
+
+		case UIGestureRecognizerStateEnded:
+
+			if(newHeight < kDismissableHeight) [modalChildView animateDismissWithCompletion:^(BOOL finished) {
+
+				[self dismissVC];
+
+			}];
+			break;
+
+		default: break;
+
+	}
 
 }
 
