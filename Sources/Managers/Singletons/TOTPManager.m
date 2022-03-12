@@ -97,14 +97,6 @@
 	NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
 	NSArray *queryItems = components.queryItems;
 
-/*	NSScanner *scanner = [NSScanner scannerWithString: string];
-	[scanner setCharactersToBeSkipped:nil];
-	[scanner scanUpToString:@"/totp/" intoString:NULL];
-	if([scanner scanString:@"/totp/" intoString:NULL]) {
-		NSString *result = nil;
-		if([scanner scanUpToString:@"?" intoString:&result]) {}
-	}*/
-
 	NSMutableDictionary *issuerDict = [NSMutableDictionary new];
 
 	for(NSURLQueryItem *queryItem in queryItems) {
@@ -118,10 +110,33 @@
 		else if([queryItem.name isEqualToString: @"algorithm"])
 			[issuerDict setObject:queryItem.value forKey:@"encryptionType"];
 
-		if([queryItem.name rangeOfString: @"algorithm"].location == NSNotFound)
-			[issuerDict setObject:kOTPGeneratorSHA1Algorithm forKey:@"encryptionType"];
+		if([queryItem.name rangeOfString: @"algorithm"].location != NSNotFound
+			&& [queryItem.name rangeOfString: @"issuer"].location != NSNotFound)
+				goto finished;
+
+		else {
+
+			if([queryItem.name rangeOfString: @"algorithm"].location == NSNotFound)
+				[issuerDict setObject:kOTPGeneratorSHA1Algorithm forKey:@"encryptionType"];
+
+			if([queryItem.name rangeOfString: @"issuer"].location == NSNotFound) {
+
+				NSScanner *scanner = [NSScanner scannerWithString: string];
+				[scanner setCharactersToBeSkipped:nil];
+				[scanner scanUpToString:@"/totp/" intoString:nil];
+				if([scanner scanString:@"/totp/" intoString:nil]) {
+					NSString *result = nil;
+					if([scanner scanUpToString:@"?" intoString:&result])
+						[issuerDict setObject:result forKey:@"Issuer"];
+				}
+
+			}
+
+		}
 
 	}
+
+	finished:
 
 	[entriesArray addObject: issuerDict];
 	[self saveDefaults];
