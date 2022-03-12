@@ -3,6 +3,10 @@
 
 @implementation ModalChildView {
 
+	UIView *containerView;
+	UIView *dimmedView;
+	NSLayoutConstraint *containerViewBottomConstraint;
+	NSLayoutConstraint *containerViewHeightConstraint;
 	UIStackView *titleStackView;
 	UIStackView *buttonsStackView;
 	UIStackView *scanQRCodeStackView;
@@ -37,6 +41,17 @@
 
 	self.translatesAutoresizingMaskIntoConstraints = NO;
 
+	dimmedView = [UIView new];
+	dimmedView.alpha = 0;
+	dimmedView.backgroundColor = UIColor.blackColor;
+	dimmedView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self addSubview: dimmedView];
+
+	containerView = [UIView new];
+	containerView.backgroundColor = UIColor.secondarySystemBackgroundColor;
+	containerView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self addSubview: containerView];
+
 	/* ********** STACK VIEWS ********** */
 
 	titleStackView = [UIStackView new];
@@ -70,8 +85,8 @@
 	titleStackView.alpha = 0;
 	titleStackView.transform = CGAffineTransformMakeScale(0.1, 0.1);
 
-	[self addSubview: titleStackView];
-	[self addSubview: buttonsStackView];
+	[containerView addSubview: titleStackView];
+	[containerView addSubview: buttonsStackView];
 	[buttonsStackView addArrangedSubview: scanQRCodeStackView];
 	[buttonsStackView addArrangedSubview: importQRStackView];
 	[buttonsStackView addArrangedSubview: enterManuallyStackView];
@@ -129,24 +144,106 @@
 	[enterManuallyStackView addArrangedSubview: enterManuallyImageView];
 	[enterManuallyStackView addArrangedSubview: enterManuallyButton];
 
+	[self setupGestures];
 	[self layoutUI];
+
+}
+
+
+- (void)setupGestures {
+
+	UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapView)];
+	[dimmedView addGestureRecognizer: tapRecognizer];
+
+	UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(didPan:)];
+	[self addGestureRecognizer: panRecognizer];
+
+}
+
+
+- (void)layoutSubviews {
+
+	[super layoutSubviews];
+
+	CAShapeLayer *maskLayer = [CAShapeLayer layer];
+	maskLayer.path = [UIBezierPath bezierPathWithRoundedRect:
+		CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 300)
+		byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight
+		cornerRadii:(CGSize){16, 16}].CGPath;
+
+	containerView.layer.mask = maskLayer;
+	containerView.layer.cornerCurve = kCACornerCurveContinuous;
 
 }
 
 
 - (void)layoutUI {
 
+	[dimmedView.topAnchor constraintEqualToAnchor: self.topAnchor].active = YES;
+	[dimmedView.bottomAnchor constraintEqualToAnchor: self.bottomAnchor].active = YES;
+	[dimmedView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
+	[dimmedView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;
+
+	[containerView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
+	[containerView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;
+
+	containerViewHeightConstraint = [containerView.heightAnchor constraintEqualToConstant: kDefaultHeight];
+	containerViewHeightConstraint.active = YES;
+
+	containerViewBottomConstraint = [containerView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant: kDefaultHeight];
+	containerViewBottomConstraint.active = YES;
+
+	[titleStackView.topAnchor constraintEqualToAnchor: containerView.topAnchor constant: 30].active = YES;
+	[titleStackView.centerXAnchor constraintEqualToAnchor: containerView.centerXAnchor].active = YES;
+	[titleStackView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 30].active = YES;
+	[titleStackView.trailingAnchor constraintEqualToAnchor: containerView.trailingAnchor constant: -30].active = YES;
+
+	[buttonsStackView.topAnchor constraintEqualToAnchor: titleStackView.bottomAnchor constant: 30].active = YES;
+	[buttonsStackView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 20].active = YES;
+
 	[self activateConstraintsForView: scanQRCodeImageView];
 	[self activateConstraintsForView: importQRImageView];
 	[self activateConstraintsForView: enterManuallyImageView];
 
-	[titleStackView.topAnchor constraintEqualToAnchor: self.topAnchor constant: 30].active = YES;
-	[titleStackView.centerXAnchor constraintEqualToAnchor: self.centerXAnchor].active = YES;
-	[titleStackView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor constant: 30].active = YES;
-	[titleStackView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor constant: -30].active = YES;
+}
 
-	[buttonsStackView.topAnchor constraintEqualToAnchor: titleStackView.bottomAnchor constant: 30].active = YES;
-	[buttonsStackView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor constant: 20].active = YES;
+// ! Animations
+
+- (void)animateViews {
+
+	[self animateDimmedView];
+	[self animateContainer];
+
+}
+
+- (void)animateContainer {
+
+	[self animateViewsWithDuration:0.3 animations:^{
+
+		containerViewBottomConstraint.constant = 0;
+		[self layoutIfNeeded];
+
+	} completion:^(BOOL finished) { [self animateSubviews]; }];
+
+}
+
+
+- (void)animateDimmedView {
+
+	[self animateViewsWithDuration:0.3 animations:^{ dimmedView.alpha = 0.6; } completion:nil];
+
+}
+
+
+- (void)animateDismissWithCompletion:(void(^)(BOOL finished))completion {
+
+	[self animateViewsWithDuration:0.3 animations:^{
+
+		dimmedView.alpha = 0;
+		containerViewBottomConstraint.constant = kDefaultHeight;
+		[self layoutIfNeeded];
+
+	} completion:completion];
 
 }
 
@@ -182,6 +279,20 @@
 
 	[view.widthAnchor constraintEqualToConstant: 25].active = YES;
 	[view.heightAnchor constraintEqualToConstant: 25].active = YES;
+
+}
+
+
+- (void)animateViewsWithDuration:(CGFloat)duration
+	animations:(void (^)(void))animations
+	completion:(void(^)(BOOL finished))completion {
+
+	[UIView animateWithDuration:duration
+		delay:0
+		options:UIViewAnimationOptionCurveEaseIn
+		animations:animations
+		completion:completion
+	];
 
 }
 
@@ -254,6 +365,18 @@
 - (void)didTapEnterManuallyButton {
 
 	[self.delegate modalChildViewDidTapEnterManuallyButton];
+
+}
+
+
+- (void)didTapView { [self.delegate modalChildViewDidTapDimmedView]; }
+
+
+- (void)didPan:(UIPanGestureRecognizer *)panRecognizer {
+
+	[self.delegate modalChildViewDidPanWithGesture: panRecognizer
+		modifyingConstraintForView:containerViewHeightConstraint
+	];
 
 }
 
