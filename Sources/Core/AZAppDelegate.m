@@ -7,10 +7,20 @@
 
 }
 
+// can't use self before the app delegate is initialized so I can't make ivars :frSmh:
+
+static Class strongClass;
+static UIButton *quitButton;
+static UILabel *addressLabel;
+static UIWindow *strongWindow;
+static AuthManager *authManager;
+static ModalSheetVC *modalSheetVC;
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
 	allocateClass(strongClass);
 
+	authManager = [AuthManager new];
 	window = [UIWindow new];
 	window.frame = UIScreen.mainScreen.bounds;
 	window.tintColor = kAzureLilacTintColor;
@@ -22,7 +32,7 @@
 
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	BOOL usesBiometrics = [defaults boolForKey: @"useBiometrics"];
-	if(usesBiometrics) unsafePortalDispatch();
+	if(usesBiometrics && [authManager shouldUseBiometrics]) unsafePortalDispatch();
 	else {
 		window.rootViewController = [AzureRootVC new];
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -95,11 +105,7 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 
 }
 
-- (void)didTapQuitButton { abort(); }
-
-void unsafePortalDispatch() {
-
-	AuthManager *authManager = [AuthManager new];
+static void unsafePortalDispatch() {
 
 	[authManager setupAuthWithReason:@"Azure needs you to authenticate in order to access the app."
 		reply:^(BOOL success, NSError *error) {
@@ -143,22 +149,40 @@ static void checkIfJailbroken() {
 	NSFileManager *fileM = [NSFileManager defaultManager];
 
 	// very basic, but tbh idrgaf to get crazy about it, so this will suffice
-	if(![fileM fileExistsAtPath: kCheckra1n]
-		&& ![fileM fileExistsAtPath: kTaurine]
-		&& ![fileM fileExistsAtPath: kUnc0ver]) return;
+	if(!([fileM fileExistsAtPath: kCheckra1n]
+		|| [fileM fileExistsAtPath: kTaurine]
+		|| [fileM fileExistsAtPath: kUnc0ver])) return;
 
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if([defaults boolForKey: @"jailbrokenSheetAppearedOnce"]) return;
 
-	UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:@"Oop, looks like you're jailbroken. Don't worry, I won't lock you out or prevent you from using the app, that's bullshit I don't believe in, and whoever does that can go fuck themselves. That being said, be aware that your device could be more prone to attacks or vulnerabilities and your data could get compromised, proceed with caution." preferredStyle: UIAlertControllerStyleActionSheet];
-	UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"I understand" style:UIAlertActionStyleDestructive handler:nil];
-	UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Quit" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) { abort(); }];
-	[alertController addAction: confirmAction];
-	[alertController addAction: cancelAction];
-	[strongWindow.rootViewController presentViewController:alertController animated:YES completion:nil];
+	modalSheetVC = [ModalSheetVC new];
+	[modalSheetVC setupChildWithTitle:@"Azure"
+		withSubtitle:@"Oop, looks like you're jailbroken. Don't worry, I won't lock you out or prevent you from using the app, that's bullshit I don't believe in, and whoever does that can go fuck themselves. That being said, be aware that your device could be more prone to attacks or vulnerabilities and your data could get compromised, proceed with caution."
+		withButtonTitle:@"I understand"
+		withTarget:(AZAppDelegate *)([[UIApplication sharedApplication] delegate])
+		forSelector:@selector(didTapUnderstandButton)
+		secondButtonTitle:@"Quit app"
+		withTarget:(AZAppDelegate *)([[UIApplication sharedApplication] delegate])
+		forSelector:@selector(didTapQuitButton)
+		thirdButtonTitle:nil
+		withTarget:nil
+		forSelector:nil
+		withFirstImage:[UIImage systemImageNamed:@"exclamationmark.shield.fill"]
+		withSecondImage:[UIImage systemImageNamed:@"xmark.shield.fill"]
+		withThirdImage:nil
+		allowingForSecondStackView:YES
+		allowingForThirdStackView:NO
+		prepareForReuse:NO
+	];
+	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+	[strongWindow.rootViewController presentViewController:modalSheetVC animated:NO completion:nil];
 
 	[defaults setBool:YES forKey: @"jailbrokenSheetAppearedOnce"];
 
 }
+
+- (void)didTapUnderstandButton { [modalSheetVC vcNeedsDismissal]; }
+- (void)didTapQuitButton { abort(); }
 
 @end

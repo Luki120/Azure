@@ -56,12 +56,64 @@
 }
 
 
+- (void)setupChildWithTitle:(NSString *)title
+	withSubtitle:(NSString *)subtitle
+	withButtonTitle:(NSString *)firstTitle
+	withTarget:(id)firstTarget
+	forSelector:(SEL)firstSelector
+	secondButtonTitle:(NSString *_Nullable)secondTitle
+	withTarget:(id _Nullable)secondTarget
+	forSelector:(SEL _Nullable)secondSelector
+	thirdButtonTitle:(NSString *_Nullable)thirdTitle
+	withTarget:(id _Nullable)thirdTarget
+	forSelector:(SEL _Nullable)thirdSelector
+	withFirstImage:(UIImage *)firstImage
+	withSecondImage:(UIImage *_Nullable)secondImage
+	withThirdImage:(UIImage *_Nullable)thirdImage
+	allowingForSecondStackView:(BOOL)allowsSecondSV
+	allowingForThirdStackView:(BOOL)allowsThirdSV
+	prepareForReuse:(BOOL)prepare {
+
+	[modalChildView setupModalSheetWithTitle:title
+		withSubtitle:subtitle
+		withButtonTitle:firstTitle
+		withTarget:firstTarget
+		forSelector:firstSelector
+		secondButtonTitle:secondTitle
+		withTarget:secondTarget
+		forSelector:secondSelector
+		thirdButtonTitle:thirdTitle
+		withTarget:thirdTarget
+		forSelector:thirdSelector
+		withFirstImage:firstImage
+		withSecondImage:secondImage
+		withThirdImage:thirdImage
+		allowingForSecondStackView:allowsSecondSV 
+		allowingForThirdStackView:allowsThirdSV
+		prepareForReuse:prepare
+	];
+
+}
+
+
+- (void)shouldCrossDissolveChildSubviews { [modalChildView shouldCrossDissolveSubviews]; }
+
+
 - (void)layoutUI {
 
 	[modalChildView.topAnchor constraintEqualToAnchor: self.view.topAnchor].active = YES;
 	[modalChildView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor].active = YES;
 	[modalChildView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
 	[modalChildView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
+
+}
+
+
+- (void)vcNeedsDismissal {
+
+	[modalChildView animateDismissWithCompletion:^(BOOL finished) {
+		[self dismissViewControllerAnimated:YES completion:nil];
+	}];
 
 }
 

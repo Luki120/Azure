@@ -10,6 +10,8 @@
 	UILabel *placeholderLabel;
 	AzureFloatingButtonView *azureFloatingButtonView;	
 	AzureToastView *azureToastView;
+	BackupManager *backupManager;
+	ModalSheetVC *modalSheetVC;
 
 }
 
@@ -24,6 +26,8 @@
 	[self setupViews];
 	[self setupObservers];
 	[self setupImagesDict];
+
+	backupManager = [BackupManager new];
 	[azureTableView registerClass:AzurePinCodeCell.class forCellReuseIdentifier:kIdentifier];
 
 	return self;
@@ -262,7 +266,25 @@
 
 - (void)didTapFloatingButton {
 
-	ModalSheetVC *modalSheetVC = [ModalSheetVC new];
+	modalSheetVC = [ModalSheetVC new];
+	[modalSheetVC setupChildWithTitle:@"Add issuer"
+		withSubtitle:@"Add an issuer by scanning a QR code, importing a QR image or entering the secret manually."
+		withButtonTitle:@"Scan QR Code"
+		withTarget:modalSheetVC
+		forSelector:@selector(modalChildViewDidTapScanQRCodeButton)
+		secondButtonTitle:@"Import QR Image"
+		withTarget:modalSheetVC
+		forSelector:@selector(modalChildViewDidTapImportQRImageButton)
+		thirdButtonTitle:@"Enter Manually"
+		withTarget:modalSheetVC
+		forSelector:@selector(modalChildViewDidTapEnterManuallyButton)
+		withFirstImage:[UIImage systemImageNamed:@"qrcode"]
+		withSecondImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
+		withThirdImage:[UIImage systemImageNamed:@"square.and.pencil"]
+		allowingForSecondStackView:YES
+		allowingForThirdStackView:YES
+		prepareForReuse:NO
+	];
 	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
 	[self presentViewController:modalSheetVC animated:NO completion: nil];
 
@@ -352,56 +374,83 @@
 
 }
 
-
 - (void)makeBackup {
 
-	BackupManager *backupManager = [BackupManager new];
-
-	UIAlertController *backupController = [UIAlertController alertControllerWithTitle:@"Azure" message:@"What do you want to do?" preferredStyle:UIAlertControllerStyleAlert];
-	UIAlertAction *loadBackupAction = [UIAlertAction actionWithTitle:@"Load backup" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
-
-		[backupManager makeDataOutOfJSON];
-
-		[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
-
-			[azureTableView reloadData];
-
-		} completion:nil];
-
-	}];
-
-	UIAlertAction *makeBackupAction = [UIAlertAction actionWithTitle:@"Make backup" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-
-		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
-			[azureToastView fadeInOutToastViewWithMessage:@"Nothing to backup." finalDelay:0.5];
-			return;
-		}
-
-		[backupManager makeJSONOutOfData];
-
-		UIAlertController *successController = [UIAlertController alertControllerWithTitle:@"Azure" message:@"Do you want to view your backup in Filza now?" preferredStyle:UIAlertControllerStyleActionSheet];
-		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {	
-
-			NSString *pathToFilza = [@"filza://view" stringByAppendingString: kAzurePath];
-			NSURL *backupURLPath = [NSURL URLWithString: pathToFilza];
-			[UIApplication.sharedApplication openURL:backupURLPath options:@{} completionHandler:nil];
-
-		}];
-
-		UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"Later" style:UIAlertActionStyleDefault handler:nil];
-		[successController addAction: confirmAction];
-		[successController addAction: dismissAction];
-		successController.popoverPresentationController.sourceRect = self.view.bounds;
-		successController.popoverPresentationController.sourceView = self.view;
-		[self presentViewController:successController animated:YES completion:nil];
-
-	}];
-
-	[backupController addAction: loadBackupAction];
-	[backupController addAction: makeBackupAction];
-	[self presentViewController:backupController animated:YES completion:nil];
+	modalSheetVC = [ModalSheetVC new];
+	[modalSheetVC setupChildWithTitle:@"Backup options"
+		withSubtitle:@"Choose between loading a backup from file or making a new one."
+		withButtonTitle:@"Load Backup"
+		withTarget:self
+		forSelector:@selector(didTapLoadBackup)
+		secondButtonTitle:@"Make Backup"
+		withTarget:self
+		forSelector:@selector(didTapMakeBackup)
+		thirdButtonTitle:nil
+		withTarget:nil
+		forSelector:nil
+		withFirstImage:[UIImage systemImageNamed:@"square.and.arrow.down"]
+		withSecondImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
+		withThirdImage:nil
+		allowingForSecondStackView:YES
+		allowingForThirdStackView:NO
+		prepareForReuse:NO
+	];
+	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+	[self presentViewController:modalSheetVC animated:NO completion:nil];
 
 }
+
+// ! ModalSheetVC
+
+- (void)didTapLoadBackup {
+
+	[backupManager makeDataOutOfJSON];
+
+	[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+		[azureTableView reloadData];
+
+	} completion:nil];
+
+}
+
+
+- (void)didTapMakeBackup {
+
+	[backupManager makeJSONOutOfData];
+	[modalSheetVC shouldCrossDissolveChildSubviews];
+	[modalSheetVC setupChildWithTitle:@"Make backup actions"
+		withSubtitle:@"Do you want to view your backup in Filza now?"
+		withButtonTitle:@"Yes"
+		withTarget:self
+		forSelector:@selector(didTapViewInFilzaButton)
+		secondButtonTitle:@"Later"
+		withTarget:self
+		forSelector:@selector(didTapDismissButton)
+		thirdButtonTitle:nil
+		withTarget:nil
+		forSelector:nil
+		withFirstImage:[UIImage systemImageNamed:@"checkmark.circle.fill"]
+		withSecondImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
+		withThirdImage:nil
+		allowingForSecondStackView:YES
+		allowingForThirdStackView:NO
+		prepareForReuse:YES
+	];
+
+}
+
+
+- (void)didTapViewInFilzaButton {
+
+	NSString *pathToFilza = [@"filza://view" stringByAppendingString: kAzurePath];
+	NSURL *backupURLPath = [NSURL URLWithString: pathToFilza];
+	[UIApplication.sharedApplication openURL:backupURLPath options:@{} completionHandler:nil];
+
+}
+
+
+- (void)didTapDismissButton { [modalSheetVC vcNeedsDismissal]; }
 
 // ! UISearchResultsUpdating
 

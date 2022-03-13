@@ -7,4 +7,23 @@
 
 
 @interface ModalSheetVC : UIViewController <ModalChildViewDelegate, PinCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+- (void)setupChildWithTitle:(NSString *)title
+	withSubtitle:(NSString *)subtitle
+	withButtonTitle:(NSString *)firstTitle
+	withTarget:(id)firstTarget
+	forSelector:(SEL)firstSelector
+	secondButtonTitle:(NSString *)secondTitle
+	withTarget:(id)secondTarget
+	forSelector:(SEL)secondSelector
+	thirdButtonTitle:(NSString *)thirdTitle
+	withTarget:(id)thirdTarget
+	forSelector:(SEL)thirdSelector
+	withFirstImage:(UIImage *)firstImage
+	withSecondImage:(UIImage *)secondImage
+	withThirdImage:(UIImage *)thirdImage
+	allowingForSecondStackView:(BOOL)allowsSecondSV
+	allowingForThirdStackView:(BOOL)allowsThirdSV
+	prepareForReuse:(BOOL)prepare;
+- (void)vcNeedsDismissal;
+- (void)shouldCrossDissolveChildSubviews;
 @end

@@ -7,19 +7,8 @@
 	UIView *dimmedView;
 	NSLayoutConstraint *containerViewBottomConstraint;
 	NSLayoutConstraint *containerViewHeightConstraint;
-	UIStackView *titleStackView;
-	UIStackView *buttonsStackView;
-	UIStackView *scanQRCodeStackView;
-	UIStackView *importQRStackView;
-	UIStackView *enterManuallyStackView;
-	UILabel *titleLabel;
-	UILabel *subtitleLabel;
-	UIButton *scanQRCodeButton;
-	UIButton *importQRButton;
-	UIButton *enterManuallyButton;
-	UIImageView *scanQRCodeImageView;
-	UIImageView *importQRImageView;
-	UIImageView *enterManuallyImageView;
+	UIStackView *strongTitleStackView;
+	UIStackView *strongButtonsStackView;
 
 }
 
@@ -51,98 +40,6 @@
 	containerView.backgroundColor = UIColor.secondarySystemBackgroundColor;
 	containerView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self addSubview: containerView];
-
-	/* ********** STACK VIEWS ********** */
-
-	titleStackView = [UIStackView new];
-	buttonsStackView = [UIStackView new];
-	scanQRCodeStackView = [UIStackView new];
-	importQRStackView = [UIStackView new];
-	enterManuallyStackView = [UIStackView new];
-	[self createStackViewWithStackView:titleStackView
-		withAxis:UILayoutConstraintAxisVertical
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:buttonsStackView
-		withAxis:UILayoutConstraintAxisVertical
-		withSpacing:20
-	];
-	[self createStackViewWithStackView:scanQRCodeStackView
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:importQRStackView
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:enterManuallyStackView
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-
-	buttonsStackView.alpha = 0;
-	buttonsStackView.transform = CGAffineTransformMakeScale(0.1, 0.1);
-	titleStackView.alpha = 0;
-	titleStackView.transform = CGAffineTransformMakeScale(0.1, 0.1);
-
-	[containerView addSubview: titleStackView];
-	[containerView addSubview: buttonsStackView];
-	[buttonsStackView addArrangedSubview: scanQRCodeStackView];
-	[buttonsStackView addArrangedSubview: importQRStackView];
-	[buttonsStackView addArrangedSubview: enterManuallyStackView];
-
-	/* ********** LABELS ********** */
-
-	titleLabel = [UILabel new];
-	[self createLabelWithLabel:titleLabel
-		withFont:[UIFont systemFontOfSize: 16]
-		withText:@"Add issuer"
-		textColor:UIColor.labelColor
-	];
-	subtitleLabel = [UILabel new];
-	[self createLabelWithLabel:subtitleLabel
-		withFont:[UIFont systemFontOfSize: 12]
-		withText:@"Add an issuer by scanning a QR code, importing a QR image or entering the secret manually."
-		textColor:UIColor.secondaryLabelColor
-	];
-
-	/* ********** IMAGE VIEWS ********** */
-
-	scanQRCodeImageView = [UIImageView new];
-	[self createImageView:scanQRCodeImageView withImage:[UIImage systemImageNamed: @"qrcode"]];
-
-	importQRImageView = [UIImageView new];
-	[self createImageView:importQRImageView withImage:[UIImage systemImageNamed: @"square.and.arrow.up"]];
-
-	enterManuallyImageView = [UIImageView new];
-	[self createImageView:enterManuallyImageView withImage:[UIImage systemImageNamed: @"square.and.pencil"]];
-
-	/* ********** BUTTONS ********** */
-
-	scanQRCodeButton = [UIButton new];
-	[self createButtonWithButton:scanQRCodeButton
-		withTitleLabel:@"Scan QR Code"
-		forSelector:@selector(didTapScanQRCodeButton)
-	];
-	importQRButton = [UIButton new];
-	[self createButtonWithButton:importQRButton
-		withTitleLabel:@"Import QR Image"
-		forSelector:@selector(didTapImportQRImageButton)
-	];
-	enterManuallyButton = [UIButton new];
-	[self createButtonWithButton:enterManuallyButton
-		withTitleLabel:@"Enter Manually"
-		forSelector:@selector(didTapEnterManuallyButton)
-	];
-
-	[titleStackView addArrangedSubview: titleLabel];
-	[titleStackView addArrangedSubview: subtitleLabel];
-	[scanQRCodeStackView addArrangedSubview: scanQRCodeImageView];
-	[scanQRCodeStackView addArrangedSubview: scanQRCodeButton];
-	[importQRStackView addArrangedSubview: importQRImageView];
-	[importQRStackView addArrangedSubview: importQRButton];
-	[enterManuallyStackView addArrangedSubview: enterManuallyImageView];
-	[enterManuallyStackView addArrangedSubview: enterManuallyButton];
 
 	[self setupGestures];
 	[self layoutUI];
@@ -193,17 +90,18 @@
 	containerViewBottomConstraint = [containerView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant: kDefaultHeight];
 	containerViewBottomConstraint.active = YES;
 
-	[titleStackView.topAnchor constraintEqualToAnchor: containerView.topAnchor constant: 30].active = YES;
-	[titleStackView.centerXAnchor constraintEqualToAnchor: containerView.centerXAnchor].active = YES;
-	[titleStackView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 30].active = YES;
-	[titleStackView.trailingAnchor constraintEqualToAnchor: containerView.trailingAnchor constant: -30].active = YES;
+}
 
-	[buttonsStackView.topAnchor constraintEqualToAnchor: titleStackView.bottomAnchor constant: 30].active = YES;
-	[buttonsStackView.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 20].active = YES;
 
-	[self activateConstraintsForView: scanQRCodeImageView];
-	[self activateConstraintsForView: importQRImageView];
-	[self activateConstraintsForView: enterManuallyImageView];
+- (void)layoutUIForStackView:(UIStackView *)titleSV buttonsStackView:(UIStackView *)buttonsSV {
+
+	[titleSV.topAnchor constraintEqualToAnchor: containerView.topAnchor constant: 30].active = YES;
+	[titleSV.centerXAnchor constraintEqualToAnchor: containerView.centerXAnchor].active = YES;
+	[titleSV.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 30].active = YES;
+	[titleSV.trailingAnchor constraintEqualToAnchor: containerView.trailingAnchor constant: -30].active = YES;
+
+	[buttonsSV.topAnchor constraintEqualToAnchor: titleSV.bottomAnchor constant: 30].active = YES;
+	[buttonsSV.leadingAnchor constraintEqualToAnchor: containerView.leadingAnchor constant: 20].active = YES;
 
 }
 
@@ -223,7 +121,7 @@
 		containerViewBottomConstraint.constant = 0;
 		[self layoutIfNeeded];
 
-	} completion:^(BOOL finished) { [self animateSubviews]; }];
+	} completion:^(BOOL finished) { [self animateSubviews:strongTitleStackView and:strongButtonsStackView]; }];
 
 }
 
@@ -248,24 +146,45 @@
 }
 
 
-- (void)animateSubviews {
+- (void)shouldCrossDissolveSubviews {
+
+	[UIView transitionWithView:self duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+		strongTitleStackView.alpha = 0;
+		strongButtonsStackView.alpha = 0;
+
+	} completion:^(BOOL finished) {
+
+		[UIView transitionWithView:self duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+			strongTitleStackView.alpha = 1;
+			strongButtonsStackView.alpha = 1;
+
+		} completion:nil];	
+
+	}];
+
+}
+
+
+- (void)animateSubviews:(UIStackView *)titleSV and:(UIStackView *)buttonsSV {
 
 	[UIView animateWithDuration:0.5 delay:0.008 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
-		titleStackView.alpha = 1;
-		titleStackView.transform = CGAffineTransformMakeScale(1, 1);
+		titleSV.alpha = 1;
+		titleSV.transform = CGAffineTransformMakeScale(1, 1);
 
 	} completion:^(BOOL finished) {
 
 		[UIView animateWithDuration:0.5 delay:0.004 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
-			buttonsStackView.alpha = 1;
-			buttonsStackView.transform = CGAffineTransformMakeScale(1, 1);
+			buttonsSV.alpha = 1;
+			buttonsSV.transform = CGAffineTransformMakeScale(1, 1);
 
 		} completion:^(BOOL finished) {
 
-			titleStackView.transform = CGAffineTransformIdentity;
-			buttonsStackView.transform = CGAffineTransformIdentity;
+			titleSV.transform = CGAffineTransformIdentity;
+			buttonsSV.transform = CGAffineTransformIdentity;
 
 		}];
 
@@ -311,13 +230,13 @@
 
 - (void)createButtonWithButton:(UIButton *)button
 	withTitleLabel:(NSString *)title
+	withTarget:(id)target
 	forSelector:(SEL)selector {
 
 	button.titleLabel.font = [UIFont systemFontOfSize: 16];
-	button.translatesAutoresizingMaskIntoConstraints = NO;
 	[button setTitle:title forState: UIControlStateNormal];
 	[button setTitleColor:UIColor.labelColor forState: UIControlStateNormal];
-	[button addTarget:self action:selector forControlEvents: UIControlEventTouchUpInside];
+	[button addTarget:target action:selector forControlEvents: UIControlEventTouchUpInside];
 
 }
 
@@ -343,6 +262,140 @@
 	imageView.contentMode = UIViewContentModeScaleAspectFill;
 	imageView.clipsToBounds = YES;
 	imageView.translatesAutoresizingMaskIntoConstraints = NO;
+
+}
+
+
+- (void)setupModalSheetWithTitle:(NSString *)title
+	withSubtitle:(NSString *)subtitle
+	withButtonTitle:(NSString *)firstTitle
+	withTarget:(id)firstTarget
+	forSelector:(SEL)firstSelector
+	secondButtonTitle:(NSString *_Nullable)secondTitle
+	withTarget:(id)secondTarget
+	forSelector:(SEL _Nullable)secondSelector
+	thirdButtonTitle:(NSString *_Nullable)thirdTitle
+	withTarget:(id)thirdTarget
+	forSelector:(SEL _Nullable)thirdSelector
+	withFirstImage:(UIImage *)firstImage
+	withSecondImage:(UIImage *_Nullable)secondImage
+	withThirdImage:(UIImage *_Nullable)thirdImage
+	allowingForSecondStackView:(BOOL)allowsSecondSV
+	allowingForThirdStackView:(BOOL)allowsThirdSV
+	prepareForReuse:(BOOL)prepare {
+
+	if(prepare) {
+		[strongTitleStackView removeFromSuperview];
+		[strongButtonsStackView removeFromSuperview];
+	}
+
+	/* ********** STACK VIEWS ********** */
+
+	UIStackView *titleSV = [UIStackView new];
+	UIStackView *buttonsSV = [UIStackView new];
+	UIStackView *firstSV = [UIStackView new];
+	UIStackView *secondSV = [UIStackView new];
+	UIStackView *thirdSV = [UIStackView new];
+
+	[self createStackViewWithStackView:titleSV
+		withAxis:UILayoutConstraintAxisVertical
+		withSpacing:10
+	];
+	[self createStackViewWithStackView:buttonsSV
+		withAxis:UILayoutConstraintAxisVertical
+		withSpacing:20
+	];
+	[self createStackViewWithStackView:firstSV
+		withAxis:UILayoutConstraintAxisHorizontal
+		withSpacing:10
+	];
+	if(allowsSecondSV)
+		[self createStackViewWithStackView:secondSV
+			withAxis:UILayoutConstraintAxisHorizontal
+			withSpacing:10
+		];
+	if(allowsThirdSV)
+		[self createStackViewWithStackView:thirdSV
+			withAxis:UILayoutConstraintAxisHorizontal
+			withSpacing:10
+		];
+
+	[containerView addSubview: titleSV];
+	[containerView addSubview: buttonsSV];
+	[buttonsSV addArrangedSubview: firstSV];
+	if(allowsSecondSV) [buttonsSV addArrangedSubview: secondSV];
+	if(allowsThirdSV) [buttonsSV addArrangedSubview: thirdSV];
+
+/*	buttonsSV.alpha = 0;
+	buttonsSV.transform = CGAffineTransformMakeScale(0.1, 0.1);
+	titleSV.alpha = 0;
+	titleSV.transform = CGAffineTransformMakeScale(0.1, 0.1);*/
+
+	/* ********** LABELS ********** */
+
+	UILabel *titleL = [UILabel new];
+	UILabel *subtitleL = [UILabel new];
+	subtitleL.translatesAutoresizingMaskIntoConstraints = NO;
+
+	[self createLabelWithLabel:titleL
+		withFont:[UIFont systemFontOfSize: 16]
+		withText:title
+		textColor:UIColor.labelColor
+	];
+	[self createLabelWithLabel:subtitleL
+		withFont:[UIFont systemFontOfSize: 12]
+		withText:subtitle
+		textColor:UIColor.secondaryLabelColor
+	];
+
+	/* ********** IMAGE VIEWS ********** */
+
+	UIImageView *firstImageView = [UIImageView new];
+	UIImageView *secondImageView = [UIImageView new];
+	UIImageView *thirdImageView = [UIImageView new];
+
+	[self createImageView:firstImageView withImage:firstImage];
+	[self createImageView:secondImageView withImage:secondImage];
+	[self createImageView:thirdImageView withImage:thirdImage];
+
+	/* ********** BUTTONS ********** */
+
+	UIButton *firstButton = [UIButton new];
+	UIButton *secondButton = [UIButton new];
+	UIButton *thirdButton = [UIButton new];
+
+	[self createButtonWithButton:firstButton
+		withTitleLabel:firstTitle
+		withTarget:firstTarget
+		forSelector:firstSelector
+	];
+	[self createButtonWithButton:secondButton
+		withTitleLabel:secondTitle
+		withTarget:secondTarget
+		forSelector:secondSelector
+	];
+	[self createButtonWithButton:thirdButton
+		withTitleLabel:thirdTitle
+		withTarget:thirdTarget
+		forSelector:thirdSelector
+	];
+
+	[titleSV addArrangedSubview: titleL];
+	[titleSV addArrangedSubview: subtitleL];
+	[firstSV addArrangedSubview: firstImageView];
+	[firstSV addArrangedSubview: firstButton];
+	[secondSV addArrangedSubview: secondImageView];
+	[secondSV addArrangedSubview: secondButton];
+	[thirdSV addArrangedSubview: thirdImageView];
+	[thirdSV addArrangedSubview: thirdButton];
+
+	[self layoutUIForStackView:titleSV buttonsStackView: buttonsSV];
+	[self activateConstraintsForView: firstImageView];
+	[self activateConstraintsForView: secondImageView];
+	[self activateConstraintsForView: thirdImageView];
+
+	strongTitleStackView = titleSV;
+	strongButtonsStackView = buttonsSV;
 
 }
 
@@ -374,7 +427,7 @@
 
 - (void)didPan:(UIPanGestureRecognizer *)panRecognizer {
 
-	[self.delegate modalChildViewDidPanWithGesture: panRecognizer
+	[self.delegate modalChildViewDidPanWithGesture:panRecognizer
 		modifyingConstraintForView:containerViewHeightConstraint
 	];
 
