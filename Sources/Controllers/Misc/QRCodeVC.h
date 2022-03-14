@@ -5,5 +5,15 @@
 #import "Sources/Views/AzureToastView.h"
 
 
+@protocol QRCodeVCDelegate
+
+@required
+
+- (void)qrCodeVCDidCreateIssuerOutOfQRCode;
+
+@end
+
+
 @interface QRCodeVC : UIViewController <AVCaptureMetadataOutputObjectsDelegate, UINavigationControllerDelegate>
+@property (nonatomic, weak) id <QRCodeVCDelegate> delegate;
 @end

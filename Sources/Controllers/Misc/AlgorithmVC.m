@@ -44,8 +44,7 @@
 	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"VanillaCell" forIndexPath:indexPath];
 
 	selectedRow = [TOTPManager sharedInstance]->selectedRow;
-	NSDictionary *userInfoDict = @{ @"selectedRow": [NSNumber numberWithInteger: selectedRow] };
-	[NSNotificationCenter.defaultCenter postNotificationName:@"updateAlgorithmLabel" object:nil userInfo: userInfoDict];
+	[self.delegate algorithmVCDidUpdateAlgorithmLabelWithSelectedRow: selectedRow];
 
 	cell.accessoryType = selectedRow == indexPath.row ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
 	cell.backgroundColor = UIColor.clearColor;

@@ -20,7 +20,6 @@
 	pinCodeVC.delegate = self;
 
 	[self setupViews];
-	[self setupObservers];
 
 	return self;
 
@@ -31,14 +30,6 @@
 
 	[super viewDidAppear:animated];
 	[modalChildView animateViews];
-
-}
-
-
-- (void)setupObservers {
-
-	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(createIssuerOutOfQRCode) name:@"qrCodeScanDone" object:nil];
 
 }
 
@@ -119,15 +110,6 @@
 
 }
 
-// ! NSNotificationCenter
-
-- (void)createIssuerOutOfQRCode {
-
-	[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
-	[self dismissVC];
-
-}
-
 // ! Reusable funcs
 
 - (void)configureVC:(UIViewController *)vc
@@ -169,6 +151,7 @@
 - (void)modalChildViewDidTapScanQRCodeButton {
 
 	QRCodeVC *qrCodeVC = [QRCodeVC new];
+	qrCodeVC.delegate = self;
 	[self configureVC:qrCodeVC
 		withTitle:@"Scan QR Code"
 		withItemImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
@@ -253,19 +236,19 @@
 
 // ! PinCodeVCDelegate
 
-- (void)pushAlgorithmVC {
+- (void)pinCodeVCShouldDismissVC {
 
-	AlgorithmVC *algorithmVC = [AlgorithmVC new];
-	algorithmVC.title = @"Algorithm";
-	[navVC pushViewController:algorithmVC animated:YES];
+	[self.delegate modalSheetVCShouldReloadData];
+	[self dismissVC];
 
 }
 
 
-- (void)shouldDismissVC {
+- (void)pinCodeVCShouldPushAlgorithmVC {
 
-	[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
-	[self dismissVC];
+	AlgorithmVC *algorithmVC = [AlgorithmVC new];
+	algorithmVC.title = @"Algorithm";
+	[navVC pushViewController:algorithmVC animated:YES];
 
 }
 
@@ -285,9 +268,18 @@
 	for(CIQRCodeFeature *qrCodeFeature in features) {
 
 		[[TOTPManager sharedInstance] makeURLOutOfOtPauthString: qrCodeFeature.messageString];
-		[NSNotificationCenter.defaultCenter postNotificationName:@"reloadData" object:nil];
+		[self.delegate modalSheetVCShouldReloadData];
 	}
 
+	[self dismissVC];
+
+}
+
+// ! QRCodeVCDelegate
+
+- (void)qrCodeVCDidCreateIssuerOutOfQRCode {
+
+	[self.delegate modalSheetVCShouldReloadData];
 	[self dismissVC];
 
 }

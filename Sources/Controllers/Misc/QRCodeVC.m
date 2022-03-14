@@ -132,7 +132,7 @@
 	if(!outputString) return;
 
 	[[TOTPManager sharedInstance] makeURLOutOfOtPauthString: outputString];
-	[NSNotificationCenter.defaultCenter postNotificationName:@"qrCodeScanDone" object:nil];
+	[self.delegate qrCodeVCDidCreateIssuerOutOfQRCode];
 
 }
 

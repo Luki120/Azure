@@ -6,7 +6,16 @@
 #import "Sources/Views/ModalChildView.h"
 
 
-@interface ModalSheetVC : UIViewController <ModalChildViewDelegate, PinCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@protocol ModalSheetVCDelegate <NSObject>
+
+@required
+- (void)modalSheetVCShouldReloadData;
+
+@end
+
+
+@interface ModalSheetVC : UIViewController <ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@property (nonatomic, weak) id <ModalSheetVCDelegate> delegate;
 - (void)setupChildWithTitle:(NSString *)title
 	withSubtitle:(NSString *)subtitle
 	withButtonTitle:(NSString *)firstTitle

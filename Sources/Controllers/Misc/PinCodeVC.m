@@ -12,6 +12,7 @@
 	UITextField *secretTextField;
 	UITableView *pinCodesTableView;
 	AzureToastView *azToastView;
+	AlgorithmVC *algorithmVC;
 
 }
 
@@ -23,11 +24,12 @@
 	if(!self) return nil;
 
 	[self setupUI];
+	algorithmVC = [AlgorithmVC new];
+	algorithmVC.delegate = self;
 	[pinCodesTableView registerClass:UITableViewCell.class forCellReuseIdentifier:@"Cell"];
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateAlgorithmLabel:) name:@"updateAlgorithmLabel" object:nil];
 
 	return self;
 
@@ -40,6 +42,14 @@
 
 	// Do any additional setup after loading the view, typically from a nib.
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
+
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+
+	[super viewWillAppear:animated];
+	[self configureAlgorithmLabelWithSelectedRow:[TOTPManager sharedInstance]->selectedRow];
 
 }
 
@@ -82,6 +92,8 @@
 		returnKeyType:UIReturnKeyDefault
 	];
 
+	[issuerTextField becomeFirstResponder];
+
 	[issuerStackView addArrangedSubview: issuerLabel];
 	[issuerStackView addArrangedSubview: issuerTextField];
 	[secretHashStackView addArrangedSubview: secretHashLabel];
@@ -95,10 +107,6 @@
 	algorithmLabel.textAlignment = NSTextAlignmentCenter;
 	algorithmLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
-	[self configureAlgorithmLabelWithSelectedRow: [TOTPManager sharedInstance]->selectedRow];
-
-	[issuerTextField becomeFirstResponder];
-
 }
 
 
@@ -109,15 +117,6 @@
 		case 1: algorithmLabel.text = @"SHA256"; break;
 		case 2: algorithmLabel.text = @"SHA512"; break;
 	}
-
-}
-
-
-- (void)updateAlgorithmLabel:(NSNotification *)notification {
-
-	NSDictionary *userInfoDict = notification.userInfo;
-	NSInteger selectedRow = [[userInfoDict objectForKey: @"selectedRow"] integerValue];
-	[self configureAlgorithmLabelWithSelectedRow: selectedRow];
 
 }
 
@@ -134,6 +133,14 @@
 
 }
 
+// ! AlgorithmVCDelegate
+
+- (void)algorithmVCDidUpdateAlgorithmLabelWithSelectedRow:(NSInteger)selectedRow {
+
+	[self configureAlgorithmLabelWithSelectedRow: selectedRow];
+
+}
+
 // ! NSNotificationCenter
 
 - (void)shouldSaveData {
@@ -147,7 +154,7 @@
 		andObject:secretTextField.text
 	];
 
-	[self.delegate shouldDismissVC];
+	[self.delegate pinCodeVCShouldDismissVC];
 
 	issuerTextField.text = @"";
 	secretTextField.text = @"";
@@ -253,7 +260,7 @@
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	if(indexPath.row != 2) return;
 
-	[self.delegate pushAlgorithmVC];
+	[self.delegate pinCodeVCShouldPushAlgorithmVC];
 
 }
 

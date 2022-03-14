@@ -1,16 +1,18 @@
-#import "Sources/Constants/Constants.h"
-#import "Sources/Managers/Singletons/TOTPManager.h"
+#import "Sources/Controllers/Misc/AlgorithmVC.h"
 #import "Sources/Views/AzureToastView.h"
 
 
 @protocol PinCodeVCDelegate <NSObject>
 
-@required - (void)pushAlgorithmVC;
-@optional - (void)shouldDismissVC;
+@optional
+- (void)pinCodeVCShouldDismissVC;
+
+@required
+- (void)pinCodeVCShouldPushAlgorithmVC;
 
 @end
 
 
-@interface PinCodeVC : UIViewController <UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate>
+@interface PinCodeVC : UIViewController <AlgorithmVCDelegate, UITextFieldDelegate, UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, weak) id <PinCodeVCDelegate> delegate;
 @end
