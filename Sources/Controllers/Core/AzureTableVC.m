@@ -151,11 +151,10 @@
 
 		[self.tabBarController setSelectedIndex: 0];
 
-	} completion:nil];
-
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+	} completion:^(BOOL finished) {
 
 		AuthManager *authManager = [AuthManager new];
+		if(![authManager shouldUseBiometrics]) return [self makeBackup];
 		[authManager setupAuthWithReason:@"Azure needs you to authenticate in order to verify your identity for a sensitive operation."
 			reply:^(BOOL success, NSError *error) {
 				dispatch_async(dispatch_get_main_queue(), ^{ if(success) [self makeBackup]; });
@@ -163,7 +162,7 @@
 
 		];
 
-	});
+	}];
 
 }
 
@@ -207,7 +206,7 @@
 
 	UIImage *image = imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
-	UIImage *placeholderImage = [[UIImage imageWithContentsOfFile: @"/Library/Application Support/Azure/lock.png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+	UIImage *placeholderImage = [[UIImage imageWithContentsOfFile:@"/Library/Application Support/Azure/lock.png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
 	cell->issuerImageView.tintColor = image ? nil : kAzureMintTintColor;
@@ -284,9 +283,10 @@
 		allowingForSecondStackView:YES
 		allowingForThirdStackView:YES
 		prepareForReuse:NO
+		allowingInitialScaleAnimation:YES
 	];
 	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-	[self presentViewController:modalSheetVC animated:NO completion: nil];
+	[self presentViewController:modalSheetVC animated:NO completion:nil];
 
 }
 
@@ -381,10 +381,10 @@
 		withSubtitle:@"Choose between loading a backup from file or making a new one."
 		withButtonTitle:@"Load Backup"
 		withTarget:self
-		forSelector:@selector(didTapLoadBackup)
+		forSelector:@selector(didTapLoadBackupButton)
 		secondButtonTitle:@"Make Backup"
 		withTarget:self
-		forSelector:@selector(didTapMakeBackup)
+		forSelector:@selector(didTapMakeBackupButton)
 		thirdButtonTitle:nil
 		withTarget:nil
 		forSelector:nil
@@ -394,6 +394,7 @@
 		allowingForSecondStackView:YES
 		allowingForThirdStackView:NO
 		prepareForReuse:NO
+		allowingInitialScaleAnimation:YES
 	];
 	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
 	[self presentViewController:modalSheetVC animated:NO completion:nil];
@@ -402,7 +403,7 @@
 
 // ! ModalSheetVC
 
-- (void)didTapLoadBackup {
+- (void)didTapLoadBackupButton {
 
 	[backupManager makeDataOutOfJSON];
 
@@ -410,12 +411,12 @@
 
 		[azureTableView reloadData];
 
-	} completion:nil];
+	} completion:^(BOOL finished) { [modalSheetVC vcNeedsDismissal]; }];
 
 }
 
 
-- (void)didTapMakeBackup {
+- (void)didTapMakeBackupButton {
 
 	[backupManager makeJSONOutOfData];
 	[modalSheetVC shouldCrossDissolveChildSubviews];
@@ -436,6 +437,7 @@
 		allowingForSecondStackView:YES
 		allowingForThirdStackView:NO
 		prepareForReuse:YES
+		allowingInitialScaleAnimation:NO
 	];
 
 }
@@ -446,6 +448,12 @@
 	NSString *pathToFilza = [@"filza://view" stringByAppendingString: kAzurePath];
 	NSURL *backupURLPath = [NSURL URLWithString: pathToFilza];
 	[UIApplication.sharedApplication openURL:backupURLPath options:@{} completionHandler:nil];
+
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+
+		[modalSheetVC vcNeedsDismissal];
+
+	});
 
 }
 
