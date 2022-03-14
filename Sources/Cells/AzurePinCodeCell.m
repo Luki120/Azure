@@ -22,15 +22,7 @@
 
 	// Custom initialization
 	[self setupUI];
-
-	NSInteger timestamp = ceil([NSDate.date timeIntervalSince1970]);
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-
-		[pieView animateShapeLayer];
-		[self performSelector:@selector(startTimer) withObject:self afterDelay:30 - timestamp % 30];
-		[NSTimer scheduledTimerWithTimeInterval:30 - timestamp % 30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:NO];
-
-	});
+	[self initializeTimers];
 
 	return self;
 
@@ -49,6 +41,20 @@
 
 	[super prepareForReuse];
 	issuerImageView.image = nil;
+
+}
+
+
+- (void)initializeTimers {
+
+	NSInteger timestamp = ceil([NSDate.date timeIntervalSince1970]);
+	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 30 - timestamp % 30 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+
+		[pieView animateShapeLayer];
+		[self performSelector:@selector(startTimer) withObject:self afterDelay:30 - timestamp % 30];
+		[NSTimer scheduledTimerWithTimeInterval:30 - timestamp % 30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:NO];
+
+	});
 
 }
 
@@ -86,7 +92,7 @@
 	[buttonsStackView addArrangedSubview: copyPinButton];
 	[self createButtonWithButton:infoButton
 		withImage:[UIImage systemImageNamed: @"info.circle"]
-		forSelector:@selector(didTapButton)
+		forSelector:@selector(didTapInfoButton)
 	];
 
 	[buttonsStackView addArrangedSubview: infoButton];
@@ -118,25 +124,26 @@
 }
 
 
-- (void)didTapCopyPinButton {
-
-	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-	pasteboard.string = pinLabel.text;
-	[NSNotificationCenter.defaultCenter postNotificationName:@"fadeInOutCopyPinToast" object:nil];
-
-}
-
-
 - (void)didTapCell {
 
-	[self.delegate didTapCell: self];
+	[self.delegate azurePinCodeCellDidTapCell: self];
 
 }
 
 
-- (void)didTapButton {
+- (void)didTapCopyPinButton {
 
-	[self.delegate didTapInfoButton: self];
+	// no need to delegate this call since the cell is handling the data by itself
+	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+	pasteboard.string = pinLabel.text;
+	[self.delegate azurePinCodeCellShouldFadeInOutToastView];
+
+}
+
+
+- (void)didTapInfoButton {
+
+	[self.delegate azurePinCodeCellDidTapInfoButton: self];
 
 }
 
@@ -150,7 +157,7 @@
 	transition.type = kCATransitionFade;
 	transition.duration = 0.8f;
 	transition.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
-	[pinLabel.layer addAnimation: transition forKey: nil];
+	[pinLabel.layer addAnimation:transition forKey:nil];
 
 	pinLabel.text = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self getLastUNIXTimetamp]]];
 
@@ -206,8 +213,8 @@
 - (void)createButtonWithButton:(UIButton *)button withImage:(UIImage *)image forSelector:(SEL)selector {
 
 	button.tintColor = UIColor.labelColor;
-	[button setImage: image forState: UIControlStateNormal];
-	[button addTarget: self action:selector forControlEvents: UIControlEventTouchUpInside];
+	[button setImage:image forState: UIControlStateNormal];
+	[button addTarget:self action:selector forControlEvents: UIControlEventTouchUpInside];
 
 }
 

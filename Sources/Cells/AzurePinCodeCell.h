@@ -1,4 +1,3 @@
-@import UIKit;
 #import "Azure-Swift.h"
 #import "Sources/Constants/Constants.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
@@ -6,11 +5,12 @@
 
 @class AzurePinCodeCell;
 
-
 @protocol AzurePinCodeCellDelegate <NSObject>
 
-@required - (void)didTapCell:(AzurePinCodeCell *)cell;
-@required - (void)didTapInfoButton:(AzurePinCodeCell *)cell;
+@required
+- (void)azurePinCodeCellDidTapCell:(AzurePinCodeCell *)cell;
+- (void)azurePinCodeCellDidTapInfoButton:(AzurePinCodeCell *)cell;
+- (void)azurePinCodeCellShouldFadeInOutToastView;
 
 @end
 
