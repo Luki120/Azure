@@ -9,6 +9,7 @@
 	NSLayoutConstraint *containerViewHeightConstraint;
 	UIStackView *strongTitleStackView;
 	UIStackView *strongButtonsStackView;
+	BOOL shouldAllowScaleAnim;
 
 }
 
@@ -121,7 +122,10 @@
 		containerViewBottomConstraint.constant = 0;
 		[self layoutIfNeeded];
 
-	} completion:^(BOOL finished) { [self animateSubviews:strongTitleStackView and:strongButtonsStackView]; }];
+	} completion:^(BOOL finished) {
+		if(!shouldAllowScaleAnim) return;
+		[self animateSubviews:strongTitleStackView and:strongButtonsStackView];
+	}];
 
 }
 
@@ -282,7 +286,8 @@
 	withThirdImage:(UIImage *_Nullable)thirdImage
 	allowingForSecondStackView:(BOOL)allowsSecondSV
 	allowingForThirdStackView:(BOOL)allowsThirdSV
-	prepareForReuse:(BOOL)prepare {
+	prepareForReuse:(BOOL)prepare
+	allowingInitialScaleAnimation:(BOOL)allowsScaleAnim {
 
 	if(prepare) {
 		[strongTitleStackView removeFromSuperview];
@@ -326,10 +331,12 @@
 	if(allowsSecondSV) [buttonsSV addArrangedSubview: secondSV];
 	if(allowsThirdSV) [buttonsSV addArrangedSubview: thirdSV];
 
-/*	buttonsSV.alpha = 0;
-	buttonsSV.transform = CGAffineTransformMakeScale(0.1, 0.1);
-	titleSV.alpha = 0;
-	titleSV.transform = CGAffineTransformMakeScale(0.1, 0.1);*/
+	if(allowsScaleAnim) {
+		buttonsSV.alpha = 0;
+		buttonsSV.transform = CGAffineTransformMakeScale(0.1, 0.1);
+		titleSV.alpha = 0;
+		titleSV.transform = CGAffineTransformMakeScale(0.1, 0.1);
+	}
 
 	/* ********** LABELS ********** */
 
@@ -396,6 +403,7 @@
 
 	strongTitleStackView = titleSV;
 	strongButtonsStackView = buttonsSV;
+	shouldAllowScaleAnim = allowsScaleAnim;
 
 }
 

@@ -72,7 +72,8 @@
 	withThirdImage:(UIImage *_Nullable)thirdImage
 	allowingForSecondStackView:(BOOL)allowsSecondSV
 	allowingForThirdStackView:(BOOL)allowsThirdSV
-	prepareForReuse:(BOOL)prepare {
+	prepareForReuse:(BOOL)prepare
+	allowingInitialScaleAnimation:(BOOL)allowsScaleAnim {
 
 	[modalChildView setupModalSheetWithTitle:title
 		withSubtitle:subtitle
@@ -91,6 +92,7 @@
 		allowingForSecondStackView:allowsSecondSV 
 		allowingForThirdStackView:allowsThirdSV
 		prepareForReuse:prepare
+		allowingInitialScaleAnimation:allowsScaleAnim
 	];
 
 }

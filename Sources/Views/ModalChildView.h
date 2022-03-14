@@ -34,7 +34,8 @@
 	withThirdImage:(UIImage *)thirdImage
 	allowingForSecondStackView:(BOOL)allowsSecondSV
 	allowingForThirdStackView:(BOOL)allowsThirdSV
-	prepareForReuse:(BOOL)prepare;
+	prepareForReuse:(BOOL)prepare
+	allowingInitialScaleAnimation:(BOOL)allowsScaleAnim;
 - (void)shouldCrossDissolveSubviews;
 @end
 
