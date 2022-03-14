@@ -60,7 +60,6 @@
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(purgeData) name:@"purgeDataDone" object:nil];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldMakeBackup) name:@"makeBackup" object:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldReloadTableViewData) name:@"reloadData" object:nil];
 
 }
 
@@ -167,7 +166,32 @@
 }
 
 
-- (void)shouldReloadTableViewData { [azureTableView reloadData]; }
+- (void)makeBackup {
+
+	modalSheetVC = [ModalSheetVC new];
+	[modalSheetVC setupChildWithTitle:@"Backup options"
+		withSubtitle:@"Choose between loading a backup from file or making a new one."
+		withButtonTitle:@"Load Backup"
+		withTarget:self
+		forSelector:@selector(didTapLoadBackupButton)
+		secondButtonTitle:@"Make Backup"
+		withTarget:self
+		forSelector:@selector(didTapMakeBackupButton)
+		thirdButtonTitle:nil
+		withTarget:nil
+		forSelector:nil
+		withFirstImage:[UIImage systemImageNamed:@"square.and.arrow.down"]
+		withSecondImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
+		withThirdImage:nil
+		allowingForSecondStackView:YES
+		allowingForThirdStackView:NO
+		prepareForReuse:NO
+		allowingInitialScaleAnimation:YES
+	];
+	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
+	[self presentViewController:modalSheetVC animated:NO completion:nil];
+
+}
 
 // ! UITableViewDataSource
 
@@ -263,9 +287,10 @@
 
 // ! AzureFloatingButtonViewDelegate
 
-- (void)didTapFloatingButton {
+- (void)azureFloatingButtonViewDidTapFloatingButton {
 
 	modalSheetVC = [ModalSheetVC new];
+	modalSheetVC.delegate = self;
 	[modalSheetVC setupChildWithTitle:@"Add issuer"
 		withSubtitle:@"Add an issuer by scanning a QR code, importing a QR image or entering the secret manually."
 		withButtonTitle:@"Scan QR Code"
@@ -292,7 +317,7 @@
 
 // ! AzurePinCodeCellDelegate
 
-- (void)didTapCell:(AzurePinCodeCell *)cell {
+- (void)azurePinCodeCellDidTapCell:(AzurePinCodeCell *)cell {
 
 	[azureToastView fadeInOutToastViewWithMessage:@"Copied hash!" finalDelay:0.2];
 
@@ -302,104 +327,23 @@
 }
 
 
-- (void)didTapInfoButton:(AzurePinCodeCell *)cell {
+- (void)azurePinCodeCellDidTapInfoButton:(AzurePinCodeCell *)cell {
 
 	NSString *message = [NSString stringWithFormat:@"Issuer: %@", cell->issuer];
 	[azureToastView fadeInOutToastViewWithMessage:message finalDelay:0.2];
 
 }
 
-// ! Views
 
-- (void)setupViews {
+- (void)azurePinCodeCellShouldFadeInOutToastView {
 
-	azureTableView = [UITableView new];
-	azureTableView.dataSource = self;
-	azureTableView.delegate = self;
-	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-	azureTableView.backgroundColor = kUserInterfaceStyle ? UIColor.systemBackgroundColor : UIColor.secondarySystemBackgroundColor;
-	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: azureTableView];
-
-	azureFloatingButtonView = [AzureFloatingButtonView new];
-	azureFloatingButtonView.delegate = self;
-	[self.view addSubview: azureFloatingButtonView];
-
-	azureToastView = [AzureToastView new];
-	[self.view addSubview: azureToastView];
-
-	placeholderLabel = [UILabel new];
-	placeholderLabel.font = [UIFont systemFontOfSize: 16];
-	placeholderLabel.text = @"No issuers were added yet. Tap the + button in order to add one.";
-	placeholderLabel.textColor = UIColor.placeholderTextColor;
-	placeholderLabel.numberOfLines = 0;
-	placeholderLabel.textAlignment = NSTextAlignmentCenter;
-	placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: placeholderLabel];
-
-	[self setupSearchController];
+	[azureToastView fadeInOutToastViewWithMessage:@"Copied!" finalDelay:0.2];
 
 }
 
+// ! ModalSheetVCDelegate
 
-- (void)setupSearchController {
-
-	UISearchController *searchC = [[UISearchController alloc] initWithSearchResultsController: nil];
-	searchC.searchResultsUpdater = self;
-	searchC.obscuresBackgroundDuringPresentation = NO;
-
-	self.definesPresentationContext = YES;
-	self.navigationItem.searchController = searchC;
-	self.extendedLayoutIncludesOpaqueBars = YES;
-
-}
-
-
-- (void)animateViewsWhenNecessary {
-
-	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-
-		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
-			azureTableView.alpha = 0;
-			placeholderLabel.alpha = 1;
-			placeholderLabel.transform = CGAffineTransformMakeScale(1, 1);
-		}
-		else {
-			azureTableView.alpha = 1;
-			placeholderLabel.alpha = 0;
-			placeholderLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
-		}
-
-	} completion: nil];
-
-}
-
-- (void)makeBackup {
-
-	modalSheetVC = [ModalSheetVC new];
-	[modalSheetVC setupChildWithTitle:@"Backup options"
-		withSubtitle:@"Choose between loading a backup from file or making a new one."
-		withButtonTitle:@"Load Backup"
-		withTarget:self
-		forSelector:@selector(didTapLoadBackupButton)
-		secondButtonTitle:@"Make Backup"
-		withTarget:self
-		forSelector:@selector(didTapMakeBackupButton)
-		thirdButtonTitle:nil
-		withTarget:nil
-		forSelector:nil
-		withFirstImage:[UIImage systemImageNamed:@"square.and.arrow.down"]
-		withSecondImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
-		withThirdImage:nil
-		allowingForSecondStackView:YES
-		allowingForThirdStackView:NO
-		prepareForReuse:NO
-		allowingInitialScaleAnimation:YES
-	];
-	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-	[self presentViewController:modalSheetVC animated:NO completion:nil];
-
-}
+- (void)modalSheetVCShouldReloadData { [azureTableView reloadData]; }
 
 // ! ModalSheetVC
 
@@ -480,6 +424,71 @@
 	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"Issuer CONTAINS[cd] %@", textToSearch];
 	[filteredArray removeAllObjects];
 	filteredArray = [[TOTPManager sharedInstance]->entriesArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
+
+}
+
+// ! Views
+
+- (void)setupViews {
+
+	azureTableView = [UITableView new];
+	azureTableView.dataSource = self;
+	azureTableView.delegate = self;
+	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+	azureTableView.backgroundColor = kUserInterfaceStyle ? UIColor.systemBackgroundColor : UIColor.secondarySystemBackgroundColor;
+	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.view addSubview: azureTableView];
+
+	azureFloatingButtonView = [AzureFloatingButtonView new];
+	azureFloatingButtonView.delegate = self;
+	[self.view addSubview: azureFloatingButtonView];
+
+	azureToastView = [AzureToastView new];
+	[self.view addSubview: azureToastView];
+
+	placeholderLabel = [UILabel new];
+	placeholderLabel.font = [UIFont systemFontOfSize: 16];
+	placeholderLabel.text = @"No issuers were added yet. Tap the + button in order to add one.";
+	placeholderLabel.textColor = UIColor.placeholderTextColor;
+	placeholderLabel.numberOfLines = 0;
+	placeholderLabel.textAlignment = NSTextAlignmentCenter;
+	placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.view addSubview: placeholderLabel];
+
+	[self setupSearchController];
+
+}
+
+
+- (void)setupSearchController {
+
+	UISearchController *searchC = [[UISearchController alloc] initWithSearchResultsController: nil];
+	searchC.searchResultsUpdater = self;
+	searchC.obscuresBackgroundDuringPresentation = NO;
+
+	self.definesPresentationContext = YES;
+	self.navigationItem.searchController = searchC;
+	self.extendedLayoutIncludesOpaqueBars = YES;
+
+}
+
+
+- (void)animateViewsWhenNecessary {
+
+	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+
+		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
+			azureTableView.alpha = 0;
+			placeholderLabel.alpha = 1;
+			placeholderLabel.transform = CGAffineTransformMakeScale(1, 1);
+		}
+		else {
+			azureTableView.alpha = 1;
+			placeholderLabel.alpha = 0;
+			placeholderLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
+		}
+
+	} completion: nil];
 
 }
 
