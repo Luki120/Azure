@@ -160,10 +160,10 @@ static void checkIfJailbroken() {
 	[modalSheetVC setupChildWithTitle:@"Azure"
 		withSubtitle:@"Oop, looks like you're jailbroken. Don't worry, I won't lock you out or prevent you from using the app, that's bullshit I don't believe in, and whoever does that can go fuck themselves. That being said, be aware that your device could be more prone to attacks or vulnerabilities and your data could get compromised, proceed with caution."
 		withButtonTitle:@"I understand"
-		withTarget:(AZAppDelegate *)([[UIApplication sharedApplication] delegate])
+		withTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
 		forSelector:@selector(didTapUnderstandButton)
 		secondButtonTitle:@"Quit app"
-		withTarget:(AZAppDelegate *)([[UIApplication sharedApplication] delegate])
+		withTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
 		forSelector:@selector(didTapQuitButton)
 		thirdButtonTitle:nil
 		withTarget:nil
@@ -174,6 +174,7 @@ static void checkIfJailbroken() {
 		allowingForSecondStackView:YES
 		allowingForThirdStackView:NO
 		prepareForReuse:NO
+		allowingInitialScaleAnimation:YES
 	];
 	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
 	[strongWindow.rootViewController presentViewController:modalSheetVC animated:NO completion:nil];
