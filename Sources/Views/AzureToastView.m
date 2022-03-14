@@ -16,9 +16,6 @@
 
 	[self setupToastView];
 
-	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(fadeInOutCopyPinToastView) name:@"fadeInOutCopyPinToast" object:nil];
-
 	return self;
 
 }
@@ -55,13 +52,6 @@
 	[toastViewLabel.centerYAnchor constraintEqualToAnchor: toastView.centerYAnchor].active = YES;
 	[toastViewLabel.leadingAnchor constraintEqualToAnchor: toastView.leadingAnchor constant: 10].active = YES;
 	[toastViewLabel.trailingAnchor constraintEqualToAnchor: toastView.trailingAnchor constant: -10].active = YES;
-
-}
-
-
-- (void)fadeInOutCopyPinToastView {
-
-	[self fadeInOutToastViewWithMessage:@"Copied!" finalDelay:0.2];
 
 }
 
