@@ -104,32 +104,39 @@ struct SettingsView: View {
 
 			Section(header: Text("Azure")) {
 
-				Button("LICENSE") { shouldShowLicenseSheet.toggle() }
-					.foregroundColor(Color(.label))
-					.sheet(isPresented: $shouldShowLicenseSheet) {
-						SafariView(url: URL(string: Constants.kLicenseURL))
-					}
+				Group {
 
-				Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
-					.foregroundColor(Color(.label))
-					.sheet(isPresented: $shouldShowSourceCodeSheet) {
-						SafariView(url: URL(string: Constants.kSourceCodeURL))
-					}
+					Button("LICENSE") { shouldShowLicenseSheet.toggle() }
+						.sheet(isPresented: $shouldShowLicenseSheet) {
+							SafariView(url: URL(string: Constants.kLicenseURL))
+						}
+
+					Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
+						.sheet(isPresented: $shouldShowSourceCodeSheet) {
+							SafariView(url: URL(string: Constants.kSourceCodeURL))
+						}
+
+				}
+				.foregroundColor(Color(.label))
 
 			}
+
 			Section(header: Text("Credits")) {
 
-				Button("Google Authenticator") { shouldShowGoogleAuthenticatorSheet.toggle() }
-					.foregroundColor(Color(.label))
-					.sheet(isPresented: $shouldShowGoogleAuthenticatorSheet) {
-						SafariView(url: URL(string: Constants.kGoogleAuthenticatorURL))
-					}
+				Group {
 
-				Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
-					.foregroundColor(Color(.label))
-					.sheet(isPresented: $shouldShowFlatIconSheet) {
-						SafariView(url: URL(string: Constants.kFlatIconURL))
-					}
+					Button("Google Authenticator") { shouldShowGoogleAuthenticatorSheet.toggle() }
+						.sheet(isPresented: $shouldShowGoogleAuthenticatorSheet) {
+							SafariView(url: URL(string: Constants.kGoogleAuthenticatorURL))
+						}
+
+					Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
+						.sheet(isPresented: $shouldShowFlatIconSheet) {
+							SafariView(url: URL(string: Constants.kFlatIconURL))
+						}
+
+				}
+				.foregroundColor(Color(.label))
 
 			}
 
