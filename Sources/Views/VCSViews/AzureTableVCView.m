@@ -1,7 +1,11 @@
 #import "AzureTableVCView.h"
 
 
-@implementation AzureTableVCView
+@implementation AzureTableVCView {
+
+	UILabel *placeholderLabel;
+
+}
 
 - (id)init {
 

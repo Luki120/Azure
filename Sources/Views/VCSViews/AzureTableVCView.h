@@ -5,9 +5,8 @@
 
 @interface AzureTableVCView : UIView {
 
-	@public AzureFloatingButtonView *azureFloatingButtonView;	
+	@public AzureFloatingButtonView *azureFloatingButtonView;
 	@public AzureToastView *azureToastView;
-	@public UILabel *placeholderLabel;
 	@public UITableView *azureTableView;
 
 }
