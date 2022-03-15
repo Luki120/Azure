@@ -3,16 +3,8 @@
 
 @implementation PinCodeVC {
 
-	UIStackView *issuerStackView;
-	UIStackView *secretHashStackView;
-	UILabel *issuerLabel;
-	UILabel *secretHashLabel;
-	UILabel *algorithmLabel;
-	UITextField *issuerTextField;
-	UITextField *secretTextField;
-	UITableView *pinCodesTableView;
-	AzureToastView *azToastView;
 	AlgorithmVC *algorithmVC;
+	PinCodeVCView *pinCodeVCView;
 
 }
 
@@ -23,10 +15,10 @@
 	self = [super init];
 	if(!self) return nil;
 
-	[self setupUI];
 	algorithmVC = [AlgorithmVC new];
 	algorithmVC.delegate = self;
-	[pinCodesTableView registerClass:UITableViewCell.class forCellReuseIdentifier:@"Cell"];
+	[self setupMainView];
+	[pinCodeVCView->pinCodesTableView registerClass:UITableViewCell.class forCellReuseIdentifier:@"Cell"];
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
@@ -34,6 +26,20 @@
 	return self;
 
 }
+
+
+- (void)setupMainView {
+
+	pinCodeVCView = [PinCodeVCView new];
+	pinCodeVCView->pinCodesTableView.dataSource = self;
+	pinCodeVCView->pinCodesTableView.delegate = self;
+	pinCodeVCView->issuerTextField.delegate = self;
+	pinCodeVCView->secretTextField.delegate = self;
+
+}
+
+
+- (void)loadView { self.view = pinCodeVCView; }
 
 
 - (void)viewDidLoad {
@@ -54,82 +60,13 @@
 }
 
 
-- (void)viewDidLayoutSubviews {
-
-	[super viewDidLayoutSubviews];
-	[self layoutUI];
-
-}
-
-
-- (void)setupUI {
-
-	pinCodesTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
-	pinCodesTableView.dataSource = self;
-	pinCodesTableView.delegate = self;
-	pinCodesTableView.backgroundColor = UIColor.systemBackgroundColor;
-	pinCodesTableView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: pinCodesTableView];
-
-	issuerStackView = [UIStackView new];
-	secretHashStackView = [UIStackView new];
-	[self createStackViewWithStackView: issuerStackView];
-	[self createStackViewWithStackView: secretHashStackView];
-
-	issuerLabel = [UILabel new];
-	secretHashLabel = [UILabel new];
-	[self createLabelWithLabel:issuerLabel withText: @"Issuer:" andTextColor: UIColor.labelColor];
-	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash:" andTextColor: UIColor.labelColor];
-
-	issuerTextField = [UITextField new];
-	secretTextField = [UITextField new];
-	[self createTextFieldWithTextField:issuerTextField
-		withPlaceholder:@"For example: GitHub"
-		returnKeyType:UIReturnKeyNext
-	];
-	[self createTextFieldWithTextField:secretTextField
-		withPlaceholder:@"Enter Secret"
-		returnKeyType:UIReturnKeyDefault
-	];
-
-	[issuerTextField becomeFirstResponder];
-
-	[issuerStackView addArrangedSubview: issuerLabel];
-	[issuerStackView addArrangedSubview: issuerTextField];
-	[secretHashStackView addArrangedSubview: secretHashLabel];
-	[secretHashStackView addArrangedSubview: secretTextField];
-
-	azToastView = [AzureToastView new];
-	[self.view addSubview: azToastView];
-
-	algorithmLabel = [UILabel new];
-	[self createLabelWithLabel:algorithmLabel withText:nil andTextColor: UIColor.placeholderTextColor];
-	algorithmLabel.textAlignment = NSTextAlignmentCenter;
-	algorithmLabel.translatesAutoresizingMaskIntoConstraints = NO;
-
-}
-
-
 - (void)configureAlgorithmLabelWithSelectedRow:(NSInteger)selectedRow {
 
 	switch(selectedRow) {
-		case 0: algorithmLabel.text = @"SHA1"; break;
-		case 1: algorithmLabel.text = @"SHA256"; break;
-		case 2: algorithmLabel.text = @"SHA512"; break;
+		case 0: pinCodeVCView->algorithmLabel.text = @"SHA1"; break;
+		case 1: pinCodeVCView->algorithmLabel.text = @"SHA256"; break;
+		case 2: pinCodeVCView->algorithmLabel.text = @"SHA512"; break;
 	}
-
-}
-
-
-- (void)layoutUI {
-
-	[pinCodesTableView.topAnchor constraintEqualToAnchor: self.view.topAnchor].active = YES;
-	[pinCodesTableView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor].active = YES;
-	[pinCodesTableView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
-	[pinCodesTableView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
-
-	[azToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -5].active = YES;
-	[azToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
 }
 
@@ -145,66 +82,19 @@
 
 - (void)shouldSaveData {
 
-	if(issuerTextField.text.length <= 0 || secretTextField.text.length <= 0) {
-		[azToastView fadeInOutToastViewWithMessage:@"Fill out both forms." finalDelay: 1.5];
+	if(pinCodeVCView->issuerTextField.text.length <= 0 || pinCodeVCView->secretTextField.text.length <= 0) {
+		[pinCodeVCView->azToastView fadeInOutToastViewWithMessage:@"Fill out both forms." finalDelay: 1.5];
 		return;
 	}
 
-	[[TOTPManager sharedInstance] feedDictionaryWithObject:issuerTextField.text
-		andObject:secretTextField.text
+	[[TOTPManager sharedInstance] feedDictionaryWithObject:pinCodeVCView->issuerTextField.text
+		andObject:pinCodeVCView->secretTextField.text
 	];
 
 	[self.delegate pinCodeVCShouldDismissVC];
 
-	issuerTextField.text = @"";
-	secretTextField.text = @"";
-
-}
-
-// ! Reusable funcs
-
-- (void)createStackViewWithStackView:(UIStackView *)stackView {
-
-	stackView.axis = UILayoutConstraintAxisHorizontal;
-	stackView.spacing = 10;
-	stackView.distribution = UIStackViewDistributionFill;
-	stackView.translatesAutoresizingMaskIntoConstraints = NO;	
-
-}
-
-
-- (void)createLabelWithLabel:(UILabel *)label
-	withText:(NSString *_Nullable)text
-	andTextColor:(UIColor *)textColor {
-
-	label.font = [UIFont systemFontOfSize: 14];
-	label.text = text;
-	label.textColor = textColor;
-
-}
-
-
-- (void)createTextFieldWithTextField:(UITextField *)textField
-	withPlaceholder:(NSString *)placeholder
-	returnKeyType:(UIReturnKeyType)returnKeyType {
-
-	textField.font = [UIFont systemFontOfSize: 14];
-	textField.delegate = self;
-	textField.placeholder = placeholder;
-	textField.returnKeyType = returnKeyType;
-	textField.translatesAutoresizingMaskIntoConstraints = NO;
-
-}
-
-
-- (void)configureConstraintsForStackView:(UIStackView *)stackView
-	andTextField:(UITextField *)textField
-	forCell:(UITableViewCell *)cell {
-
-	[stackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
-	[stackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
-	[textField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
-	[textField.heightAnchor constraintEqualToConstant: 44].active = YES;
+	pinCodeVCView->issuerTextField.text = @"";
+	pinCodeVCView->secretTextField.text = @"";
 
 }
 
@@ -219,21 +109,21 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-	UITableViewCell *cell = [pinCodesTableView dequeueReusableCellWithIdentifier: @"Cell" forIndexPath: indexPath];
+	UITableViewCell *cell = [pinCodeVCView->pinCodesTableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
 	cell.backgroundColor = UIColor.clearColor;
 
 	switch(indexPath.row) {
 
 		case 0:
 
-			[cell.contentView addSubview: issuerStackView];
-			[self configureConstraintsForStackView:issuerStackView andTextField:issuerTextField forCell:cell];
+			[cell.contentView addSubview: pinCodeVCView->issuerStackView];
+			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->issuerStackView andTextField:pinCodeVCView->issuerTextField forCell:cell];
 			break;
 
 		case 1:
 
-			[cell.contentView addSubview: secretHashStackView];
-			[self configureConstraintsForStackView:secretHashStackView andTextField:secretTextField forCell:cell];
+			[cell.contentView addSubview: pinCodeVCView->secretHashStackView];
+			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->secretHashStackView andTextField:pinCodeVCView->secretTextField forCell:cell];
 			break;
 
 		case 2:
@@ -242,9 +132,9 @@
 			cell.textLabel.font = [UIFont systemFontOfSize: 14];
 			cell.textLabel.text = @"Algorithm";
 
-			[cell.contentView addSubview: algorithmLabel];
-			[algorithmLabel.trailingAnchor constraintEqualToAnchor: cell.contentView.trailingAnchor constant: -20].active = YES;
-			[algorithmLabel.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
+			[cell.contentView addSubview: pinCodeVCView->algorithmLabel];
+			[pinCodeVCView->algorithmLabel.trailingAnchor constraintEqualToAnchor: cell.contentView.trailingAnchor constant: -20].active = YES;
+			[pinCodeVCView->algorithmLabel.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 			break;
 
 	}
@@ -268,10 +158,10 @@
 
  - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 
-	if(textField == issuerTextField) {
+	if(textField == pinCodeVCView->issuerTextField) {
 
 		[textField resignFirstResponder];
-		[secretTextField becomeFirstResponder];
+		[pinCodeVCView->secretTextField becomeFirstResponder];
 
 	}
 

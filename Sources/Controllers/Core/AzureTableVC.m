@@ -6,10 +6,7 @@
 	BOOL isFiltered;
 	NSMutableArray *filteredArray;
 	NSDictionary *imagesDict;
-	UITableView *azureTableView;
-	UILabel *placeholderLabel;
-	AzureFloatingButtonView *azureFloatingButtonView;	
-	AzureToastView *azureToastView;
+	AzureTableVCView *azureTableVCView;
 	BackupManager *backupManager;
 	ModalSheetVC *modalSheetVC;
 
@@ -23,14 +20,25 @@
 	if(!self) return nil;
 
 	// Custom initialization
-	[self setupViews];
+	[self setupMainView];
 	[self setupObservers];
 	[self setupImagesDict];
+	[self setupSearchController];
 
 	backupManager = [BackupManager new];
-	[azureTableView registerClass:AzurePinCodeCell.class forCellReuseIdentifier:kIdentifier];
+	[azureTableVCView->azureTableView registerClass:AzurePinCodeCell.class forCellReuseIdentifier:kIdentifier];
 
 	return self;
+
+}
+
+
+- (void)setupMainView {
+
+	azureTableVCView = [AzureTableVCView new];
+	azureTableVCView->azureTableView.dataSource = self;
+	azureTableVCView->azureTableView.delegate = self;
+	azureTableVCView->azureFloatingButtonView.delegate = self;
 
 }
 
@@ -64,37 +72,28 @@
 }
 
 
+- (void)setupSearchController {
+
+	UISearchController *searchC = [[UISearchController alloc] initWithSearchResultsController: nil];
+	searchC.searchResultsUpdater = self;
+	searchC.obscuresBackgroundDuringPresentation = NO;
+
+	self.definesPresentationContext = YES;
+	self.navigationItem.searchController = searchC;
+	self.extendedLayoutIncludesOpaqueBars = YES;
+
+}
+
+
+- (void)loadView { self.view = azureTableVCView; }
+
+
 - (void)viewDidLoad {
 
 	[super viewDidLoad];
 
 	// Do any additional setup after loading the view, typically from a nib.
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
-
-}
-
-
-- (void)viewDidLayoutSubviews {
-
-	[super viewDidLayoutSubviews];
-
-	[azureTableView.topAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.topAnchor].active = YES;
-	[azureTableView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor].active = YES;
-	[azureTableView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
-	[azureTableView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;	
-
-	[azureFloatingButtonView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -65].active = YES;
-	[azureFloatingButtonView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant: -25].active = YES;
-	[azureFloatingButtonView.widthAnchor constraintEqualToConstant: 60].active = YES;
-	[azureFloatingButtonView.heightAnchor constraintEqualToConstant: 60].active = YES;
-
-	[azureToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -55].active = YES;
-	[azureToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
-
-	[placeholderLabel.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
-	[placeholderLabel.centerYAnchor constraintEqualToAnchor: self.view.centerYAnchor].active = YES;
-	[placeholderLabel.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor constant: 10].active = YES;
-	[placeholderLabel.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor constant: -10].active = YES;
 
 }
 
@@ -115,22 +114,14 @@
 }
 
 
-- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
-
-	[super traitCollectionDidChange: previousTraitCollection];
-	azureTableView.backgroundColor = kUserInterfaceStyle ? UIColor.systemBackgroundColor : UIColor.secondarySystemBackgroundColor;
-
-}
-
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
 	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60 
 		|| scrollView.contentOffset.y <= self.view.safeAreaInsets.bottom - 22)
 
-		[azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
+		[azureTableVCView->azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
 
-	else [azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
+	else [azureTableVCView->azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
 
 }
 
@@ -139,7 +130,7 @@
 - (void)purgeData {
 
 	[[TOTPManager sharedInstance] removeAllObjectsFromArray];
-	[azureTableView reloadData];
+	[azureTableVCView->azureTableView reloadData];
 
 }
 
@@ -197,7 +188,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-	[self animateViewsWhenNecessary];
+	[azureTableVCView animateViewsWhenNecessary];
 	return isFiltered ? filteredArray.count : [TOTPManager sharedInstance]->entriesArray.count;
 
 }
@@ -262,7 +253,7 @@
 		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
 
 			[[TOTPManager sharedInstance] removeObjectAtIndexPathForRow: indexPath.row];
-			[azureTableView reloadData];
+			[azureTableVCView->azureTableView reloadData];
 
 			completionHandler(YES);
 
@@ -319,7 +310,7 @@
 
 - (void)azurePinCodeCellDidTapCell:(AzurePinCodeCell *)cell {
 
-	[azureToastView fadeInOutToastViewWithMessage:@"Copied hash!" finalDelay:0.2];
+	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied hash!" finalDelay:0.2];
 
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = cell->hash;
@@ -330,20 +321,20 @@
 - (void)azurePinCodeCellDidTapInfoButton:(AzurePinCodeCell *)cell {
 
 	NSString *message = [NSString stringWithFormat:@"Issuer: %@", cell->issuer];
-	[azureToastView fadeInOutToastViewWithMessage:message finalDelay:0.2];
+	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:message finalDelay:0.2];
 
 }
 
 
 - (void)azurePinCodeCellShouldFadeInOutToastView {
 
-	[azureToastView fadeInOutToastViewWithMessage:@"Copied!" finalDelay:0.2];
+	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied!" finalDelay:0.2];
 
 }
 
 // ! ModalSheetVCDelegate
 
-- (void)modalSheetVCShouldReloadData { [azureTableView reloadData]; }
+- (void)modalSheetVCShouldReloadData { [azureTableVCView->azureTableView reloadData]; }
 
 // ! ModalSheetVC
 
@@ -353,7 +344,7 @@
 
 	[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
-		[azureTableView reloadData];
+		[azureTableVCView->azureTableView reloadData];
 
 	} completion:^(BOOL finished) { [modalSheetVC vcNeedsDismissal]; }];
 
@@ -410,7 +401,7 @@
 
 	NSString *searchedString = searchController.searchBar.text;
 	[self updateWithFilteredContent: searchedString];
-	[azureTableView reloadData];
+	[azureTableVCView->azureTableView reloadData];
 
 }
 
@@ -424,71 +415,6 @@
 	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"Issuer CONTAINS[cd] %@", textToSearch];
 	[filteredArray removeAllObjects];
 	filteredArray = [[TOTPManager sharedInstance]->entriesArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
-
-}
-
-// ! Views
-
-- (void)setupViews {
-
-	azureTableView = [UITableView new];
-	azureTableView.dataSource = self;
-	azureTableView.delegate = self;
-	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-	azureTableView.backgroundColor = kUserInterfaceStyle ? UIColor.systemBackgroundColor : UIColor.secondarySystemBackgroundColor;
-	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: azureTableView];
-
-	azureFloatingButtonView = [AzureFloatingButtonView new];
-	azureFloatingButtonView.delegate = self;
-	[self.view addSubview: azureFloatingButtonView];
-
-	azureToastView = [AzureToastView new];
-	[self.view addSubview: azureToastView];
-
-	placeholderLabel = [UILabel new];
-	placeholderLabel.font = [UIFont systemFontOfSize: 16];
-	placeholderLabel.text = @"No issuers were added yet. Tap the + button in order to add one.";
-	placeholderLabel.textColor = UIColor.placeholderTextColor;
-	placeholderLabel.numberOfLines = 0;
-	placeholderLabel.textAlignment = NSTextAlignmentCenter;
-	placeholderLabel.translatesAutoresizingMaskIntoConstraints = NO;
-	[self.view addSubview: placeholderLabel];
-
-	[self setupSearchController];
-
-}
-
-
-- (void)setupSearchController {
-
-	UISearchController *searchC = [[UISearchController alloc] initWithSearchResultsController: nil];
-	searchC.searchResultsUpdater = self;
-	searchC.obscuresBackgroundDuringPresentation = NO;
-
-	self.definesPresentationContext = YES;
-	self.navigationItem.searchController = searchC;
-	self.extendedLayoutIncludesOpaqueBars = YES;
-
-}
-
-
-- (void)animateViewsWhenNecessary {
-
-	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-
-		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
-			azureTableView.alpha = 0;
-			placeholderLabel.alpha = 1;
-			placeholderLabel.transform = CGAffineTransformMakeScale(1, 1);
-		}
-		else {
-			azureTableView.alpha = 1;
-			placeholderLabel.alpha = 0;
-			placeholderLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
-		}
-
-	} completion: nil];
 
 }
 

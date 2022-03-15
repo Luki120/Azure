@@ -1,5 +1,5 @@
 #import "Sources/Controllers/Misc/AlgorithmVC.h"
-#import "Sources/Views/AzureToastView.h"
+#import "Sources/Views/VCSViews/PinCodeVCView.h"
 
 
 @protocol PinCodeVCDelegate <NSObject>
