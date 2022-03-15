@@ -1,6 +1,6 @@
 #import "Sources/Managers/Singletons/TOTPManager.h"
-#import "Sources/Views/AzureFloatingButtonView.h"
-#import "Sources/Views/AzureToastView.h"
+#import "Sources/Views/UI/AzureFloatingButtonView.h"
+#import "Sources/Views/UI/AzureToastView.h"
 
 
 @interface AzureTableVCView : UIView {

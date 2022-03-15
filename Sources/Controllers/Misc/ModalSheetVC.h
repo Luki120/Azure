@@ -3,7 +3,7 @@
 #import "Sources/Controllers/Misc/PinCodeVC.h"
 #import "Sources/Controllers/Misc/QRCodeVC.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
-#import "Sources/Views/ModalChildView.h"
+#import "Sources/Views/UI/ModalChildView.h"
 
 
 @protocol ModalSheetVCDelegate <NSObject>

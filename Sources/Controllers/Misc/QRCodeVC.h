@@ -2,7 +2,7 @@
 #import "Sources/Managers/Animators/PopAnimator.h"
 #import "Sources/Managers/Animators/PushAnimator.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
-#import "Sources/Views/AzureToastView.h"
+#import "Sources/Views/UI/AzureToastView.h"
 
 
 @protocol QRCodeVCDelegate
