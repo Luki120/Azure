@@ -6,6 +6,7 @@
 
 	@public NSInteger selectedRow;
 	@public NSMutableArray *entriesArray;
+	@public NSDictionary *imagesDict;
 
 }
 - (void)feedSelectedRowWithRow:(NSInteger)row;

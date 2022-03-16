@@ -30,7 +30,29 @@
 	selectedRow = [defaults integerForKey: @"selectedRow"];
 	entriesArray = [defaults arrayForKey: @"entriesArray"].mutableCopy ?: [NSMutableArray new];
 
+	[self setupImagesDict];
+
 	return self;
+
+}
+
+
+- (void)setupImagesDict {
+
+	imagesDict = @{
+
+		@"dashlane": [UIImage imageNamed: @"Dashlane"],
+		@"discord": [UIImage imageNamed: @"Discord"],
+		@"facebook": [UIImage imageNamed: @"Facebook"],
+		@"github": [UIImage imageNamed: @"GitHub"],
+		@"instagram": [UIImage imageNamed: @"Instagram"],
+		@"kraken": [UIImage imageNamed: @"Kraken"],
+		@"snapchat": [UIImage imageNamed: @"Snapchat"],
+		@"paypal": [UIImage imageNamed: @"PayPal"],
+		@"twitter": [UIImage imageNamed: @"Twitter"],
+		@"zoho": [UIImage imageNamed: @"ZohoMail"]
+
+	};
 
 }
 
