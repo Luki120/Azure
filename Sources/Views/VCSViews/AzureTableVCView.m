@@ -49,7 +49,7 @@
 	[super layoutSubviews];
 
 	[azureTableView.topAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.topAnchor].active = YES;
-	[azureTableView.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor].active = YES;
+	[azureTableView.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor constant: -50].active = YES;
 	[azureTableView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
 	[azureTableView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;	
 
