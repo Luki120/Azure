@@ -5,7 +5,6 @@
 
 	BOOL isFiltered;
 	NSMutableArray *filteredArray;
-	NSDictionary *imagesDict;
 	AzureTableVCView *azureTableVCView;
 	AuthManager *authManager;
 	BackupManager *backupManager;
@@ -23,7 +22,6 @@
 	// Custom initialization
 	[self setupMainView];
 	[self setupObservers];
-	[self setupImagesDict];
 	[self setupSearchController];
 
 	authManager = [AuthManager new];
@@ -41,26 +39,6 @@
 	azureTableVCView->azureTableView.dataSource = self;
 	azureTableVCView->azureTableView.delegate = self;
 	azureTableVCView->azureFloatingButtonView.delegate = self;
-
-}
-
-
-- (void)setupImagesDict {
-
-	imagesDict = @{
-
-		@"dashlane": [UIImage imageNamed: @"Dashlane"],
-		@"discord": [UIImage imageNamed: @"Discord"],
-		@"facebook": [UIImage imageNamed: @"Facebook"],
-		@"github": [UIImage imageNamed: @"GitHub"],
-		@"instagram": [UIImage imageNamed: @"Instagram"],
-		@"kraken": [UIImage imageNamed: @"Kraken"],
-		@"snapchat": [UIImage imageNamed: @"Snapchat"],
-		@"paypal": [UIImage imageNamed: @"PayPal"],
-		@"twitter": [UIImage imageNamed: @"Twitter"],
-		@"zoho": [UIImage imageNamed: @"ZohoMail"]
-
-	};
 
 }
 
@@ -224,7 +202,7 @@
 		];
 	}
 
-	UIImage *image = imagesDict[cell->issuer.lowercaseString];
+	UIImage *image = [TOTPManager sharedInstance]->imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
 	UIImage *placeholderImage = [[UIImage imageWithContentsOfFile:kImagePath] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
