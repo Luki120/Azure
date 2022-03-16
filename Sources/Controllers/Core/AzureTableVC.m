@@ -7,6 +7,7 @@
 	NSMutableArray *filteredArray;
 	NSDictionary *imagesDict;
 	AzureTableVCView *azureTableVCView;
+	AuthManager *authManager;
 	BackupManager *backupManager;
 	ModalSheetVC *modalSheetVC;
 
@@ -25,6 +26,7 @@
 	[self setupImagesDict];
 	[self setupSearchController];
 
+	authManager = [AuthManager new];
 	backupManager = [BackupManager new];
 	[azureTableVCView->azureTableView registerClass:AzurePinCodeCell.class forCellReuseIdentifier:kIdentifier];
 
@@ -143,14 +145,17 @@
 
 	} completion:^(BOOL finished) {
 
-		AuthManager *authManager = [AuthManager new];
 		if(![authManager shouldUseBiometrics]) return [self makeBackup];
-		[authManager setupAuthWithReason:@"Azure needs you to authenticate in order to verify your identity for a sensitive operation."
-			reply:^(BOOL success, NSError *error) {
-				dispatch_async(dispatch_get_main_queue(), ^{ if(success) [self makeBackup]; });
-			}
+		[authManager setupAuthWithReason:kAzureReasonSensitiveOperation reply:^(BOOL success, NSError *error) {
 
-		];
+			dispatch_async(dispatch_get_main_queue(), ^{
+
+				if(!success) return;
+				[self makeBackup];
+
+			});
+
+		}];
 
 	}];
 
@@ -308,12 +313,29 @@
 
 // ! AzurePinCodeCellDelegate
 
-- (void)azurePinCodeCellDidTapCell:(AzurePinCodeCell *)cell {
-
-	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied hash!" finalDelay:0.2];
+- (void)fadeInOutToastForCell:(AzurePinCodeCell *)cell {
 
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = cell->hash;
+
+	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied hash!" finalDelay:0.2];
+
+}
+
+
+- (void)azurePinCodeCellDidTapCell:(AzurePinCodeCell *)cell {
+
+	if(![authManager shouldUseBiometrics]) return [self fadeInOutToastForCell: cell];
+	[authManager setupAuthWithReason:kAzureReasonSensitiveOperation reply:^(BOOL success, NSError *error) {
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+
+			if(!success) return;
+			[self fadeInOutToastForCell: cell];
+
+		});
+
+	}];
 
 }
 
