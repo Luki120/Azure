@@ -221,7 +221,7 @@
 
 	UIImage *image = imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
-	UIImage *placeholderImage = [[UIImage imageWithContentsOfFile:@"/Library/Application Support/Azure/lock.png"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+	UIImage *placeholderImage = [[UIImage imageWithContentsOfFile:kImagePath] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
 	cell->issuerImageView.tintColor = image ? nil : kAzureMintTintColor;
