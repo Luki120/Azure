@@ -25,7 +25,7 @@
 	floatingCreateButton = [UIButton new];
 	floatingCreateButton.tintColor = UIColor.labelColor;
 	floatingCreateButton.backgroundColor = kAzureMintTintColor;
-	floatingCreateButton.layer.shadowColor = kUserInterfaceStyle ? UIColor.whiteColor.CGColor : UIColor.blackColor.CGColor;
+	floatingCreateButton.layer.shadowColor = UIColor.labelColor.CGColor;
 	floatingCreateButton.layer.cornerRadius = 30;
 	floatingCreateButton.layer.shadowRadius = 8;
 	floatingCreateButton.layer.shadowOffset = CGSizeMake(0, 1);
@@ -46,7 +46,7 @@
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
 
 	[super traitCollectionDidChange: previousTraitCollection];
-	floatingCreateButton.layer.shadowColor = kUserInterfaceStyle ? UIColor.whiteColor.CGColor : UIColor.blackColor.CGColor;
+	floatingCreateButton.layer.shadowColor = UIColor.labelColor.CGColor;
 
 }
 
