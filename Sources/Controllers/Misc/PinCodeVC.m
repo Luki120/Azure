@@ -30,11 +30,10 @@
 
 - (void)setupMainView {
 
-	pinCodeVCView = [PinCodeVCView new];
-	pinCodeVCView->pinCodesTableView.dataSource = self;
-	pinCodeVCView->pinCodesTableView.delegate = self;
-	pinCodeVCView->issuerTextField.delegate = self;
-	pinCodeVCView->secretTextField.delegate = self;
+	pinCodeVCView = [[PinCodeVCView alloc] initWithDataSource:self
+		tableViewDelegate:self
+		textFieldsDelegate:self
+	];
 
 }
 
@@ -84,6 +83,7 @@
 
 	if(pinCodeVCView->issuerTextField.text.length <= 0 || pinCodeVCView->secretTextField.text.length <= 0) {
 		[pinCodeVCView->azToastView fadeInOutToastViewWithMessage:@"Fill out both forms." finalDelay: 1.5];
+		[pinCodeVCView->secretTextField resignFirstResponder];
 		return;
 	}
 
@@ -159,10 +159,8 @@
  - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 
 	if(textField == pinCodeVCView->issuerTextField) {
-
 		[textField resignFirstResponder];
 		[pinCodeVCView->secretTextField becomeFirstResponder];
-
 	}
 
 	else [textField resignFirstResponder];
