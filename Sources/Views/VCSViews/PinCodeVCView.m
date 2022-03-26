@@ -1,4 +1,4 @@
-#import "Sources/Views/VCSViews/PinCodeVCView.h"
+#import "PinCodeVCView.h"
 
 
 @implementation PinCodeVCView {
@@ -8,14 +8,28 @@
 
 }
 
-- (id)init {
+- (id)initWithDataSource:(id<UITableViewDataSource>)dataSource
+	tableViewDelegate:(id<UITableViewDelegate>)delegate
+	textFieldsDelegate:(id<UITextFieldDelegate>)textFieldsDelegate {
 
 	self = [super init];
 	if(!self) return nil;
 
 	[self setupUI];
+	pinCodesTableView.dataSource = dataSource;
+	pinCodesTableView.delegate = delegate;
+	issuerTextField.delegate = textFieldsDelegate;
+	secretTextField.delegate = textFieldsDelegate;
 
 	return self;
+
+}
+
+
+- (void)layoutSubviews {
+
+	[super layoutSubviews];
+	[self layoutUI];
 
 }
 
@@ -27,26 +41,14 @@
 	pinCodesTableView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self addSubview: pinCodesTableView];
 
-	issuerStackView = [UIStackView new];
-	secretHashStackView = [UIStackView new];
-	[self createStackViewWithStackView: issuerStackView];
-	[self createStackViewWithStackView: secretHashStackView];
+	issuerStackView = [self setupStackView];
+	secretHashStackView = [self setupStackView];
 
-	issuerLabel = [UILabel new];
-	secretHashLabel = [UILabel new];
-	[self createLabelWithLabel:issuerLabel withText: @"Issuer:" andTextColor: UIColor.labelColor];
-	[self createLabelWithLabel:secretHashLabel withText: @"Secret hash:" andTextColor: UIColor.labelColor];
+	issuerLabel = [self createLabelWithText:@"Issuer:" textColor: UIColor.labelColor];
+	secretHashLabel = [self createLabelWithText:@"Secret hash:" textColor: UIColor.labelColor];
 
-	issuerTextField = [UITextField new];
-	secretTextField = [UITextField new];
-	[self createTextFieldWithTextField:issuerTextField
-		withPlaceholder:@"For example: GitHub"
-		returnKeyType:UIReturnKeyNext
-	];
-	[self createTextFieldWithTextField:secretTextField
-		withPlaceholder:@"Enter Secret"
-		returnKeyType:UIReturnKeyDefault
-	];
+	issuerTextField = [self createTextFieldWithPlaceholder:@"For example: GitHub" returnKeyType:UIReturnKeyNext];
+	secretTextField = [self createTextFieldWithPlaceholder:@"Enter Secret" returnKeyType:UIReturnKeyDefault];
 
 	[issuerTextField becomeFirstResponder];
 
@@ -58,15 +60,11 @@
 	azToastView = [AzureToastView new];
 	[self addSubview: azToastView];
 
-	algorithmLabel = [UILabel new];
-	[self createLabelWithLabel:algorithmLabel withText:nil andTextColor: UIColor.placeholderTextColor];
+	algorithmLabel = [self createLabelWithText:nil textColor: UIColor.placeholderTextColor];
 	algorithmLabel.textAlignment = NSTextAlignmentCenter;
 	algorithmLabel.translatesAutoresizingMaskIntoConstraints = NO;
 
 }
-
-
-- (void)layoutSubviews { [self layoutUI]; }
 
 
 - (void)layoutUI {
@@ -83,35 +81,38 @@
 
 // ! Reusable funcs
 
-- (void)createStackViewWithStackView:(UIStackView *)stackView {
+- (UIStackView *)setupStackView {
 
+	UIStackView *stackView = [UIStackView new];
 	stackView.axis = UILayoutConstraintAxisHorizontal;
 	stackView.spacing = 10;
 	stackView.distribution = UIStackViewDistributionFill;
 	stackView.translatesAutoresizingMaskIntoConstraints = NO;	
+	return stackView;
 
 }
 
 
-- (void)createLabelWithLabel:(UILabel *)label
-	withText:(NSString *_Nullable)text
-	andTextColor:(UIColor *)textColor {
+- (UILabel *)createLabelWithText:(NSString *_Nullable)text textColor:(UIColor *)textColor {
 
+	UILabel *label = [UILabel new];
 	label.font = [UIFont systemFontOfSize: 14];
 	label.text = text;
 	label.textColor = textColor;
+	return label;
 
 }
 
 
-- (void)createTextFieldWithTextField:(UITextField *)textField
-	withPlaceholder:(NSString *)placeholder
+- (UITextField *)createTextFieldWithPlaceholder:(NSString *)placeholder
 	returnKeyType:(UIReturnKeyType)returnKeyType {
 
+	UITextField *textField = [UITextField new];
 	textField.font = [UIFont systemFontOfSize: 14];
 	textField.placeholder = placeholder;
 	textField.returnKeyType = returnKeyType;
 	textField.translatesAutoresizingMaskIntoConstraints = NO;
+	return textField;
 
 }
 

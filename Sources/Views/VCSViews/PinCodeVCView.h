@@ -12,6 +12,9 @@
 	@public AzureToastView *azToastView;
 
 }
+- (id)initWithDataSource:(id<UITableViewDataSource>)dataSource
+	tableViewDelegate:(id<UITableViewDelegate>)delegate
+	textFieldsDelegate:(id<UITextFieldDelegate>)textFieldsDelegate;
 - (void)configureConstraintsForStackView:(UIStackView *)stackView
 	andTextField:(UITextField *)textField
 	forCell:(UITableViewCell *)cell;
