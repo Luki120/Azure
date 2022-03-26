@@ -63,9 +63,7 @@
 
 	NSString *pinCode = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self getLastUNIXTimetamp]]];
 
-	issuersStackView = [UIStackView new];
-	[self createStackViewWithStackView: issuersStackView];
-	[self.contentView addSubview: issuersStackView];
+	issuersStackView = [self setupStackView];
 
 	issuerImageView = [UIImageView new];
 	issuerImageView.contentMode = UIViewContentModeScaleAspectFit;
@@ -79,28 +77,22 @@
 	pinLabel.textAlignment = NSTextAlignmentCenter;
 	[issuersStackView addArrangedSubview: pinLabel];
 
-	buttonsStackView = [UIStackView new];
-	[self createStackViewWithStackView: buttonsStackView];
-	[self.contentView addSubview: buttonsStackView];
+	buttonsStackView = [self setupStackView];
 
-	copyPinButton = [UIButton new];
-	infoButton = [UIButton new];
-	[self createButtonWithButton:copyPinButton
-		withImage:[UIImage systemImageNamed: @"paperclip"]
+	copyPinButton = [self setupButtonWithImage:[UIImage systemImageNamed:@"paperclip"]
 		forSelector:@selector(didTapCopyPinButton)
 	];
-	[buttonsStackView addArrangedSubview: copyPinButton];
-	[self createButtonWithButton:infoButton
-		withImage:[UIImage systemImageNamed: @"info.circle"]
+	infoButton = [self setupButtonWithImage:[UIImage systemImageNamed:@"info.circle"]
 		forSelector:@selector(didTapInfoButton)
 	];
 
+	[buttonsStackView addArrangedSubview: copyPinButton];
 	[buttonsStackView addArrangedSubview: infoButton];
 
 	NSInteger currentUNIXTimestamp = ceil([NSDate.date timeIntervalSince1970]);
 	CGFloat startingSliceAngle = ((currentUNIXTimestamp - [self getLastUNIXTimetamp]) * 360.0) / 30.0;
 
-	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle: startingSliceAngle strokeColor: kAzureMintTintColor];
+	pieView = [[PieView alloc] initWithFrame:CGRectMake(0,0,12,12) fromAngle:startingSliceAngle strokeColor: kAzureMintTintColor];
 	[buttonsStackView addArrangedSubview: pieView];
 
 	UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapCell)];
@@ -124,11 +116,7 @@
 }
 
 
-- (void)didTapCell {
-
-	[self.delegate azurePinCodeCellDidTapCell: self];
-
-}
+- (void)didTapCell { [self.delegate azurePinCodeCellDidTapCell: self]; }
 
 
 - (void)didTapCopyPinButton {
@@ -200,21 +188,26 @@
 
 // ! Reusable funcs
 
-- (void)createStackViewWithStackView:(UIStackView *)stackView {
+- (UIButton *)setupButtonWithImage:(UIImage *)image forSelector:(SEL)selector {
 
-	stackView.axis = UILayoutConstraintAxisHorizontal;
-	stackView.spacing = 10;
-	stackView.distribution = UIStackViewDistributionFill;
-	stackView.translatesAutoresizingMaskIntoConstraints = NO;
+	UIButton *button = [UIButton new];
+	button.tintColor = UIColor.labelColor;
+	[button setImage:image forState: UIControlStateNormal];
+	[button addTarget:self action:selector forControlEvents: UIControlEventTouchUpInside];
+	return button;
 
 }
 
 
-- (void)createButtonWithButton:(UIButton *)button withImage:(UIImage *)image forSelector:(SEL)selector {
+- (UIStackView *)setupStackView {
 
-	button.tintColor = UIColor.labelColor;
-	[button setImage:image forState: UIControlStateNormal];
-	[button addTarget:self action:selector forControlEvents: UIControlEventTouchUpInside];
+	UIStackView *stackView = [UIStackView new];
+	stackView.axis = UILayoutConstraintAxisHorizontal;
+	stackView.spacing = 10;
+	stackView.distribution = UIStackViewDistributionFill;
+	stackView.translatesAutoresizingMaskIntoConstraints = NO;
+	[self.contentView addSubview: stackView];
+	return stackView;
 
 }
 
