@@ -35,10 +35,10 @@
 
 - (void)setupMainView {
 
-	azureTableVCView = [AzureTableVCView new];
-	azureTableVCView->azureTableView.dataSource = self;
-	azureTableVCView->azureTableView.delegate = self;
-	azureTableVCView->azureFloatingButtonView.delegate = self;
+	azureTableVCView = [[AzureTableVCView alloc] initWithDataSource:self
+		tableViewDelegate:self
+		floatingButtonViewDelegate:self
+	];
 
 }
 
@@ -169,6 +169,20 @@
 
 // ! UITableViewDataSource
 
+- (void)setupDataSourceForArray:(NSMutableArray *)array
+	atIndexPath:(NSIndexPath *)indexPath
+	forCell:(AzurePinCodeCell *)cell {
+
+	cell->issuer = [array[indexPath.row] objectForKey: @"Issuer"];
+	cell->hash = [array[indexPath.row] objectForKey: @"Secret"];
+	[cell setSecret:[array[indexPath.row] objectForKey: @"Secret"]
+		withAlgorithm:[array[indexPath.row] objectForKey: @"encryptionType"]
+		allowingForTransition:NO
+	];	
+
+}
+
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
 	[azureTableVCView animateViewsWhenNecessary];
@@ -180,27 +194,17 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
 	AzurePinCodeCell *cell = [tableView dequeueReusableCellWithIdentifier:kIdentifier forIndexPath:indexPath];
-
 	cell.delegate = self;
 	cell.backgroundColor = UIColor.clearColor;
 
-	if(isFiltered) {
-		cell->issuer = [filteredArray[indexPath.row] objectForKey: @"Issuer"];
-		cell->hash = [filteredArray[indexPath.row] objectForKey: @"Secret"];
-		[cell setSecret:[filteredArray[indexPath.row] objectForKey: @"Secret"]
-			withAlgorithm:[filteredArray[indexPath.row] objectForKey: @"encryptionType"]
-			allowingForTransition:NO
-		];
-	}
+	if(isFiltered)
+		[self setupDataSourceForArray:filteredArray atIndexPath:indexPath forCell:cell];
 
-	else {
-		cell->issuer = [[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"Issuer"];
-		cell->hash = [[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"Secret"];
-		[cell setSecret:[[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"Secret"]
-			withAlgorithm:[[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey: @"encryptionType"]
-			allowingForTransition:NO
+	else
+		[self setupDataSourceForArray:[TOTPManager sharedInstance]->entriesArray
+			atIndexPath:indexPath
+			forCell:cell
 		];
-	}
 
 	UIImage *image = [TOTPManager sharedInstance]->imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
