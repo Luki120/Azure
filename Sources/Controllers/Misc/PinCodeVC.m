@@ -30,10 +30,7 @@
 
 - (void)setupMainView {
 
-	pinCodeVCView = [[PinCodeVCView alloc] initWithDataSource:self
-		tableViewDelegate:self
-		textFieldsDelegate:self
-	];
+	pinCodeVCView = [[PinCodeVCView alloc] initWithDataSource:self tableViewDelegate:self];
 
 }
 
@@ -117,13 +114,13 @@
 		case 0:
 
 			[cell.contentView addSubview: pinCodeVCView->issuerStackView];
-			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->issuerStackView andTextField:pinCodeVCView->issuerTextField forCell:cell];
+			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->issuerStackView forTextField:pinCodeVCView->issuerTextField forCell:cell];
 			break;
 
 		case 1:
 
 			[cell.contentView addSubview: pinCodeVCView->secretHashStackView];
-			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->secretHashStackView andTextField:pinCodeVCView->secretTextField forCell:cell];
+			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->secretHashStackView forTextField:pinCodeVCView->secretTextField forCell:cell];
 			break;
 
 		case 2:
@@ -151,21 +148,6 @@
 	if(indexPath.row != 2) return;
 
 	[self.delegate pinCodeVCShouldPushAlgorithmVC];
-
-}
-
-// ! UITextFieldDelegate
-
- - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-
-	if(textField == pinCodeVCView->issuerTextField) {
-		[textField resignFirstResponder];
-		[pinCodeVCView->secretTextField becomeFirstResponder];
-	}
-
-	else [textField resignFirstResponder];
-
-	return YES;
 
 }
 

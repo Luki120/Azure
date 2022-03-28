@@ -1,6 +1,10 @@
 #import "PinCodeVCView.h"
 
 
+@interface PinCodeVCView () <UITextFieldDelegate>
+@end
+
+
 @implementation PinCodeVCView {
 
 	UILabel *issuerLabel;
@@ -9,8 +13,7 @@
 }
 
 - (id)initWithDataSource:(id<UITableViewDataSource>)dataSource
-	tableViewDelegate:(id<UITableViewDelegate>)delegate
-	textFieldsDelegate:(id<UITextFieldDelegate>)textFieldsDelegate {
+	tableViewDelegate:(id<UITableViewDelegate>)delegate {
 
 	self = [super init];
 	if(!self) return nil;
@@ -18,8 +21,6 @@
 	[self setupUI];
 	pinCodesTableView.dataSource = dataSource;
 	pinCodesTableView.delegate = delegate;
-	issuerTextField.delegate = textFieldsDelegate;
-	secretTextField.delegate = textFieldsDelegate;
 
 	return self;
 
@@ -81,18 +82,6 @@
 
 // ! Reusable funcs
 
-- (UIStackView *)setupStackView {
-
-	UIStackView *stackView = [UIStackView new];
-	stackView.axis = UILayoutConstraintAxisHorizontal;
-	stackView.spacing = 10;
-	stackView.distribution = UIStackViewDistributionFill;
-	stackView.translatesAutoresizingMaskIntoConstraints = NO;	
-	return stackView;
-
-}
-
-
 - (UILabel *)createLabelWithText:(NSString *_Nullable)text textColor:(UIColor *)textColor {
 
 	UILabel *label = [UILabel new];
@@ -109,6 +98,7 @@
 
 	UITextField *textField = [UITextField new];
 	textField.font = [UIFont systemFontOfSize: 14];
+	textField.delegate = self;
 	textField.placeholder = placeholder;
 	textField.returnKeyType = returnKeyType;
 	textField.translatesAutoresizingMaskIntoConstraints = NO;
@@ -117,14 +107,41 @@
 }
 
 
+- (UIStackView *)setupStackView {
+
+	UIStackView *stackView = [UIStackView new];
+	stackView.axis = UILayoutConstraintAxisHorizontal;
+	stackView.spacing = 10;
+	stackView.distribution = UIStackViewDistributionFill;
+	stackView.translatesAutoresizingMaskIntoConstraints = NO;	
+	return stackView;
+
+}
+
+
 - (void)configureConstraintsForStackView:(UIStackView *)stackView
-	andTextField:(UITextField *)textField
+	forTextField:(UITextField *)textField
 	forCell:(UITableViewCell *)cell {
 
 	[stackView.leadingAnchor constraintEqualToAnchor: cell.contentView.leadingAnchor constant: 15].active = YES;
 	[stackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 	[textField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
 	[textField.heightAnchor constraintEqualToConstant: 44].active = YES;
+
+}
+
+// ! UITextFieldDelegate
+
+ - (BOOL)textFieldShouldReturn:(UITextField *)textField {
+
+	if(textField == issuerTextField) {
+		[textField resignFirstResponder];
+		[secretTextField becomeFirstResponder];
+	}
+
+	else [textField resignFirstResponder];
+
+	return YES;
 
 }
 

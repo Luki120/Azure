@@ -13,9 +13,8 @@
 
 }
 - (id)initWithDataSource:(id<UITableViewDataSource>)dataSource
-	tableViewDelegate:(id<UITableViewDelegate>)delegate
-	textFieldsDelegate:(id<UITextFieldDelegate>)textFieldsDelegate;
+	tableViewDelegate:(id<UITableViewDelegate>)delegate;
 - (void)configureConstraintsForStackView:(UIStackView *)stackView
-	andTextField:(UITextField *)textField
+	forTextField:(UITextField *)textField
 	forCell:(UITableViewCell *)cell;
 @end
