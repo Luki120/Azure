@@ -96,8 +96,7 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
-	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60 
-		|| scrollView.contentOffset.y <= self.view.safeAreaInsets.bottom - 22)
+	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60)
 
 		[azureTableVCView->azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
 
