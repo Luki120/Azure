@@ -7,12 +7,17 @@
 
 }
 
-- (id)init {
+- (id)initWithDataSource:(id<UITableViewDataSource>)dataSource
+	tableViewDelegate:(id<UITableViewDelegate>)delegate
+	floatingButtonViewDelegate:(id<AzureFloatingButtonViewDelegate>)buttonDelegate {
 
 	self = [super init];
 	if(!self) return nil;
 
 	[self setupViews];
+	azureTableView.dataSource = dataSource;
+	azureTableView.delegate = delegate;
+	azureFloatingButtonView.delegate = buttonDelegate;
 
 	return self;
 
