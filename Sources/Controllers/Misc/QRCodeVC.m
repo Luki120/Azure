@@ -7,8 +7,6 @@
 	AVCaptureSession *captureSession;
 	AVCaptureVideoPreviewLayer *videoPreviewLayer;
 	AzureToastView *azToastView;
-	PopAnimator *popAnimator;
-	PushAnimator *pushAnimator;
 
 }
 
@@ -21,9 +19,6 @@
 	azToastView = [AzureToastView new];
 	[self.view addSubview: azToastView];
 
-	popAnimator = [PopAnimator new];
-	pushAnimator = [PushAnimator new];
-	self.navigationController.delegate = self;
 	self.view.backgroundColor = UIColor.systemBackgroundColor;
 
 	AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
@@ -133,19 +128,6 @@
 
 	[[TOTPManager sharedInstance] makeURLOutOfOtPauthString: outputString];
 	[self.delegate qrCodeVCDidCreateIssuerOutOfQRCode];
-
-}
-
-
-- (id<UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
-	animationControllerForOperation:(UINavigationControllerOperation)operation
-	fromViewController:(UIViewController *)fromVC
-	toViewController:(UIViewController *)toVC {
-
-	if(operation == UINavigationControllerOperationPop) return popAnimator;
-	if(operation == UINavigationControllerOperationPush) return pushAnimator;
-
-	return nil;
 
 }
 

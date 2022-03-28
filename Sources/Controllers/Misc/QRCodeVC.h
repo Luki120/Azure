@@ -1,6 +1,4 @@
 @import AVFoundation;
-#import "Sources/Managers/Animators/PopAnimator.h"
-#import "Sources/Managers/Animators/PushAnimator.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
 #import "Sources/Views/UI/AzureToastView.h"
 
@@ -14,6 +12,6 @@
 @end
 
 
-@interface QRCodeVC : UIViewController <AVCaptureMetadataOutputObjectsDelegate, UINavigationControllerDelegate>
+@interface QRCodeVC : UIViewController <AVCaptureMetadataOutputObjectsDelegate>
 @property (nonatomic, weak) id <QRCodeVCDelegate> delegate;
 @end
