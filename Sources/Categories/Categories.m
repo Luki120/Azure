@@ -1,4 +1,12 @@
-#import "Sources/Categories/Categories.h"
+//
+//  Categories.m
+//  Azure
+//
+//  Created by Luki120 on 3/8/2022.
+//  Copyright © 2022 Luki120. All rights reserved.
+//
+
+#import "Categories.h"
 
 
 @implementation UIBarButtonItem (Reusable)
@@ -49,7 +57,7 @@
 @end
 
 
-@implementation UIView (Animations)
+@implementation UIView (Tools)
 
 + (void)animateViewWithDelay:(CGFloat)delay
 	withAnimations:(void (^)(void))animations
@@ -59,6 +67,7 @@
 
 }
 
+
 + (void)makeRotationTransformForView:(UIView *)view andLabel:(UILabel *)label {
 
 	CATransform3D rotation = CATransform3DIdentity;
@@ -66,6 +75,44 @@
 	rotation = CATransform3DRotate(rotation, 180.0 * M_PI / 180, 0, 1, 0);
 	view.layer.transform = rotation;
 	label.layer.transform = rotation;
+
+}
+
+
+- (void)pinViewToAllEdges:(UIView *)view {
+
+	view.translatesAutoresizingMaskIntoConstraints = NO;
+	[NSLayoutConstraint activateConstraints:@[
+		[view.topAnchor constraintEqualToAnchor: self.topAnchor],
+		[view.bottomAnchor constraintEqualToAnchor: self.bottomAnchor],
+		[view.leadingAnchor constraintEqualToAnchor: self.leadingAnchor],
+		[view.trailingAnchor constraintEqualToAnchor: self.trailingAnchor]
+	]];
+
+}
+
+
+- (void)pinViewToAllEdgesIncludingSafeAreas:(UIView *)view bottomConstant:(CGFloat)bottomConstant {
+
+	view.translatesAutoresizingMaskIntoConstraints = NO;
+	[NSLayoutConstraint activateConstraints:@[
+		[view.topAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.topAnchor],
+		[view.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor constant: bottomConstant],
+		[view.leadingAnchor constraintEqualToAnchor: self.leadingAnchor],
+		[view.trailingAnchor constraintEqualToAnchor: self.trailingAnchor]
+	]];
+
+}
+
+
+- (void)pinAzureToastToTheBottomCenteredOnTheXAxis:(UIView *)azureToastView
+	bottomConstant:(CGFloat)bottomConstant {
+
+	azureToastView.translatesAutoresizingMaskIntoConstraints = NO;
+	[NSLayoutConstraint activateConstraints:@[
+		[azureToastView.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor constant: bottomConstant],
+		[azureToastView.centerXAnchor constraintEqualToAnchor: self.centerXAnchor]
+	]];
 
 }
 
