@@ -77,10 +77,7 @@
 
 - (void)layoutUI {
 
-	[dimmedView.topAnchor constraintEqualToAnchor: self.topAnchor].active = YES;
-	[dimmedView.bottomAnchor constraintEqualToAnchor: self.bottomAnchor].active = YES;
-	[dimmedView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
-	[dimmedView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;
+	[self pinViewToAllEdges: dimmedView];
 
 	[containerView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
 	[containerView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;

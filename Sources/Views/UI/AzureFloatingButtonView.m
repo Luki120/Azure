@@ -34,11 +34,7 @@
 	[floatingCreateButton setImage: [UIImage systemImageNamed:@"plus" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:25]] forState: UIControlStateNormal];
 	[floatingCreateButton addTarget:self action:@selector(didTapButton) forControlEvents: UIControlEventTouchUpInside];
 	[self addSubview: floatingCreateButton];
-
-	[floatingCreateButton.topAnchor constraintEqualToAnchor: self.topAnchor].active = YES;
-	[floatingCreateButton.bottomAnchor constraintEqualToAnchor: self.bottomAnchor].active = YES;
-	[floatingCreateButton.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
-	[floatingCreateButton.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;
+	[self pinViewToAllEdges: floatingCreateButton];
 
 }
 

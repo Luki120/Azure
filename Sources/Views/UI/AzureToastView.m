@@ -23,8 +23,6 @@
 
 - (void)setupToastView {
 
-	self.translatesAutoresizingMaskIntoConstraints = NO;
-
 	toastView = [UIView new];
 	toastView.alpha = 0;
 	toastView.backgroundColor = kAzureMintTintColor;

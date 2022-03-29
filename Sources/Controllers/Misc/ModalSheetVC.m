@@ -92,14 +92,7 @@
 - (void)shouldCrossDissolveChildSubviews { [modalChildView shouldCrossDissolveSubviews]; }
 
 
-- (void)layoutUI {
-
-	[modalChildView.topAnchor constraintEqualToAnchor: self.view.topAnchor].active = YES;
-	[modalChildView.bottomAnchor constraintEqualToAnchor: self.view.bottomAnchor].active = YES;
-	[modalChildView.leadingAnchor constraintEqualToAnchor: self.view.leadingAnchor].active = YES;
-	[modalChildView.trailingAnchor constraintEqualToAnchor: self.view.trailingAnchor].active = YES;
-
-}
+- (void)layoutUI { [self.view pinViewToAllEdges: modalChildView]; }
 
 
 - (void)vcNeedsDismissal {

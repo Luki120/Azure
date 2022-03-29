@@ -29,7 +29,6 @@
 	azureTableView = [UITableView new];
 	azureTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 	azureTableView.backgroundColor = kUserInterfaceStyle ? UIColor.systemBackgroundColor : UIColor.secondarySystemBackgroundColor;
-	azureTableView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self addSubview: azureTableView];
 
 	azureFloatingButtonView = [AzureFloatingButtonView new];
@@ -52,19 +51,14 @@
 - (void)layoutSubviews {
 
 	[super layoutSubviews];
-
-	[azureTableView.topAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.topAnchor].active = YES;
-	[azureTableView.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor constant: -50].active = YES;
-	[azureTableView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
-	[azureTableView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;	
+	[self pinViewToAllEdgesIncludingSafeAreas:azureTableView bottomConstant: -50];
 
 	[azureFloatingButtonView.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor constant: -74].active = YES;
 	[azureFloatingButtonView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor constant: -25].active = YES;
 	[azureFloatingButtonView.widthAnchor constraintEqualToConstant: 60].active = YES;
 	[azureFloatingButtonView.heightAnchor constraintEqualToConstant: 60].active = YES;
 
-	[azureToastView.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor constant: -55].active = YES;
-	[azureToastView.centerXAnchor constraintEqualToAnchor: self.centerXAnchor].active = YES;
+	[self pinAzureToastToTheBottomCenteredOnTheXAxis:azureToastView bottomConstant: -55];
 
 	[placeholderLabel.centerXAnchor constraintEqualToAnchor: self.centerXAnchor].active = YES;
 	[placeholderLabel.centerYAnchor constraintEqualToAnchor: self.centerYAnchor].active = YES;

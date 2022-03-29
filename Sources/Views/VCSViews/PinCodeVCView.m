@@ -39,7 +39,6 @@
 
 	pinCodesTableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
 	pinCodesTableView.backgroundColor = UIColor.systemBackgroundColor;
-	pinCodesTableView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self addSubview: pinCodesTableView];
 
 	issuerStackView = [self setupStackView];
@@ -70,13 +69,8 @@
 
 - (void)layoutUI {
 
-	[pinCodesTableView.topAnchor constraintEqualToAnchor: self.topAnchor].active = YES;
-	[pinCodesTableView.bottomAnchor constraintEqualToAnchor: self.bottomAnchor].active = YES;
-	[pinCodesTableView.leadingAnchor constraintEqualToAnchor: self.leadingAnchor].active = YES;
-	[pinCodesTableView.trailingAnchor constraintEqualToAnchor: self.trailingAnchor].active = YES;
-
-	[azToastView.bottomAnchor constraintEqualToAnchor: self.safeAreaLayoutGuide.bottomAnchor constant: -5].active = YES;
-	[azToastView.centerXAnchor constraintEqualToAnchor: self.centerXAnchor].active = YES;
+	[self pinViewToAllEdges: pinCodesTableView];
+	[self pinAzureToastToTheBottomCenteredOnTheXAxis:azToastView bottomConstant: -5];
 
 }
 

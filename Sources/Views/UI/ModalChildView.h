@@ -1,10 +1,10 @@
+#import "Sources/Categories/Categories.h"
 #import "Sources/Constants/Constants.h"
 
 
 @protocol ModalChildViewDelegate <NSObject>
 
 @required
-
 - (void)modalChildViewDidTapScanQRCodeButton;
 - (void)modalChildViewDidTapImportQRImageButton;
 - (void)modalChildViewDidTapEnterManuallyButton;
