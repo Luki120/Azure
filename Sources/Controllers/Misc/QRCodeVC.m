@@ -16,10 +16,41 @@
 	[super viewDidLoad];
 
 	// Do any additional setup after loading the view, typically from a nib.
+	self.view.backgroundColor = UIColor.systemBackgroundColor;
+
 	azToastView = [AzureToastView new];
 	[self.view addSubview: azToastView];
 
-	self.view.backgroundColor = UIColor.systemBackgroundColor;
+	[self checkAuthorizationStatus];
+
+}
+
+
+- (void)viewWillAppear:(BOOL)animated {
+
+	[super viewWillAppear: animated];
+	if(!captureSession.isRunning) [captureSession startRunning];
+
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated {
+
+	[super viewWillDisappear: animated];
+	if(captureSession.isRunning) [captureSession stopRunning];
+
+}
+
+
+- (void)viewDidLayoutSubviews {
+
+	[super viewDidLayoutSubviews];
+	[self.view pinAzureToastToTheBottomCenteredOnTheXAxis:azToastView bottomConstant: -15];
+
+}
+
+
+- (void)checkAuthorizationStatus {
 
 	AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
 
@@ -54,32 +85,6 @@
 		case AVAuthorizationStatusRestricted: break;
 
 	}
-
-}
-
-
-- (void)viewWillAppear:(BOOL)animated {
-
-	[super viewWillAppear: animated];
-	if(!captureSession.isRunning) [captureSession startRunning];
-
-}
-
-
-- (void)viewWillDisappear:(BOOL)animated {
-
-	[super viewWillDisappear: animated];
-	if(captureSession.isRunning) [captureSession stopRunning];
-
-}
-
-
-- (void)viewDidLayoutSubviews {
-
-	[super viewDidLayoutSubviews];
-
-	[azToastView.bottomAnchor constraintEqualToAnchor: self.view.safeAreaLayoutGuide.bottomAnchor constant: -15].active = YES;
-	[azToastView.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
 
 }
 
