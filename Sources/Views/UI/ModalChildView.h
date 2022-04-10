@@ -20,28 +20,26 @@
 - (void)animateSheetHeight:(CGFloat)height;
 - (void)animateDismissWithCompletion:(void(^)(BOOL finished))completion;
 - (void)setupModalSheetWithTitle:(NSString *)title
-	withSubtitle:(NSString *)subtitle
-	withButtonTitle:(NSString *)firstTitle
-	withTarget:(id)firstTarget
-	forSelector:(SEL)firstSelector
+	subtitle:(NSString *)subtitle
+	buttonTitle:(NSString *)buttonTitle
+	forTarget:(id)target
+	forSelector:(SEL)selector
 	secondButtonTitle:(NSString *)secondTitle
-	withTarget:(id)secondTarget
+	forTarget:(id)secondTarget
 	forSelector:(SEL)secondSelector
+	thirdStackView:(BOOL)thirdSV
 	thirdButtonTitle:(NSString *)thirdTitle
-	withTarget:(id)thirdTarget
+	forTarget:(id)thirdTarget
 	forSelector:(SEL)thirdSelector
-	withFirstImage:(UIImage *)firstImage
-	withSecondImage:(UIImage *)secondImage
-	withThirdImage:(UIImage *)thirdImage
-	allowingForSecondStackView:(BOOL)allowsSecondSV
-	allowingForThirdStackView:(BOOL)allowsThirdSV
+	accessoryImage:(UIImage *)accessoryImage
+	secondAccessoryImage:(UIImage *)secondAccessoryImg
+	thirdAccessoryImage:(UIImage *)thirdAccessoryImg
 	prepareForReuse:(BOOL)prepare
-	allowingInitialScaleAnimation:(BOOL)allowsScaleAnim;
+	scaleAnimation:(BOOL)scaleAnim;
 - (void)shouldCrossDissolveSubviews;
 @end
 
 
-// Constants
 static const CGFloat kDefaultHeight = 300;
 static const CGFloat kDismissableHeight = 215;
 static CGFloat currentSheetHeight = 300;

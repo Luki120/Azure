@@ -270,23 +270,22 @@
 
 
 - (void)setupModalSheetWithTitle:(NSString *)title
-	withSubtitle:(NSString *)subtitle
-	withButtonTitle:(NSString *)firstTitle
-	withTarget:(id)firstTarget
-	forSelector:(SEL)firstSelector
-	secondButtonTitle:(NSString *_Nullable)secondTitle
-	withTarget:(id)secondTarget
-	forSelector:(SEL _Nullable)secondSelector
-	thirdButtonTitle:(NSString *_Nullable)thirdTitle
-	withTarget:(id)thirdTarget
-	forSelector:(SEL _Nullable)thirdSelector
-	withFirstImage:(UIImage *)firstImage
-	withSecondImage:(UIImage *_Nullable)secondImage
-	withThirdImage:(UIImage *_Nullable)thirdImage
-	allowingForSecondStackView:(BOOL)allowsSecondSV
-	allowingForThirdStackView:(BOOL)allowsThirdSV
+	subtitle:(NSString *)subtitle
+	buttonTitle:(NSString *)buttonTitle
+	forTarget:(id)target
+	forSelector:(SEL)selector
+	secondButtonTitle:(NSString *)secondTitle
+	forTarget:(id)secondTarget
+	forSelector:(SEL)secondSelector
+	thirdStackView:(BOOL)usesThirdSV
+	thirdButtonTitle:(NSString *)thirdTitle
+	forTarget:(id)thirdTarget
+	forSelector:(SEL)thirdSelector
+	accessoryImage:(UIImage *)accessoryImage
+	secondAccessoryImage:(UIImage *)secondAccessoryImg
+	thirdAccessoryImage:(UIImage *)thirdAccessoryImg
 	prepareForReuse:(BOOL)prepare
-	allowingInitialScaleAnimation:(BOOL)allowsScaleAnim {
+	scaleAnimation:(BOOL)scaleAnim {
 
 	if(prepare) {
 		[strongTitleStackView removeFromSuperview];
@@ -313,12 +312,11 @@
 		withAxis:UILayoutConstraintAxisHorizontal
 		withSpacing:10
 	];
-	if(allowsSecondSV)
-		[self createStackViewWithStackView:secondSV
-			withAxis:UILayoutConstraintAxisHorizontal
-			withSpacing:10
-		];
-	if(allowsThirdSV)
+	[self createStackViewWithStackView:secondSV
+		withAxis:UILayoutConstraintAxisHorizontal
+		withSpacing:10
+	];
+	if(usesThirdSV)
 		[self createStackViewWithStackView:thirdSV
 			withAxis:UILayoutConstraintAxisHorizontal
 			withSpacing:10
@@ -327,10 +325,10 @@
 	[containerView addSubview: titleSV];
 	[containerView addSubview: buttonsSV];
 	[buttonsSV addArrangedSubview: firstSV];
-	if(allowsSecondSV) [buttonsSV addArrangedSubview: secondSV];
-	if(allowsThirdSV) [buttonsSV addArrangedSubview: thirdSV];
+	[buttonsSV addArrangedSubview: secondSV];
+	if(usesThirdSV) [buttonsSV addArrangedSubview: thirdSV];
 
-	if(allowsScaleAnim) {
+	if(scaleAnim) {
 		buttonsSV.alpha = 0;
 		buttonsSV.transform = CGAffineTransformMakeScale(0.1, 0.1);
 		titleSV.alpha = 0;
@@ -360,9 +358,9 @@
 	UIImageView *secondImageView = [UIImageView new];
 	UIImageView *thirdImageView = [UIImageView new];
 
-	[self createImageView:firstImageView withImage:firstImage];
-	[self createImageView:secondImageView withImage:secondImage];
-	[self createImageView:thirdImageView withImage:thirdImage];
+	[self createImageView:firstImageView withImage:accessoryImage];
+	[self createImageView:secondImageView withImage:secondAccessoryImg];
+	[self createImageView:thirdImageView withImage:thirdAccessoryImg];
 
 	/* ********** BUTTONS ********** */
 
@@ -371,9 +369,9 @@
 	UIButton *thirdButton = [UIButton new];
 
 	[self createButtonWithButton:firstButton
-		withTitleLabel:firstTitle
-		withTarget:firstTarget
-		forSelector:firstSelector
+		withTitleLabel:title
+		withTarget:target
+		forSelector:selector
 	];
 	[self createButtonWithButton:secondButton
 		withTitleLabel:secondTitle
@@ -402,7 +400,7 @@
 
 	strongTitleStackView = titleSV;
 	strongButtonsStackView = buttonsSV;
-	shouldAllowScaleAnim = allowsScaleAnim;
+	shouldAllowScaleAnim = scaleAnim;
 
 }
 
