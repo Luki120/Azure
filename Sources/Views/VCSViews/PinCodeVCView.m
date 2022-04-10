@@ -112,6 +112,7 @@
 
 }
 
+// ! Public
 
 - (void)configureConstraintsForStackView:(UIStackView *)stackView
 	forTextField:(UITextField *)textField
@@ -121,6 +122,14 @@
 	[stackView.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 	[textField.widthAnchor constraintEqualToAnchor: cell.contentView.widthAnchor constant: -43].active = YES;
 	[textField.heightAnchor constraintEqualToConstant: 44].active = YES;
+
+}
+
+
+- (void)resignFirstResponderIfNeeded {
+
+	[issuerTextField resignFirstResponder];
+	[secretTextField resignFirstResponder];
 
 }
 

@@ -17,4 +17,5 @@
 - (void)configureConstraintsForStackView:(UIStackView *)stackView
 	forTextField:(UITextField *)textField
 	forCell:(UITableViewCell *)cell;
+- (void)resignFirstResponderIfNeeded;
 @end
