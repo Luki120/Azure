@@ -143,23 +143,17 @@
 
 	modalSheetVC = [ModalSheetVC new];
 	[modalSheetVC setupChildWithTitle:@"Backup options"
-		withSubtitle:@"Choose between loading a backup from file or making a new one."
-		withButtonTitle:@"Load Backup"
-		withTarget:self
+		subtitle:@"Choose between loading a backup from file or making a new one."
+		buttonTitle:@"Load Backup"
+		forTarget:self
 		forSelector:@selector(didTapLoadBackupButton)
 		secondButtonTitle:@"Make Backup"
-		withTarget:self
+		forTarget:self
 		forSelector:@selector(didTapMakeBackupButton)
-		thirdButtonTitle:nil
-		withTarget:nil
-		forSelector:nil
-		withFirstImage:[UIImage systemImageNamed:@"square.and.arrow.down"]
-		withSecondImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
-		withThirdImage:nil
-		allowingForSecondStackView:YES
-		allowingForThirdStackView:NO
+		accessoryImage:[UIImage systemImageNamed:@"square.and.arrow.down"]
+		secondAccessoryImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
 		prepareForReuse:NO
-		allowingInitialScaleAnimation:YES
+		scaleAnimation:YES
 	];
 	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
 	[self presentViewController:modalSheetVC animated:NO completion:nil];
@@ -269,23 +263,22 @@
 	modalSheetVC = [ModalSheetVC new];
 	modalSheetVC.delegate = self;
 	[modalSheetVC setupChildWithTitle:@"Add issuer"
-		withSubtitle:@"Add an issuer by scanning a QR code, importing a QR image or entering the secret manually."
-		withButtonTitle:@"Scan QR Code"
-		withTarget:modalSheetVC
+		subtitle:@"Add an issuer by scanning a QR code, importing a QR image or entering the secret manually."
+		buttonTitle:@"Scan QR Code"
+		forTarget:modalSheetVC
 		forSelector:@selector(modalChildViewDidTapScanQRCodeButton)
 		secondButtonTitle:@"Import QR Image"
-		withTarget:modalSheetVC
+		forTarget:modalSheetVC
 		forSelector:@selector(modalChildViewDidTapImportQRImageButton)
+		thirdStackView:YES
 		thirdButtonTitle:@"Enter Manually"
-		withTarget:modalSheetVC
+		forTarget:modalSheetVC
 		forSelector:@selector(modalChildViewDidTapEnterManuallyButton)
-		withFirstImage:[UIImage systemImageNamed:@"qrcode"]
-		withSecondImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
-		withThirdImage:[UIImage systemImageNamed:@"square.and.pencil"]
-		allowingForSecondStackView:YES
-		allowingForThirdStackView:YES
+		accessoryImage:[UIImage systemImageNamed:@"qrcode"]
+		secondAccessoryImage:[UIImage systemImageNamed:@"square.and.arrow.up"]
+		thirdAccessoryImage:[UIImage systemImageNamed:@"square.and.pencil"]
 		prepareForReuse:NO
-		allowingInitialScaleAnimation:YES
+		scaleAnimation:YES
 	];
 	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
 	[self presentViewController:modalSheetVC animated:NO completion:nil];
@@ -359,23 +352,17 @@
 	[backupManager makeJSONOutOfData];
 	[modalSheetVC shouldCrossDissolveChildSubviews];
 	[modalSheetVC setupChildWithTitle:@"Make backup actions"
-		withSubtitle:@"Do you want to view your backup in Filza now?"
-		withButtonTitle:@"Yes"
-		withTarget:self
+		subtitle:@"Do you want to view your backup in Filza now?"
+		buttonTitle:@"Yes"
+		forTarget:self
 		forSelector:@selector(didTapViewInFilzaButton)
 		secondButtonTitle:@"Later"
-		withTarget:self
+		forTarget:self
 		forSelector:@selector(didTapDismissButton)
-		thirdButtonTitle:nil
-		withTarget:nil
-		forSelector:nil
-		withFirstImage:[UIImage systemImageNamed:@"checkmark.circle.fill"]
-		withSecondImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
-		withThirdImage:nil
-		allowingForSecondStackView:YES
-		allowingForThirdStackView:NO
+		accessoryImage:[UIImage systemImageNamed:@"checkmark.circle.fill"]
+		secondAccessoryImage:[UIImage systemImageNamed:@"xmark.circle.fill"]
 		prepareForReuse:YES
-		allowingInitialScaleAnimation:NO
+		scaleAnimation:NO
 	];
 
 }

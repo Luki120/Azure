@@ -8,7 +8,6 @@
 }
 
 // can't use self before the app delegate is initialized so I can't make ivars :frSmh:
-
 static Class strongClass;
 static UIButton *quitButton;
 static UILabel *addressLabel;
@@ -158,23 +157,17 @@ static void checkIfJailbroken() {
 
 	modalSheetVC = [ModalSheetVC new];
 	[modalSheetVC setupChildWithTitle:@"Azure"
-		withSubtitle:@"Oop, looks like you're jailbroken. Don't worry, I won't lock you out or prevent you from using the app, that's bullshit I don't believe in, and whoever does that can go fuck themselves. That being said, be aware that your device could be more prone to attacks or vulnerabilities and your data could get compromised, proceed with caution."
-		withButtonTitle:@"I understand"
-		withTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
+		subtitle:@"Oop, looks like you're jailbroken. Don't worry, I won't lock you out or prevent you from using the app, that's bullshit I don't believe in, and whoever does that can go fuck themselves. That being said, be aware that your device could be more prone to attacks or vulnerabilities and your data could get compromised, proceed with caution."
+		buttonTitle:@"I understand"
+		forTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
 		forSelector:@selector(didTapUnderstandButton)
 		secondButtonTitle:@"Quit app"
-		withTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
+		forTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
 		forSelector:@selector(didTapQuitButton)
-		thirdButtonTitle:nil
-		withTarget:nil
-		forSelector:nil
-		withFirstImage:[UIImage systemImageNamed:@"exclamationmark.shield.fill"]
-		withSecondImage:[UIImage systemImageNamed:@"xmark.shield.fill"]
-		withThirdImage:nil
-		allowingForSecondStackView:YES
-		allowingForThirdStackView:NO
+		accessoryImage:[UIImage systemImageNamed:@"exclamationmark.shield.fill"]
+		secondAccessoryImage:[UIImage systemImageNamed:@"xmark.shield.fill"]
 		prepareForReuse:NO
-		allowingInitialScaleAnimation:YES
+		scaleAnimation:YES
 	];
 	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
 	[strongWindow.rootViewController presentViewController:modalSheetVC animated:NO completion:nil];
