@@ -17,23 +17,34 @@
 @interface ModalSheetVC : UIViewController <ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 @property (nonatomic, weak) id <ModalSheetVCDelegate> delegate;
 - (void)setupChildWithTitle:(NSString *)title
-	withSubtitle:(NSString *)subtitle
-	withButtonTitle:(NSString *)firstTitle
-	withTarget:(id)firstTarget
-	forSelector:(SEL)firstSelector
+	subtitle:(NSString *)subtitle
+	buttonTitle:(NSString *)buttonTitle
+	forTarget:(id)target
+	forSelector:(SEL)selector
 	secondButtonTitle:(NSString *)secondTitle
-	withTarget:(id)secondTarget
+	forTarget:(id)secondTarget
 	forSelector:(SEL)secondSelector
+	thirdStackView:(BOOL)thirdSV
 	thirdButtonTitle:(NSString *)thirdTitle
-	withTarget:(id)thirdTarget
+	forTarget:(id)thirdTarget
 	forSelector:(SEL)thirdSelector
-	withFirstImage:(UIImage *)firstImage
-	withSecondImage:(UIImage *)secondImage
-	withThirdImage:(UIImage *)thirdImage
-	allowingForSecondStackView:(BOOL)allowsSecondSV
-	allowingForThirdStackView:(BOOL)allowsThirdSV
+	accessoryImage:(UIImage *)accessoryImage
+	secondAccessoryImage:(UIImage *)secondAccessoryImg
+	thirdAccessoryImage:(UIImage *)thirdAccessoryImg
 	prepareForReuse:(BOOL)prepare
-	allowingInitialScaleAnimation:(BOOL)allowsScaleAnim;
+	scaleAnimation:(BOOL)scaleAnim;
+- (void)setupChildWithTitle:(NSString *)title
+	subtitle:(NSString *)subtitle
+	buttonTitle:(NSString *)buttonTitle
+	forTarget:(id)target
+	forSelector:(SEL)selector
+	secondButtonTitle:(NSString *)secondTitle
+	forTarget:(id)secondTarget
+	forSelector:(SEL)secondSelector
+	accessoryImage:(UIImage *)accessoryImage
+	secondAccessoryImage:(UIImage *)secondAccessoryImg
+	prepareForReuse:(BOOL)prepare
+	scaleAnimation:(BOOL)scaleAnim;
 - (void)vcNeedsDismissal;
 - (void)shouldCrossDissolveChildSubviews;
 @end

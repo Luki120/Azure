@@ -46,44 +46,78 @@
 
 }
 
+// ! Designated initializers
 
 - (void)setupChildWithTitle:(NSString *)title
-	withSubtitle:(NSString *)subtitle
-	withButtonTitle:(NSString *)firstTitle
-	withTarget:(id)firstTarget
-	forSelector:(SEL)firstSelector
-	secondButtonTitle:(NSString *_Nullable)secondTitle
-	withTarget:(id _Nullable)secondTarget
-	forSelector:(SEL _Nullable)secondSelector
-	thirdButtonTitle:(NSString *_Nullable)thirdTitle
-	withTarget:(id _Nullable)thirdTarget
-	forSelector:(SEL _Nullable)thirdSelector
-	withFirstImage:(UIImage *)firstImage
-	withSecondImage:(UIImage *_Nullable)secondImage
-	withThirdImage:(UIImage *_Nullable)thirdImage
-	allowingForSecondStackView:(BOOL)allowsSecondSV
-	allowingForThirdStackView:(BOOL)allowsThirdSV
+	subtitle:(NSString *)subtitle
+	buttonTitle:(NSString *)buttonTitle
+	forTarget:(id)target
+	forSelector:(SEL)selector
+	secondButtonTitle:(NSString *)secondTitle
+	forTarget:(id)secondTarget
+	forSelector:(SEL)secondSelector
+	thirdStackView:(BOOL)thirdSV
+	thirdButtonTitle:(NSString *)thirdTitle
+	forTarget:(id)thirdTarget
+	forSelector:(SEL)thirdSelector
+	accessoryImage:(UIImage *)accessoryImage
+	secondAccessoryImage:(UIImage *)secondAccessoryImg
+	thirdAccessoryImage:(UIImage *)thirdAccessoryImg
 	prepareForReuse:(BOOL)prepare
-	allowingInitialScaleAnimation:(BOOL)allowsScaleAnim {
+	scaleAnimation:(BOOL)scaleAnim {
 
 	[modalChildView setupModalSheetWithTitle:title
-		withSubtitle:subtitle
-		withButtonTitle:firstTitle
-		withTarget:firstTarget
-		forSelector:firstSelector
+		subtitle:subtitle
+		buttonTitle:buttonTitle
+		forTarget:target
+		forSelector:selector
 		secondButtonTitle:secondTitle
-		withTarget:secondTarget
+		forTarget:secondTarget
 		forSelector:secondSelector
+		thirdStackView:thirdSV
 		thirdButtonTitle:thirdTitle
-		withTarget:thirdTarget
+		forTarget:thirdTarget
 		forSelector:thirdSelector
-		withFirstImage:firstImage
-		withSecondImage:secondImage
-		withThirdImage:thirdImage
-		allowingForSecondStackView:allowsSecondSV 
-		allowingForThirdStackView:allowsThirdSV
+		accessoryImage:accessoryImage
+		secondAccessoryImage:secondAccessoryImg
+		thirdAccessoryImage:thirdAccessoryImg
 		prepareForReuse:prepare
-		allowingInitialScaleAnimation:allowsScaleAnim
+		scaleAnimation:scaleAnim
+	];
+
+}
+
+
+- (void)setupChildWithTitle:(NSString *)title
+	subtitle:(NSString *)subtitle
+	buttonTitle:(NSString *)buttonTitle
+	forTarget:(id)target
+	forSelector:(SEL)selector
+	secondButtonTitle:(NSString *)secondTitle
+	forTarget:(id)secondTarget
+	forSelector:(SEL)secondSelector
+	accessoryImage:(UIImage *)accessoryImage
+	secondAccessoryImage:(UIImage *)secondAccessoryImg
+	prepareForReuse:(BOOL)prepare
+	scaleAnimation:(BOOL)scaleAnim {
+
+	[modalChildView setupModalSheetWithTitle:title
+		subtitle:subtitle
+		buttonTitle:buttonTitle
+		forTarget:target
+		forSelector:selector
+		secondButtonTitle:secondTitle
+		forTarget:secondTarget
+		forSelector:secondSelector
+		thirdStackView:NO
+		thirdButtonTitle:nil
+		forTarget:nil
+		forSelector:nil
+		accessoryImage:accessoryImage
+		secondAccessoryImage:secondAccessoryImg
+		thirdAccessoryImage:nil
+		prepareForReuse:prepare
+		scaleAnimation:scaleAnim
 	];
 
 }
