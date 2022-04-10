@@ -199,7 +199,7 @@
 	modifyingConstraintForView:(NSLayoutConstraint *)constraint {
 
 	CGPoint translation = [panRecognizer translationInView: self.view];
-	CGFloat newHeight = kDefaultHeight - translation.y;
+	CGFloat newHeight = currentSheetHeight - translation.y;
 
 	switch(panRecognizer.state) {
 
@@ -215,10 +215,9 @@
 		case UIGestureRecognizerStateEnded:
 
 			if(newHeight < kDismissableHeight) [modalChildView animateDismissWithCompletion:^(BOOL finished) {
-
 				[self dismissVC];
-
 			}];
+			else if(newHeight < kDefaultHeight) [modalChildView animateSheetHeight: kDefaultHeight];
 			break;
 
 		default: break;

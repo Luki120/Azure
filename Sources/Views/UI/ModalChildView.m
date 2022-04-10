@@ -105,17 +105,12 @@
 
 // ! Animations
 
-- (void)animateViews {
-
-	[self animateDimmedView];
-	[self animateContainer];
-
-}
-
-- (void)animateContainer {
+- (void)animateViews { [self animateSheet]; }
+- (void)animateSheet {
 
 	[self animateViewsWithDuration:0.3 animations:^{
 
+		dimmedView.alpha = 0.6;
 		containerViewBottomConstraint.constant = 0;
 		[self layoutIfNeeded];
 
@@ -127,9 +122,16 @@
 }
 
 
-- (void)animateDimmedView {
+- (void)animateSheetHeight:(CGFloat)height {
 
-	[self animateViewsWithDuration:0.3 animations:^{ dimmedView.alpha = 0.6; } completion:nil];
+	[self animateViewsWithDuration:0.3 animations:^{
+
+		containerViewHeightConstraint.constant = height;
+		[self layoutIfNeeded];
+
+	} completion:nil];
+
+	currentSheetHeight = height;
 
 }
 

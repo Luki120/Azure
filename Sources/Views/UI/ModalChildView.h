@@ -17,6 +17,7 @@
 @interface ModalChildView : UIView
 @property (nonatomic, weak) id <ModalChildViewDelegate> delegate;
 - (void)animateViews;
+- (void)animateSheetHeight:(CGFloat)height;
 - (void)animateDismissWithCompletion:(void(^)(BOOL finished))completion;
 - (void)setupModalSheetWithTitle:(NSString *)title
 	withSubtitle:(NSString *)subtitle
@@ -42,4 +43,5 @@
 
 // Constants
 static const CGFloat kDefaultHeight = 300;
-static const CGFloat kDismissableHeight = 200;
+static const CGFloat kDismissableHeight = 215;
+static CGFloat currentSheetHeight = 300;
