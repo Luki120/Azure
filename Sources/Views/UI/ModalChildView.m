@@ -369,7 +369,7 @@
 	UIButton *thirdButton = [UIButton new];
 
 	[self createButtonWithButton:firstButton
-		withTitleLabel:title
+		withTitleLabel:buttonTitle
 		withTarget:target
 		forSelector:selector
 	];
