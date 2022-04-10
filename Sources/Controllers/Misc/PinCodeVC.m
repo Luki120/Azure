@@ -56,6 +56,14 @@
 }
 
 
+- (void)viewWillDisappear:(BOOL)animated {
+
+	[super viewWillDisappear:animated];
+	[pinCodeVCView resignFirstResponderIfNeeded];
+
+}
+
+
 - (void)configureAlgorithmLabelWithSelectedRow:(NSInteger)selectedRow {
 
 	switch(selectedRow) {
@@ -80,7 +88,7 @@
 
 	if(pinCodeVCView->issuerTextField.text.length <= 0 || pinCodeVCView->secretTextField.text.length <= 0) {
 		[pinCodeVCView->azToastView fadeInOutToastViewWithMessage:@"Fill out both forms." finalDelay: 1.5];
-		[pinCodeVCView->secretTextField resignFirstResponder];
+		[pinCodeVCView resignFirstResponderIfNeeded];
 		return;
 	}
 
