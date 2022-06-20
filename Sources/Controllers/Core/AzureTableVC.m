@@ -292,7 +292,7 @@
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = cell->hash;
 
-	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied hash!" finalDelay:0.2];
+	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied secret!" finalDelay:0.2];
 
 }
 
