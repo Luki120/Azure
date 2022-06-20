@@ -10,9 +10,7 @@
 - (id)init {
 
 	self = [super init];
-
 	if(self) [self setupFloatingButton];
-
 	return self;
 
 }
@@ -30,8 +28,7 @@
 	floatingCreateButton.layer.shadowRadius = 8;
 	floatingCreateButton.layer.shadowOffset = CGSizeMake(0, 1);
 	floatingCreateButton.layer.shadowOpacity = 0.5;
-	floatingCreateButton.translatesAutoresizingMaskIntoConstraints = NO;
-	[floatingCreateButton setImage: [UIImage systemImageNamed:@"plus" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:25]] forState: UIControlStateNormal];
+	[floatingCreateButton setImage:[UIImage systemImageNamed:@"plus" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:25]] forState: UIControlStateNormal];
 	[floatingCreateButton addTarget:self action:@selector(didTapButton) forControlEvents: UIControlEventTouchUpInside];
 	[self addSubview: floatingCreateButton];
 	[self pinViewToAllEdges: floatingCreateButton];
