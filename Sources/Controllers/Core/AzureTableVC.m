@@ -1,6 +1,10 @@
 #import "AzureTableVC.h"
 
 
+@interface AzureTableVC () <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, ModalSheetVCDelegate, UIPopoverPresentationControllerDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UITableViewDataSource, UITableViewDelegate>
+@end
+
+
 @implementation AzureTableVC {
 
 	BOOL isFiltered;
@@ -171,7 +175,7 @@
 	[cell setSecret:[array[indexPath.row] objectForKey: @"Secret"]
 		withAlgorithm:[array[indexPath.row] objectForKey: @"encryptionType"]
 		allowingForTransition:NO
-	];	
+	];
 
 }
 
@@ -190,8 +194,7 @@
 	cell.delegate = self;
 	cell.backgroundColor = UIColor.clearColor;
 
-	if(isFiltered)
-		[self setupDataSourceForArray:filteredArray atIndexPath:indexPath forCell:cell];
+	if(isFiltered) [self setupDataSourceForArray:filteredArray atIndexPath:indexPath forCell:cell];
 
 	else
 		[self setupDataSourceForArray:[TOTPManager sharedInstance]->entriesArray
@@ -205,6 +208,12 @@
 
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
 	cell->issuerImageView.tintColor = image ? nil : kAzureMintTintColor;
+
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	if([defaults boolForKey:@"copySecretPopoverView"]) return cell;
+
+	[self initPopoverVCWithSourceView: cell];
+	[defaults setBool:YES forKey: @"copySecretPopoverView"];
 
 //	[[TOTPManager sharedInstance]->issuersArray sortUsingSelector: @selector(localizedCaseInsensitiveCompare:)];
 
@@ -384,6 +393,34 @@
 
 
 - (void)didTapDismissButton { [modalSheetVC vcNeedsDismissal]; }
+
+// ! PopoverVC
+
+- (void)initPopoverVCWithSourceView:(UIView *)sourceView {
+
+	PopoverVC *popoverVC = [PopoverVC new];
+	popoverVC.preferredContentSize = CGSizeMake(200, 40);
+	popoverVC.modalPresentationStyle = UIModalPresentationPopover;
+	popoverVC.view.layer.cornerCurve = kCACornerCurveContinuous;
+
+	UIPopoverPresentationController *popover = popoverVC.popoverPresentationController;
+	popover.delegate = self;
+	popover.sourceView = sourceView;
+	popover.permittedArrowDirections = UIPopoverArrowDirectionUp;
+
+	[popoverVC fadeInPopoverWithMessage: @"Press the cell to save the current secret."];
+
+	[self presentViewController:popoverVC animated:YES completion:nil];
+
+}
+
+// ! UIPopoverPresentationControllerDelegate
+
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
+
+	return UIModalPresentationNone;
+
+}
 
 // ! UISearchResultsUpdating
 
