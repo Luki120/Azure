@@ -1,4 +1,4 @@
-#import "Sources/Controllers/Misc/AlgorithmVC.h"
+#import "AlgorithmVC.h"
 #import "Sources/Views/VCSViews/PinCodeVCView.h"
 
 
