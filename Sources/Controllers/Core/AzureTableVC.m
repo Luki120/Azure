@@ -82,22 +82,6 @@
 }
 
 
-- (void)viewWillAppear:(BOOL)animated {
-
-	[super viewWillAppear: animated];
-	[NSNotificationCenter.defaultCenter postNotificationName:@"resumeSliceAnimation" object:nil];
-
-}
-
-
-- (void)viewWillDisappear:(BOOL)animated {
-
-	[super viewWillDisappear: animated];
-	[NSNotificationCenter.defaultCenter postNotificationName:@"pauseSliceAnimation" object:nil];
-
-}
-
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
 	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60)
