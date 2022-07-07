@@ -19,7 +19,6 @@ struct SettingsView: View {
 			List {
 
 				Section(header: Text("Settings")) {
-
 					Toggle("Use biometrics", isOn: $shouldUseBiometricsToggle)
 						.toggleStyle(SwitchToggleStyle(tint: Constants.kAzureMintTintColor))
 
@@ -43,47 +42,34 @@ struct SettingsView: View {
 						)
 
 					}
-
 				}
 
 				Section(header: Text("Other apps you may like")) {
-
 					VStack(alignment: .leading) {
-
 						Button("Aurora") { shouldShowAuroraSheet.toggle() }
 							.foregroundColor(Color(.label))
-							.sheet(isPresented: $shouldShowAuroraSheet) {
-								SafariView(url: URL(string: Constants.kAuroraDepictionURL))
-							}
+							.openSafariSheet(shouldShow: $shouldShowAuroraSheet, urlString: Constants.kAuroraDepictionURL)
 
 						Text("Vanilla password manager")
 							.foregroundColor(.gray)
 							.font(.system(size: 10))
-
 					}
 
 					VStack(alignment: .leading) {
-
 						Button("Cora") { shouldShowCoraSheet.toggle() }
 							.foregroundColor(Color(.label))
-							.sheet(isPresented: $shouldShowCoraSheet) {
-								SafariView(url: URL(string: Constants.kCoraDepictionURL))
-							}
+							.openSafariSheet(shouldShow: $shouldShowCoraSheet, urlString: Constants.kCoraDepictionURL)
 
 						Text("See your device's uptime in less clicks")
 							.foregroundColor(.gray)
 							.font(.system(size: 10))
-
 					}
-
 				}
 
 				Section(header: Text("Misc")) {
-
 					Button("Credits") { shouldShowCreditsSheet.toggle() }
 						.foregroundColor(Color(.label))
 						.sheet(isPresented: $shouldShowCreditsSheet) { creditsView }
-
 				}
 
 			}
@@ -103,19 +89,12 @@ struct SettingsView: View {
 		List {
 
 			Section(header: Text("Azure")) {
-
 				Group {
-
 					Button("LICENSE") { shouldShowLicenseSheet.toggle() }
-						.sheet(isPresented: $shouldShowLicenseSheet) {
-							SafariView(url: URL(string: Constants.kLicenseURL))
-						}
+						.openSafariSheet(shouldShow: $shouldShowLicenseSheet, urlString: Constants.kLicenseURL)
 
 					Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
-						.sheet(isPresented: $shouldShowSourceCodeSheet) {
-							SafariView(url: URL(string: Constants.kSourceCodeURL))
-						}
-
+						.openSafariSheet(shouldShow: $shouldShowSourceCodeSheet, urlString: Constants.kSourceCodeURL)
 				}
 				.foregroundColor(Color(.label))
 
@@ -124,17 +103,11 @@ struct SettingsView: View {
 			Section(header: Text("Credits")) {
 
 				Group {
-
 					Button("Google Authenticator") { shouldShowGoogleAuthenticatorSheet.toggle() }
-						.sheet(isPresented: $shouldShowGoogleAuthenticatorSheet) {
-							SafariView(url: URL(string: Constants.kGoogleAuthenticatorURL))
-						}
+						.openSafariSheet(shouldShow: $shouldShowGoogleAuthenticatorSheet, urlString: Constants.kGoogleAuthenticatorURL)
 
 					Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
-						.sheet(isPresented: $shouldShowFlatIconSheet) {
-							SafariView(url: URL(string: Constants.kFlatIconURL))
-						}
-
+						.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: Constants.kFlatIconURL)
 				}
 				.foregroundColor(Color(.label))
 
@@ -149,7 +122,6 @@ struct SettingsView: View {
 	}
 
 }
-
 
 private struct SafariView: UIViewControllerRepresentable {
 
@@ -175,4 +147,11 @@ private struct Constants {
 	static let kLicenseURL = "https://github.com/Luki120/Azure/blob/main/LICENSE"
 	static let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
 
+}
+
+private extension View {
+	func openSafariSheet(shouldShow: Binding<Bool>, urlString: String) -> some View {
+		self
+			.sheet(isPresented: shouldShow) { SafariView(url: URL(string: urlString)) }
+	}
 }
