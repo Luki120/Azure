@@ -1,16 +1,18 @@
 #import "AzureRootVC.h"
 
 
-@implementation AzureRootVC
+@implementation AzureRootVC {
+
+	BOOL isSelected;
+
+}
 
 - (id)initWithNibName:(NSString *)aNib bundle:(NSBundle *)aBundle {
 
 	self = [super initWithNibName:aNib bundle:aBundle];
-
 	if(!self) return nil;
 
 	// Custom initialization
-
 	AzureTableVC *firstVC = [AzureTableVC new];
 	UIViewController *secondVC = [[SettingsVC new] makeSettingsViewUI];
 	firstVC.title = @"Home";
@@ -50,21 +52,38 @@
 - (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController {
 
 	NSArray *tabViewControllers = tabBarController.viewControllers;	
+	NSUInteger vcIndex = [tabViewControllers indexOfObject: viewController];
+
 	UIView *fromView = tabBarController.selectedViewController.view;
-	UIView *toView = viewController.view;
+	UIView *toView = [[tabViewControllers objectAtIndex:vcIndex] view];
 
-	NSUInteger fromIndex = [tabViewControllers indexOfObject: tabBarController.selectedViewController];
-	NSUInteger toIndex = [tabViewControllers indexOfObject: viewController];
+	if(fromView == toView || isSelected) return NO;
 
-	if(fromView == toView) return NO;
+	CGRect viewSize = fromView.frame;
+	BOOL scrollRight = vcIndex > tabBarController.selectedIndex;
 
-	[UIView transitionFromView:fromView
-		toView:toView
-		duration:0.5
-		options:fromIndex > toIndex ? UIViewAnimationOptionTransitionFlipFromLeft : UIViewAnimationOptionTransitionFlipFromRight
-		completion:^(BOOL finished) {
-			if(finished) tabBarController.selectedIndex = toIndex;
-		}];
+	[fromView.superview addSubview: toView];
+	toView.frame = CGRectMake((scrollRight ? 320 : -320), viewSize.origin.y, viewSize.size.width, viewSize.size.height);
+
+	isSelected = YES;
+
+	[UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+		fromView.alpha = 0;
+		toView.alpha = 1;
+
+		fromView.frame = CGRectMake((scrollRight ? -320 : 320), viewSize.origin.y, viewSize.size.width, viewSize.size.height);
+		toView.frame = CGRectMake(0, viewSize.origin.y, 320, viewSize.size.height);
+
+	} completion:^(BOOL finished) {
+
+		if(!finished) return;
+		[fromView removeFromSuperview];
+		tabBarController.selectedIndex = vcIndex;
+
+		isSelected = NO;
+
+	}];
 
 	return YES;
 
