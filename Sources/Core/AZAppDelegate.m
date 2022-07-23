@@ -13,7 +13,6 @@ static UIButton *quitButton;
 static UILabel *addressLabel;
 static UIWindow *strongWindow;
 static AuthManager *authManager;
-static ModalSheetVC *modalSheetVC;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
@@ -32,12 +31,7 @@ static ModalSheetVC *modalSheetVC;
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	BOOL usesBiometrics = [defaults boolForKey: @"useBiometrics"];
 	if(usesBiometrics && [authManager shouldUseBiometrics]) unsafePortalDispatch();
-	else {
-		window.rootViewController = [AzureRootVC new];
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-			checkIfJailbroken();
-		});
-	}
+	else window.rootViewController = [AzureRootVC new];
 
  	UINavigationBar.appearance.shadowImage = [UIImage new];
 	UINavigationBar.appearance.translucent = NO;
@@ -94,7 +88,7 @@ static void overrideVDL(UIViewController *self, SEL _cmd) {
 	quitButton.layer.cornerRadius = 20;
 	quitButton.translatesAutoresizingMaskIntoConstraints = NO;
 	[quitButton setTitle:@"Quit" forState: UIControlStateNormal];
-	[quitButton addTarget:(AZAppDelegate *)([[UIApplication sharedApplication] delegate]) action:@selector(didTapQuitButton) forControlEvents: UIControlEventTouchUpInside];
+	[quitButton addTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate) action:@selector(didTapQuitButton) forControlEvents: UIControlEventTouchUpInside];
 	[self.view addSubview: quitButton];
 
 	[quitButton.centerXAnchor constraintEqualToAnchor: self.view.centerXAnchor].active = YES;
@@ -126,14 +120,7 @@ static void unsafePortalDispatch() {
 
 				}
 
-				else {
-
-					strongWindow.rootViewController = [AzureRootVC new];
-					dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-						checkIfJailbroken();
-					});
-
-				}
+				else strongWindow.rootViewController = [AzureRootVC new];
 
 			});
 
@@ -143,40 +130,7 @@ static void unsafePortalDispatch() {
 
 }
 
-static void checkIfJailbroken() {
 
-	NSFileManager *fileM = [NSFileManager defaultManager];
-
-	// very basic, but tbh idrgaf to get crazy about it, so this will suffice
-	if(!([fileM fileExistsAtPath: kCheckra1n]
-		|| [fileM fileExistsAtPath: kTaurine]
-		|| [fileM fileExistsAtPath: kUnc0ver])) return;
-
-	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	if([defaults boolForKey: @"jailbrokenSheetAppearedOnce"]) return;
-
-	modalSheetVC = [ModalSheetVC new];
-	[modalSheetVC setupChildWithTitle:@"Azure"
-		subtitle:@"Oop, looks like you're jailbroken. Don't worry, I won't lock you out or prevent you from using the app, that's bullshit I don't believe in, and whoever does that can go fuck themselves. That being said, be aware that your device could be more prone to attacks or vulnerabilities and your data could get compromised, proceed with caution."
-		buttonTitle:@"I understand"
-		forTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
-		forSelector:@selector(didTapUnderstandButton)
-		secondButtonTitle:@"Quit app"
-		forTarget:(AZAppDelegate *)(UIApplication.sharedApplication.delegate)
-		forSelector:@selector(didTapQuitButton)
-		accessoryImage:[UIImage systemImageNamed:@"exclamationmark.shield.fill"]
-		secondAccessoryImage:[UIImage systemImageNamed:@"xmark.shield.fill"]
-		prepareForReuse:NO
-		scaleAnimation:YES
-	];
-	modalSheetVC.modalPresentationStyle = UIModalPresentationOverFullScreen;
-	[strongWindow.rootViewController presentViewController:modalSheetVC animated:NO completion:nil];
-
-	[defaults setBool:YES forKey: @"jailbrokenSheetAppearedOnce"];
-
-}
-
-- (void)didTapUnderstandButton { [modalSheetVC vcNeedsDismissal]; }
 - (void)didTapQuitButton { abort(); }
 
 @end
