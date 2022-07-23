@@ -14,7 +14,9 @@
 @end
 
 
-@interface ModalChildView : UIView
+@interface ModalChildView : UIView {
+	@public UIView *dimmedView;
+}
 @property (nonatomic, weak) id <ModalChildViewDelegate> delegate;
 - (void)animateViews;
 - (void)animateSheetHeight:(CGFloat)height;

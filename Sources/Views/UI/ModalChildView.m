@@ -4,7 +4,6 @@
 @implementation ModalChildView {
 
 	UIView *containerView;
-	UIView *dimmedView;
 	NSLayoutConstraint *containerViewBottomConstraint;
 	NSLayoutConstraint *containerViewHeightConstraint;
 	UIStackView *strongTitleStackView;
@@ -126,6 +125,7 @@
 
 	[self animateViewsWithDuration:0.3 animations:^{
 
+		dimmedView.alpha = 0.6;
 		containerViewHeightConstraint.constant = height;
 		[self layoutIfNeeded];
 
@@ -219,52 +219,58 @@
 }
 
 
-- (void)createStackViewWithStackView:(UIStackView *)stackView
-	withAxis:(UILayoutConstraintAxis)axis
-	withSpacing:(CGFloat)spacing {
+- (UIStackView *)createStackViewWithAxis:(UILayoutConstraintAxis)axis spacing:(CGFloat)spacing {
 
+	UIStackView *stackView = [UIStackView new];
 	stackView.axis = axis;
 	stackView.spacing = spacing;
 	stackView.distribution = UIStackViewDistributionFill;
 	stackView.translatesAutoresizingMaskIntoConstraints = NO;
+	return stackView;
 
 }
 
 
-- (void)createButtonWithButton:(UIButton *)button
-	withTitleLabel:(NSString *)title
-	withTarget:(id)target
-	forSelector:(SEL)selector {
+- (UIButton *)createButtonWithTitleLabel:(NSString *)title
+	target:(id)target
+	selector:(SEL)selector {
 
+	UIButton *button = [UIButton new];
 	button.titleLabel.font = [UIFont systemFontOfSize: 16];
 	[button setTitle:title forState: UIControlStateNormal];
 	[button setTitleColor:UIColor.labelColor forState: UIControlStateNormal];
 	[button addTarget:target action:selector forControlEvents: UIControlEventTouchUpInside];
+	return button;
 
 }
 
 
-- (void)createLabelWithLabel:(UILabel *)label
-	withFont:(UIFont *)font
-	withText:(NSString *)text
-	textColor:(UIColor *)textColor {
+- (UILabel *)createLabelWithFont:(UIFont *)font
+	text:(NSString *)text
+	textColor:(UIColor *)textColor
+	addToStackView:(UIStackView *)stackView {
 
+	UILabel *label = [UILabel new];
 	label.font = font;
 	label.text = text;
 	label.textColor = textColor;
 	label.numberOfLines = 0;
 	label.textAlignment = NSTextAlignmentCenter;
+	[stackView addArrangedSubview: label];
+	return label;
 
 }
 
 
-- (void)createImageView:(UIImageView *)imageView withImage:(UIImage *)image {
+- (UIImageView *)createImageViewWithImage:(UIImage *)image {
 
+	UIImageView *imageView = [UIImageView new];
 	imageView.image = image;
 	imageView.tintColor = kAzureMintTintColor;
 	imageView.contentMode = UIViewContentModeScaleAspectFill;
 	imageView.clipsToBounds = YES;
 	imageView.translatesAutoresizingMaskIntoConstraints = NO;
+	return imageView;
 
 }
 
@@ -294,33 +300,12 @@
 
 	/* ********** STACK VIEWS ********** */
 
-	UIStackView *titleSV = [UIStackView new];
-	UIStackView *buttonsSV = [UIStackView new];
-	UIStackView *firstSV = [UIStackView new];
-	UIStackView *secondSV = [UIStackView new];
-	UIStackView *thirdSV = [UIStackView new];
-
-	[self createStackViewWithStackView:titleSV
-		withAxis:UILayoutConstraintAxisVertical
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:buttonsSV
-		withAxis:UILayoutConstraintAxisVertical
-		withSpacing:20
-	];
-	[self createStackViewWithStackView:firstSV
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-	[self createStackViewWithStackView:secondSV
-		withAxis:UILayoutConstraintAxisHorizontal
-		withSpacing:10
-	];
-	if(usesThirdSV)
-		[self createStackViewWithStackView:thirdSV
-			withAxis:UILayoutConstraintAxisHorizontal
-			withSpacing:10
-		];
+	UIStackView *titleSV = [self createStackViewWithAxis:UILayoutConstraintAxisVertical spacing: 10];
+	UIStackView *buttonsSV = [self createStackViewWithAxis:UILayoutConstraintAxisVertical spacing: 20];
+	UIStackView *firstSV = [self createStackViewWithAxis:UILayoutConstraintAxisHorizontal spacing: 10];
+	UIStackView *secondSV = [self createStackViewWithAxis:UILayoutConstraintAxisHorizontal spacing: 10];
+	UIStackView *thirdSV;
+	if(usesThirdSV) thirdSV = [self createStackViewWithAxis:UILayoutConstraintAxisHorizontal spacing: 10];
 
 	[containerView addSubview: titleSV];
 	[containerView addSubview: buttonsSV];
@@ -336,56 +321,28 @@
 	}
 
 	/* ********** LABELS ********** */
-
-	UILabel *titleL = [UILabel new];
-	UILabel *subtitleL = [UILabel new];
+	[self createLabelWithFont:[UIFont systemFontOfSize: 16]
+		text:title
+		textColor:UIColor.labelColor
+		addToStackView:titleSV
+	];
+	UILabel *subtitleL = [self createLabelWithFont:[UIFont systemFontOfSize: 12]
+		text:subtitle
+		textColor:UIColor.secondaryLabelColor
+		addToStackView:titleSV
+	];
 	subtitleL.translatesAutoresizingMaskIntoConstraints = NO;
 
-	[self createLabelWithLabel:titleL
-		withFont:[UIFont systemFontOfSize: 16]
-		withText:title
-		textColor:UIColor.labelColor
-	];
-	[self createLabelWithLabel:subtitleL
-		withFont:[UIFont systemFontOfSize: 12]
-		withText:subtitle
-		textColor:UIColor.secondaryLabelColor
-	];
-
 	/* ********** IMAGE VIEWS ********** */
-
-	UIImageView *firstImageView = [UIImageView new];
-	UIImageView *secondImageView = [UIImageView new];
-	UIImageView *thirdImageView = [UIImageView new];
-
-	[self createImageView:firstImageView withImage:accessoryImage];
-	[self createImageView:secondImageView withImage:secondAccessoryImg];
-	[self createImageView:thirdImageView withImage:thirdAccessoryImg];
+	UIImageView *firstImageView = [self createImageViewWithImage: accessoryImage];
+	UIImageView *secondImageView = [self createImageViewWithImage: secondAccessoryImg];
+	UIImageView *thirdImageView = [self createImageViewWithImage: thirdAccessoryImg];
 
 	/* ********** BUTTONS ********** */
+	UIButton *firstButton = [self createButtonWithTitleLabel:buttonTitle target:target selector:selector];
+	UIButton *secondButton = [self createButtonWithTitleLabel:secondTitle target:secondTarget selector:secondSelector];
+	UIButton *thirdButton = [self createButtonWithTitleLabel:thirdTitle target:thirdTarget selector:thirdSelector];
 
-	UIButton *firstButton = [UIButton new];
-	UIButton *secondButton = [UIButton new];
-	UIButton *thirdButton = [UIButton new];
-
-	[self createButtonWithButton:firstButton
-		withTitleLabel:buttonTitle
-		withTarget:target
-		forSelector:selector
-	];
-	[self createButtonWithButton:secondButton
-		withTitleLabel:secondTitle
-		withTarget:secondTarget
-		forSelector:secondSelector
-	];
-	[self createButtonWithButton:thirdButton
-		withTitleLabel:thirdTitle
-		withTarget:thirdTarget
-		forSelector:thirdSelector
-	];
-
-	[titleSV addArrangedSubview: titleL];
-	[titleSV addArrangedSubview: subtitleL];
 	[firstSV addArrangedSubview: firstImageView];
 	[firstSV addArrangedSubview: firstButton];
 	[secondSV addArrangedSubview: secondImageView];
@@ -406,35 +363,16 @@
 
 // ! Selectors
 
-- (void)didTapScanQRCodeButton {
-
-	[self.delegate modalChildViewDidTapScanQRCodeButton];
-
-}
-
-
-- (void)didTapImportQRImageButton {
-
-	[self.delegate modalChildViewDidTapImportQRImageButton];
-
-}
-
-
-- (void)didTapEnterManuallyButton {
-
-	[self.delegate modalChildViewDidTapEnterManuallyButton];
-
-}
-
-
+- (void)didTapScanQRCodeButton { [self.delegate modalChildViewDidTapScanQRCodeButton]; }
+- (void)didTapImportQRImageButton { [self.delegate modalChildViewDidTapImportQRImageButton]; }
+- (void)didTapEnterManuallyButton { [self.delegate modalChildViewDidTapEnterManuallyButton]; }
 - (void)didTapView { [self.delegate modalChildViewDidTapDimmedView]; }
 
 
 - (void)didPan:(UIPanGestureRecognizer *)panRecognizer {
 
 	[self.delegate modalChildViewDidPanWithGesture:panRecognizer
-		modifyingConstraintForView:containerViewHeightConstraint
-	];
+		modifyingConstraintForView:containerViewHeightConstraint];
 
 }
 
