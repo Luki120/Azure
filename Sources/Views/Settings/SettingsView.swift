@@ -12,6 +12,8 @@ struct SettingsView: View {
 	@State private var shouldShowCoraSheet = false
 	@State private var shouldShowCreditsSheet = false
 
+	private let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
+
 	var body: some View {
 
 		VStack {
@@ -20,9 +22,9 @@ struct SettingsView: View {
 
 				Section(header: Text("Settings")) {
 					Toggle("Use biometrics", isOn: $shouldUseBiometricsToggle)
-						.toggleStyle(SwitchToggleStyle(tint: Constants.kAzureMintTintColor))
+						.toggleStyle(SwitchToggleStyle(tint: kAzureMintTintColor))
 
-					Button("Make backup") {
+					Button("Backup options") {
 						NotificationCenter.default.post(name: Notification.Name("makeBackup"), object: nil)
 					}
 					.foregroundColor(Color(.label))
@@ -30,7 +32,7 @@ struct SettingsView: View {
 					Button("Purge data") {
 						shouldShowWarningAlert.toggle()
 					}
-					.foregroundColor(Constants.kAzureMintTintColor)
+					.foregroundColor(kAzureMintTintColor)
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),
@@ -48,7 +50,7 @@ struct SettingsView: View {
 					VStack(alignment: .leading) {
 						Button("Aurora") { shouldShowAuroraSheet.toggle() }
 							.foregroundColor(Color(.label))
-							.openSafariSheet(shouldShow: $shouldShowAuroraSheet, urlString: Constants.kAuroraDepictionURL)
+							.openSafariSheet(shouldShow: $shouldShowAuroraSheet, urlString: .kAuroraDepictionURL)
 
 						Text("Vanilla password manager")
 							.foregroundColor(.gray)
@@ -58,7 +60,7 @@ struct SettingsView: View {
 					VStack(alignment: .leading) {
 						Button("Cora") { shouldShowCoraSheet.toggle() }
 							.foregroundColor(Color(.label))
-							.openSafariSheet(shouldShow: $shouldShowCoraSheet, urlString: Constants.kCoraDepictionURL)
+							.openSafariSheet(shouldShow: $shouldShowCoraSheet, urlString: .kCoraDepictionURL)
 
 						Text("See your device's uptime in less clicks")
 							.foregroundColor(.gray)
@@ -91,10 +93,10 @@ struct SettingsView: View {
 			Section(header: Text("Azure")) {
 				Group {
 					Button("LICENSE") { shouldShowLicenseSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowLicenseSheet, urlString: Constants.kLicenseURL)
+						.openSafariSheet(shouldShow: $shouldShowLicenseSheet, urlString: .kLicenseURL)
 
 					Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowSourceCodeSheet, urlString: Constants.kSourceCodeURL)
+						.openSafariSheet(shouldShow: $shouldShowSourceCodeSheet, urlString: .kSourceCodeURL)
 				}
 				.foregroundColor(Color(.label))
 
@@ -104,10 +106,10 @@ struct SettingsView: View {
 
 				Group {
 					Button("Google Authenticator") { shouldShowGoogleAuthenticatorSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowGoogleAuthenticatorSheet, urlString: Constants.kGoogleAuthenticatorURL)
+						.openSafariSheet(shouldShow: $shouldShowGoogleAuthenticatorSheet, urlString: .kGoogleAuthenticatorURL)
 
 					Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: Constants.kFlatIconURL)
+						.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
 				}
 				.foregroundColor(Color(.label))
 
@@ -137,16 +139,13 @@ private struct SafariView: UIViewControllerRepresentable {
 
 }
 
-private struct Constants {
-
+private extension String {
 	static let kAuroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.auroraswiftui"
 	static let kCoraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswiftui"
 	static let kSourceCodeURL = "https://github.com/Luki120/Azure"
 	static let kFlatIconURL = "https://www.flaticon.com/free-icons/caps-lock"
 	static let kGoogleAuthenticatorURL = "https://github.com/google/google-authenticator"
 	static let kLicenseURL = "https://github.com/Luki120/Azure/blob/main/LICENSE"
-	static let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
-
 }
 
 private extension View {
