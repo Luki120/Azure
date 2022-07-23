@@ -104,23 +104,15 @@
 
 - (void)shouldMakeBackup {
 
-	[UIView transitionWithView:self.tabBarController.view duration:0.5 options:UIViewAnimationOptionTransitionFlipFromRight animations:^{
+	if(![authManager shouldUseBiometrics]) return [self makeBackup];
+	[authManager setupAuthWithReason:kAzureReasonSensitiveOperation reply:^(BOOL success, NSError *error) {
 
-		[self.tabBarController setSelectedIndex: 0];
+		dispatch_async(dispatch_get_main_queue(), ^{
 
-	} completion:^(BOOL finished) {
+			if(!success) return;
+			[self makeBackup];
 
-		if(![authManager shouldUseBiometrics]) return [self makeBackup];
-		[authManager setupAuthWithReason:kAzureReasonSensitiveOperation reply:^(BOOL success, NSError *error) {
-
-			dispatch_async(dispatch_get_main_queue(), ^{
-
-				if(!success) return;
-				[self makeBackup];
-
-			});
-
-		}];
+		});
 
 	}];
 
