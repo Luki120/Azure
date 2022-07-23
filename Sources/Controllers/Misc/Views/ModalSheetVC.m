@@ -242,6 +242,11 @@
 			if(newHeight < kDefaultHeight) {
 				constraint.constant = newHeight;
 				constraint.active = YES;
+
+				CGFloat y = translation.y;
+				CGFloat alpha = y / modalChildView->dimmedView.frame.size.height;
+				modalChildView->dimmedView.alpha = 0.6 - alpha;
+
 				[self.view layoutIfNeeded];
 			}
 			break;
