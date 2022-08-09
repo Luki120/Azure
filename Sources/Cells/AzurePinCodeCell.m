@@ -249,11 +249,12 @@
 
 	duration = 30;
 
-	NSInteger currentUNIXTimestamp = ceil([NSDate.date timeIntervalSince1970]);
-	CGFloat startingPoint = ((currentUNIXTimestamp - [self getLastUNIXTimetamp]) * 360.0) / 30.0;
+	NSInteger currentUNIXTimestampOffset = (int)(ceil([NSDate.date timeIntervalSince1970])) % 30;
+	duration = 30 - currentUNIXTimestampOffset;
+	CGFloat startingPoint = currentUNIXTimestampOffset / 30.0;
 
-	CABasicAnimation *singleAnimation = [self setupAnimationWithDuration:30 - (30 * (startingPoint / 360.0))
-		fromValue:[NSNumber numberWithFloat: startingPoint / 360.0]
+	CABasicAnimation *singleAnimation = [self setupAnimationWithDuration:duration
+		fromValue:[NSNumber numberWithFloat: startingPoint]
 		repeatCount:1
 	];
 
