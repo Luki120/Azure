@@ -20,7 +20,6 @@ static AuthManager *authManager;
 
 	authManager = [AuthManager new];
 	window = [UIWindow new];
-	window.frame = UIScreen.mainScreen.bounds;
 	window.tintColor = kAzureLilacTintColor;
 	window.backgroundColor = UIColor.systemBackgroundColor;
 	window.rootViewController = [strongClass new];
