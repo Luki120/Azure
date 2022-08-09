@@ -129,9 +129,9 @@ struct SettingsView: View {
 		let fileM = FileManager.default
 		guard fileM.fileExists(atPath: .kCheckra1n) ||
 			fileM.fileExists(atPath: .kTaurine) ||
-			fileM.fileExists(atPath: .kUnc0ver) else { return false }
+			fileM.fileExists(atPath: .kUnc0ver) else { return true }
 
-		return true
+		return false
 	}
 
 }
