@@ -27,6 +27,8 @@ struct SettingsView: View {
 					Button("Backup options") {
 						NotificationCenter.default.post(name: Notification.Name("makeBackup"), object: nil)
 					}
+					.opacity(isStock() ? 0.5 : 1)
+					.disabled(isStock())
 					.foregroundColor(Color(.label))
 
 					Button("Purge data") {
@@ -123,6 +125,15 @@ struct SettingsView: View {
 
 	}
 
+	private func isStock() -> Bool {
+		let fileM = FileManager.default
+		guard fileM.fileExists(atPath: .kCheckra1n) ||
+			fileM.fileExists(atPath: .kTaurine) ||
+			fileM.fileExists(atPath: .kUnc0ver) else { return false }
+
+		return true
+	}
+
 }
 
 private struct SafariView: UIViewControllerRepresentable {
@@ -146,6 +157,9 @@ private extension String {
 	static let kFlatIconURL = "https://www.flaticon.com/free-icons/caps-lock"
 	static let kGoogleAuthenticatorURL = "https://github.com/google/google-authenticator"
 	static let kLicenseURL = "https://github.com/Luki120/Azure/blob/main/LICENSE"
+	static let kCheckra1n = "/var/checkra1n.dmg"
+	static let kTaurine = "/taurine"
+	static let kUnc0ver = "/private/etc/apt/undecimus"
 }
 
 private extension View {
