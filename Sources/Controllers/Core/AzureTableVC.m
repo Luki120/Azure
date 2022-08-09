@@ -180,7 +180,7 @@
 
 	UIImage *image = [TOTPManager sharedInstance]->imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
-	UIImage *placeholderImage = [[UIImage imageWithContentsOfFile:kImagePath] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+	UIImage *placeholderImage = [[UIImage imageNamed: @"lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
 	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
 	cell->issuerImageView.tintColor = image ? nil : kAzureMintTintColor;

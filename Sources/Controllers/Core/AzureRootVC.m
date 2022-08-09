@@ -21,7 +21,7 @@
 	UINavigationController *firstNav = [[UINavigationController alloc] initWithRootViewController: firstVC];
 	UINavigationController *secondNav = [[UINavigationController alloc] initWithRootViewController: secondVC];
 
-	UIImage *lockImage = [UIImage imageWithContentsOfFile: kImagePath];
+	UIImage *lockImage = [UIImage imageNamed: @"lock"];
 	UIImage *gearImage = [[UIImage systemImageNamed: @"gearshape.fill"] imageWithConfiguration: [UIImageSymbolConfiguration configurationWithPointSize:18]];
 
 	firstNav.tabBarItem = [[UITabBarItem alloc] initWithTitle:@"Home" image:lockImage tag:0];
