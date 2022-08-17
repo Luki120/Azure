@@ -27,8 +27,6 @@ struct SettingsView: View {
 					Button("Backup options") {
 						NotificationCenter.default.post(name: Notification.Name("makeBackup"), object: nil)
 					}
-					.opacity(isStock() ? 0.5 : 1)
-					.disabled(isStock())
 					.foregroundColor(Color(.label))
 
 					Button("Purge data") {
@@ -123,15 +121,6 @@ struct SettingsView: View {
 		.padding(.top, 25)
 		.listStyle(InsetGroupedListStyle())
 
-	}
-
-	private func isStock() -> Bool {
-		let fileM = FileManager.default
-		guard fileM.fileExists(atPath: .kCheckra1n) ||
-			fileM.fileExists(atPath: .kTaurine) ||
-			fileM.fileExists(atPath: .kUnc0ver) else { return true }
-
-		return false
 	}
 
 }
