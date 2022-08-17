@@ -15,7 +15,6 @@
 	TOTPGenerator *generator;
 	UIView *circleProgressView;
 	CAShapeLayer *circleLayer;
-	UILabel *progressLabel;
 	NSInteger duration;
 	NSDate *lastActiveTimestamp;
 
@@ -31,10 +30,6 @@
 	// Custom initialization
 	[self setupUI];
 	[self initializeTimers];
-
-	[NSNotificationCenter.defaultCenter removeObserver:self];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(cacheTimer) name:UIApplicationDidEnterBackgroundNotification object:nil];
-	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(resumeTimer) name:UIApplicationDidBecomeActiveNotification object:nil];
 
 	return self;
 
@@ -72,7 +67,6 @@
 
 		[self performSelector:@selector(startTimer) withObject:self afterDelay:30 - timestamp % 30];
 		[NSTimer scheduledTimerWithTimeInterval:30 - timestamp % 30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:NO];
-		[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgressLabel) userInfo:nil repeats:YES];
 
 	});
 
@@ -127,11 +121,8 @@
 	[buttonsStackView.trailingAnchor constraintEqualToAnchor: self.contentView.trailingAnchor constant : -15].active = YES;
 	[buttonsStackView.centerYAnchor constraintEqualToAnchor: self.contentView.centerYAnchor].active = YES;
 
-	[progressLabel.centerXAnchor constraintEqualToAnchor: circleProgressView.centerXAnchor].active = YES;
-	[progressLabel.centerYAnchor constraintEqualToAnchor: circleProgressView.centerYAnchor].active = YES;
-
-	[circleProgressView.widthAnchor constraintEqualToConstant: 30].active = YES;
-	[circleProgressView.heightAnchor constraintEqualToConstant: 30].active = YES;
+	[circleProgressView.widthAnchor constraintEqualToConstant: 20].active = YES;
+	[circleProgressView.heightAnchor constraintEqualToConstant: 20].active = YES;
 
 }
 
@@ -149,11 +140,7 @@
 }
 
 
-- (void)didTapInfoButton {
-
-	[self.delegate azurePinCodeCellDidTapInfoButton: self];
-
-}
+- (void)didTapInfoButton { [self.delegate azurePinCodeCellDidTapInfoButton: self]; }
 
 // ! NSTimer
 
@@ -161,21 +148,13 @@
 
 	pinLabel.text = @"";
 
-	[self setupTransitionForLabel: pinLabel];
+	CATransition *transition = [CATransition animation];
+	transition.type = kCATransitionFade;
+	transition.duration = 0.8f;
+	transition.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
+	[pinLabel.layer addAnimation:transition forKey:nil];
 
 	pinLabel.text = [generator generateOTPForDate:[NSDate dateWithTimeIntervalSince1970: [self getLastUNIXTimetamp]]];
-
-}
-
-
-- (void)updateProgressLabel {
-
-	duration--;
-
-	[self setupTransitionForLabel: progressLabel];
-
-	progressLabel.text = [NSString stringWithFormat: @"%ld", duration];
-	if(duration == 0) duration = 30;
 
 }
 
@@ -183,18 +162,6 @@
 - (void)startTimer {
 
 	[NSTimer scheduledTimerWithTimeInterval:30 target:self selector:@selector(regeneratePIN) userInfo:nil repeats:YES];
-
-}
-
-
-- (void)cacheTimer { lastActiveTimestamp = NSDate.date; }
-
-
-- (void)resumeTimer {
-
-	NSInteger elapsedTime = [NSDate.date timeIntervalSinceDate: lastActiveTimestamp];
-	if(duration - elapsedTime <= 0) duration = 0;
-	else duration -= elapsedTime;
 
 }
 
@@ -236,9 +203,9 @@
 	[buttonsStackView addArrangedSubview: circleProgressView];
 
 	circleLayer = [CAShapeLayer layer];
-	circleLayer.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(15, 15) radius:15 startAngle:-M_PI_2 endAngle:2 * M_PI - M_PI_2 clockwise:YES].CGPath;
+	circleLayer.path = [UIBezierPath bezierPathWithArcCenter:CGPointMake(10, 10) radius:10 startAngle:-M_PI_2 endAngle:2 * M_PI - M_PI_2 clockwise:YES].CGPath;
 	circleLayer.lineCap = kCALineCapRound;
-	circleLayer.lineWidth = 4;
+	circleLayer.lineWidth = 5;
 	circleLayer.fillColor = UIColor.clearColor.CGColor;
 	circleLayer.strokeColor = kAzureMintTintColor.CGColor;
 	circleLayer.shadowColor = kAzureMintTintColor.CGColor;
@@ -260,14 +227,6 @@
 
 	singleAnimation.delegate = self;
 	[circleLayer addAnimation:singleAnimation forKey: nil];
-
-	progressLabel = [UILabel new];
-	progressLabel.font = [UIFont systemFontOfSize: 10];
-	progressLabel.text = [NSString stringWithFormat: @"%ld", duration];
-	progressLabel.textColor = UIColor.labelColor;
-	progressLabel.textAlignment = NSTextAlignmentCenter;
-	progressLabel.translatesAutoresizingMaskIntoConstraints = NO;
-	[circleProgressView addSubview: progressLabel];
 
 }
 
@@ -308,17 +267,6 @@
 	stackView.translatesAutoresizingMaskIntoConstraints = NO;
 	[self.contentView addSubview: stackView];
 	return stackView;
-
-}
-
-
-- (void)setupTransitionForLabel:(UILabel *)label {
-
-	CATransition *transition = [CATransition animation];
-	transition.type = kCATransitionFade;
-	transition.duration = 0.8f;
-	transition.timingFunction = [CAMediaTimingFunction functionWithName: kCAMediaTimingFunctionEaseInEaseOut];
-	[label.layer addAnimation:transition forKey:nil];
 
 }
 
