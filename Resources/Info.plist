@@ -57,6 +57,10 @@
 	<string>Azure needs your permission in order to be able to scan TOTP QR codes.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Azure needs your permission in order to be able to use FaceID to access the app.</string>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
