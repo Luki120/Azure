@@ -1,7 +1,7 @@
 #import "AzureTableVC.h"
 
 
-@interface AzureTableVC () <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, ModalSheetVCDelegate, UIPopoverPresentationControllerDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UITableViewDataSource, UITableViewDelegate>
+@interface AzureTableVC () <AzureFloatingButtonViewDelegate, AzurePinCodeCellDelegate, ModalSheetVCDelegate, UIDocumentPickerDelegate, UIPopoverPresentationControllerDelegate, UISearchControllerDelegate, UISearchResultsUpdating, UITableViewDataSource, UITableViewDelegate>
 @end
 
 
@@ -58,7 +58,7 @@
 
 - (void)setupSearchController {
 
-	UISearchController *searchC = [[UISearchController alloc] initWithSearchResultsController: nil];
+	UISearchController *searchC = [UISearchController new];
 	searchC.searchResultsUpdater = self;
 	searchC.obscuresBackgroundDuringPresentation = NO;
 
@@ -321,26 +321,48 @@
 
 - (void)didTapLoadBackupButton {
 
-	[backupManager makeDataOutOfJSON];
+	if([backupManager isJailbroken]) {
 
-	[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+		[backupManager makeDataOutOfJSON];
 
-		[azureTableVCView->azureTableView reloadData];
+		[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
-	} completion:^(BOOL finished) { [modalSheetVC vcNeedsDismissal]; }];
+			[azureTableVCView->azureTableView reloadData];
+
+		} completion:^(BOOL finished) { [modalSheetVC vcNeedsDismissal]; }];
+
+	}
+
+	else {
+
+		[modalSheetVC vcNeedsDismissal];
+
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+
+			NSArray *utType = @[UTTypeJSON];
+
+			UIDocumentPickerViewController *documentPickerVC = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes: utType];
+			documentPickerVC.delegate = self;
+			[self presentViewController:documentPickerVC animated:YES completion:nil];
+
+		});
+
+	}
 
 }
 
 
 - (void)didTapMakeBackupButton {
 
+	NSString *subtitle = [NSString stringWithFormat: @"Do you want to view your backup in %@ now?", [backupManager isJailbroken] ? @"Filza" : @"Files"];
+
 	[backupManager makeJSONOutOfData];
 	[modalSheetVC shouldCrossDissolveChildSubviews];
 	[modalSheetVC setupChildWithTitle:@"Make backup actions"
-		subtitle:@"Do you want to view your backup in Filza now?"
+		subtitle:subtitle
 		buttonTitle:@"Yes"
 		forTarget:self
-		forSelector:@selector(didTapViewInFilzaButton)
+		forSelector:@selector(didTapViewInFilesOrFilzaButton)
 		secondButtonTitle:@"Later"
 		forTarget:self
 		forSelector:@selector(didTapDismissButton)
@@ -353,10 +375,13 @@
 }
 
 
-- (void)didTapViewInFilzaButton {
+- (void)didTapViewInFilesOrFilzaButton {
 
 	NSString *pathToFilza = [@"filza://view" stringByAppendingString: kAzurePath];
-	NSURL *backupURLPath = [NSURL URLWithString: pathToFilza];
+	NSString *pathToFiles = @"shareddocuments://";
+
+	NSString *urlString = [backupManager isJailbroken] ? pathToFilza : pathToFiles;
+	NSURL *backupURLPath = [NSURL URLWithString: urlString];
 	[UIApplication.sharedApplication openURL:backupURLPath options:@{} completionHandler:nil];
 
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -387,6 +412,19 @@
 	[popoverVC fadeInPopoverWithMessage: @"Press the cell to save the current secret."];
 
 	[self presentViewController:popoverVC animated:YES completion:nil];
+
+}
+
+// ! UIDocumentPickerDelegate
+
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray *)urls {
+
+	[backupManager makeDataOutOfJSON];
+	[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
+
+		[azureTableVCView->azureTableView reloadData];
+
+	} completion:nil];
 
 }
 

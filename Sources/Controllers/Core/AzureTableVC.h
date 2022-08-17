@@ -9,3 +9,8 @@
 
 @interface AzureTableVC : UIViewController
 @end
+
+
+@interface UIApplication (Azure)
+- (BOOL)launchApplicationWithIdentifier:(id)arg1 suspended:(BOOL)arg2;
+@end
