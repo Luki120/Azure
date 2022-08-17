@@ -20,7 +20,7 @@
 
 * - [x] Bottom sheet menu when tapping the floating button with options to either import a QR code, scan one or enter the hash manually.
 * - [x] Identify most common issuers with their respective app logo.
-* - [ ] IPA support. (Low priority)
+* - [x] IPA support.
 * - [x] Credits and license stuff in the app itself.
 * - [x] More UIKit animations.
 * - [x] Placeholder UI for main table view when no issuers were added yet.
