@@ -1,6 +1,6 @@
 @import AVFoundation;
+#import "Azure-Swift.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
-#import "Sources/Views/UI/AzureToastView.h"
 
 
 @protocol QRCodeVCDelegate

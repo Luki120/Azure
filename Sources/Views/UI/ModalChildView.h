@@ -1,4 +1,4 @@
-#import "Sources/Categories/Categories.h"
+#import "Azure-Swift.h"
 #import "Sources/Constants/Constants.h"
 
 

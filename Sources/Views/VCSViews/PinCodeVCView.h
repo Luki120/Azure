@@ -1,4 +1,4 @@
-#import "Sources/Views/UI/AzureToastView.h"
+#import "Azure-Swift.h"
 
 
 @interface PinCodeVCView : UIView {
