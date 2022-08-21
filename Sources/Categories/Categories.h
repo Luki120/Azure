@@ -19,15 +19,3 @@
 @interface UIImage (Resize)
 + (UIImage *)resizeImageFromImage:(UIImage *)image withSize:(CGSize)size;
 @end
-
-
-@interface UIView (Tools)
-+ (void)animateViewWithDelay:(CGFloat)delay
-	withAnimations:(void (^)(void))animations
-	withCompletion:(void(^)(BOOL finished))completion;
-+ (void)makeRotationTransformForView:(UIView *)view andLabel:(UILabel *)label;
-- (void)pinViewToAllEdges:(UIView *)view;
-- (void)pinViewToAllEdgesIncludingSafeAreas:(UIView *)view bottomConstant:(CGFloat)bottomConstant;
-- (void)pinAzureToastToTheBottomCenteredOnTheXAxis:(UIView *)azureToastView
-	bottomConstant:(CGFloat)bottomConstant;
-@end
