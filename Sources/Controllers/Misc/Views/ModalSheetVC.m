@@ -101,7 +101,7 @@
 	prepareForReuse:(BOOL)prepare
 	scaleAnimation:(BOOL)scaleAnim {
 
-  	[modalChildView setupModalChildWithTitle:title
+	[modalChildView setupModalChildWithTitle:title
 		subtitle:subtitle
 		buttonTitle:buttonTitle
 		forTarget:target
