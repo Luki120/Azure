@@ -1,9 +1,9 @@
+#import "Azure-Swift.h"
 #import "Sources/Categories/Categories.h"
 #import "Sources/Controllers/Misc/2FA/AlgorithmVC.h"
 #import "Sources/Controllers/Misc/2FA/PinCodeVC.h"
 #import "Sources/Controllers/Misc/2FA/QRCodeVC.h"
 #import "Sources/Managers/Singletons/TOTPManager.h"
-#import "Sources/Views/UI/ModalChildView.h"
 
 
 @protocol ModalSheetVCDelegate <NSObject>

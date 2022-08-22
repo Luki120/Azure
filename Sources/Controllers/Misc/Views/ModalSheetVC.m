@@ -66,7 +66,7 @@
 	prepareForReuse:(BOOL)prepare
 	scaleAnimation:(BOOL)scaleAnim {
 
-	[modalChildView setupModalSheetWithTitle:title
+	[modalChildView setupModalChildWithTitle:title
 		subtitle:subtitle
 		buttonTitle:buttonTitle
 		forTarget:target
@@ -101,7 +101,7 @@
 	prepareForReuse:(BOOL)prepare
 	scaleAnimation:(BOOL)scaleAnim {
 
-	[modalChildView setupModalSheetWithTitle:title
+  	[modalChildView setupModalChildWithTitle:title
 		subtitle:subtitle
 		buttonTitle:buttonTitle
 		forTarget:target
@@ -124,11 +124,7 @@
 
 
 - (void)shouldCrossDissolveChildSubviews { [modalChildView shouldCrossDissolveSubviews]; }
-
-
 - (void)layoutUI { [self.view pinViewToAllEdges: modalChildView]; }
-
-
 - (void)vcNeedsDismissal {
 
 	[modalChildView animateDismissWithCompletion:^(BOOL finished) {
@@ -230,22 +226,20 @@
 
 
 - (void)modalChildViewDidPanWithGesture:(UIPanGestureRecognizer *)panRecognizer
-	modifyingConstraintForView:(NSLayoutConstraint *)constraint {
+	modifyingConstraint:(NSLayoutConstraint *)constraint {
 
 	CGPoint translation = [panRecognizer translationInView: self.view];
-	CGFloat newHeight = currentSheetHeight - translation.y;
+	CGFloat newHeight = modalChildView.currentSheetHeight - translation.y;
 
 	switch(panRecognizer.state) {
 
 		case UIGestureRecognizerStateChanged:
 
-			if(newHeight < kDefaultHeight) {
+			if(newHeight < modalChildView.kDefaultHeight) {
 				constraint.constant = newHeight;
 				constraint.active = YES;
 
-				CGFloat y = translation.y;
-				CGFloat alpha = y / modalChildView->dimmedView.frame.size.height;
-				modalChildView->dimmedView.alpha = 0.6 - alpha;
+				[modalChildView calculateAlphaBasedOnTranslation: translation];
 
 				[self.view layoutIfNeeded];
 			}
@@ -253,10 +247,10 @@
 
 		case UIGestureRecognizerStateEnded:
 
-			if(newHeight < kDismissableHeight) [modalChildView animateDismissWithCompletion:^(BOOL finished) {
+			if(newHeight < modalChildView.kDismissableHeight) [modalChildView animateDismissWithCompletion:^(BOOL finished) {
 				[self dismissVC];
 			}];
-			else if(newHeight < kDefaultHeight) [modalChildView animateSheetHeight: kDefaultHeight];
+			else if(newHeight < modalChildView.kDefaultHeight) [modalChildView animateSheetHeight: modalChildView.kDefaultHeight];
 			break;
 
 		default: break;
@@ -297,7 +291,6 @@
 	if(features == nil || features.count == 0) return;
 
 	for(CIQRCodeFeature *qrCodeFeature in features) {
-
 		[[TOTPManager sharedInstance] makeURLOutOfOtPauthString: qrCodeFeature.messageString];
 		[self.delegate modalSheetVCShouldReloadData];
 	}
