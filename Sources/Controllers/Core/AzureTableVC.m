@@ -30,7 +30,7 @@
 
 	authManager = [AuthManager new];
 	backupManager = [BackupManager new];
-	[azureTableVCView->azureTableView registerClass:AzurePinCodeCell.class forCellReuseIdentifier:kIdentifier];
+	[azureTableVCView.azureTableView registerClass:AzurePinCodeCell.class forCellReuseIdentifier:kIdentifier];
 
 	return self;
 
@@ -86,9 +86,9 @@
 
 	if(scrollView.contentOffset.y >= self.view.safeAreaInsets.bottom + 60)
 
-		[azureTableVCView->azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
+		[azureTableVCView.azureFloatingButtonView animateViewWithAlpha:0 translateX:1 translateY:100];
 
-	else [azureTableVCView->azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
+	else [azureTableVCView.azureFloatingButtonView animateViewWithAlpha:1 translateX:1 translateY:1];
 
 }
 
@@ -97,7 +97,7 @@
 - (void)purgeData {
 
 	[[TOTPManager sharedInstance] removeAllObjectsFromArray];
-	[azureTableVCView->azureTableView reloadData];
+	[azureTableVCView.azureTableView reloadData];
 
 }
 
@@ -158,7 +158,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-	[azureTableVCView animateViewsWhenNecessary];
+	[self animateViewsWhenNecessary];
 	return isFiltered ? filteredArray.count : [TOTPManager sharedInstance]->entriesArray.count;
 
 }
@@ -218,7 +218,7 @@
 		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
 
 			[[TOTPManager sharedInstance] removeObjectAtIndexPathForRow: indexPath.row];
-			[azureTableVCView->azureTableView reloadData];
+			[azureTableVCView.azureTableView reloadData];
 
 			completionHandler(YES);
 
@@ -277,7 +277,7 @@
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
 	pasteboard.string = cell->hash;
 
-	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied secret!" finalDelay:0.2];
+	[azureTableVCView.azureToastView fadeInOutToastViewWithMessage:@"Copied secret!" finalDelay:0.2];
 
 }
 
@@ -302,20 +302,20 @@
 - (void)azurePinCodeCellDidTapInfoButton:(AzurePinCodeCell *)cell {
 
 	NSString *message = [NSString stringWithFormat:@"Issuer: %@", cell->issuer];
-	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:message finalDelay:0.2];
+	[azureTableVCView.azureToastView fadeInOutToastViewWithMessage:message finalDelay:0.2];
 
 }
 
 
 - (void)azurePinCodeCellShouldFadeInOutToastView {
 
-	[azureTableVCView->azureToastView fadeInOutToastViewWithMessage:@"Copied!" finalDelay:0.2];
+	[azureTableVCView.azureToastView fadeInOutToastViewWithMessage:@"Copied!" finalDelay:0.2];
 
 }
 
 // ! ModalSheetVCDelegate
 
-- (void)modalSheetVCShouldReloadData { [azureTableVCView->azureTableView reloadData]; }
+- (void)modalSheetVCShouldReloadData { [azureTableVCView.azureTableView reloadData]; }
 
 // ! ModalSheetVC
 
@@ -327,7 +327,7 @@
 
 		[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
-			[azureTableVCView->azureTableView reloadData];
+			[azureTableVCView.azureTableView reloadData];
 
 		} completion:^(BOOL finished) { [modalSheetVC vcNeedsDismissal]; }];
 
@@ -422,7 +422,7 @@
 	[backupManager makeDataOutOfJSON];
 	[UIView transitionWithView:self.view duration:0.5 options:UIViewAnimationOptionTransitionCrossDissolve animations:^{
 
-		[azureTableVCView->azureTableView reloadData];
+		[azureTableVCView.azureTableView reloadData];
 
 	} completion:nil];
 
@@ -442,7 +442,7 @@
 
 	NSString *searchedString = searchController.searchBar.text;
 	[self updateWithFilteredContent: searchedString];
-	[azureTableVCView->azureTableView reloadData];
+	[azureTableVCView.azureTableView reloadData];
 
 }
 
@@ -456,6 +456,27 @@
 	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"Issuer CONTAINS[cd] %@", textToSearch];
 	[filteredArray removeAllObjects];
 	filteredArray = [[TOTPManager sharedInstance]->entriesArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
+
+}
+
+// MARK: AzureTableVCView
+
+- (void)animateViewsWhenNecessary {
+
+	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+
+		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
+			azureTableVCView.azureTableView.alpha = 0;
+			azureTableVCView.placeholderLabel.alpha = 1;
+			azureTableVCView.placeholderLabel.transform = CGAffineTransformMakeScale(1, 1);
+		}
+		else {
+			azureTableVCView.azureTableView.alpha = 1;
+			azureTableVCView.placeholderLabel.alpha = 0;
+			azureTableVCView.placeholderLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
+		}
+
+	} completion: nil];
 
 }
 
