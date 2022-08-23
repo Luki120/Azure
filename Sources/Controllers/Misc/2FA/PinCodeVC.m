@@ -18,7 +18,7 @@
 	algorithmVC = [AlgorithmVC new];
 	algorithmVC.delegate = self;
 	[self setupMainView];
-	[pinCodeVCView->pinCodesTableView registerClass:UITableViewCell.class forCellReuseIdentifier:@"Cell"];
+	[pinCodeVCView.pinCodesTableView registerClass:UITableViewCell.class forCellReuseIdentifier:@"Cell"];
 
 	[NSNotificationCenter.defaultCenter removeObserver:self];
 	[NSNotificationCenter.defaultCenter addObserver:self selector:@selector(shouldSaveData) name:@"checkIfDataShouldBeSaved" object:nil];
@@ -67,9 +67,9 @@
 - (void)configureAlgorithmLabelWithSelectedRow:(NSInteger)selectedRow {
 
 	switch(selectedRow) {
-		case 0: pinCodeVCView->algorithmLabel.text = @"SHA1"; break;
-		case 1: pinCodeVCView->algorithmLabel.text = @"SHA256"; break;
-		case 2: pinCodeVCView->algorithmLabel.text = @"SHA512"; break;
+		case 0: pinCodeVCView.algorithmLabel.text = @"SHA1"; break;
+		case 1: pinCodeVCView.algorithmLabel.text = @"SHA256"; break;
+		case 2: pinCodeVCView.algorithmLabel.text = @"SHA512"; break;
 	}
 
 }
@@ -86,20 +86,20 @@
 
 - (void)shouldSaveData {
 
-	if(pinCodeVCView->issuerTextField.text.length <= 0 || pinCodeVCView->secretTextField.text.length <= 0) {
-		[pinCodeVCView->azToastView fadeInOutToastViewWithMessage:@"Fill out both forms." finalDelay: 1.5];
+	if(pinCodeVCView.issuerTextField.text.length <= 0 || pinCodeVCView.secretTextField.text.length <= 0) {
+		[pinCodeVCView.azToastView fadeInOutToastViewWithMessage:@"Fill out both forms." finalDelay: 1.5];
 		[pinCodeVCView resignFirstResponderIfNeeded];
 		return;
 	}
 
-	[[TOTPManager sharedInstance] feedDictionaryWithObject:pinCodeVCView->issuerTextField.text
-		andObject:pinCodeVCView->secretTextField.text
+	[[TOTPManager sharedInstance] feedDictionaryWithObject:pinCodeVCView.issuerTextField.text
+		andObject:pinCodeVCView.secretTextField.text
 	];
 
 	[self.delegate pinCodeVCShouldDismissVC];
 
-	pinCodeVCView->issuerTextField.text = @"";
-	pinCodeVCView->secretTextField.text = @"";
+	pinCodeVCView.issuerTextField.text = @"";
+	pinCodeVCView.secretTextField.text = @"";
 
 }
 
@@ -114,21 +114,21 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-	UITableViewCell *cell = [pinCodeVCView->pinCodesTableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
+	UITableViewCell *cell = [pinCodeVCView.pinCodesTableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
 	cell.backgroundColor = UIColor.clearColor;
 
 	switch(indexPath.row) {
 
 		case 0:
 
-			[cell.contentView addSubview: pinCodeVCView->issuerStackView];
-			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->issuerStackView forTextField:pinCodeVCView->issuerTextField forCell:cell];
+			[cell.contentView addSubview: pinCodeVCView.issuerStackView];
+			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView.issuerStackView forTextField:pinCodeVCView.issuerTextField forCell:cell];
 			break;
 
 		case 1:
 
-			[cell.contentView addSubview: pinCodeVCView->secretHashStackView];
-			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView->secretHashStackView forTextField:pinCodeVCView->secretTextField forCell:cell];
+			[cell.contentView addSubview: pinCodeVCView.secretHashStackView];
+			[pinCodeVCView configureConstraintsForStackView:pinCodeVCView.secretHashStackView forTextField:pinCodeVCView.secretTextField forCell:cell];
 			break;
 
 		case 2:
@@ -137,9 +137,9 @@
 			cell.textLabel.font = [UIFont systemFontOfSize: 14];
 			cell.textLabel.text = @"Algorithm";
 
-			[cell.contentView addSubview: pinCodeVCView->algorithmLabel];
-			[pinCodeVCView->algorithmLabel.trailingAnchor constraintEqualToAnchor: cell.contentView.trailingAnchor constant: -20].active = YES;
-			[pinCodeVCView->algorithmLabel.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
+			[cell.contentView addSubview: pinCodeVCView.algorithmLabel];
+			[pinCodeVCView.algorithmLabel.trailingAnchor constraintEqualToAnchor: cell.contentView.trailingAnchor constant: -20].active = YES;
+			[pinCodeVCView.algorithmLabel.centerYAnchor constraintEqualToAnchor: cell.contentView.centerYAnchor].active = YES;
 			break;
 
 	}
