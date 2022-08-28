@@ -39,7 +39,7 @@
 	NSData *jsonData = [[NSData alloc] initWithContentsOfFile: [self isJailbroken] ? kAzurePath : kAzureJailedPath];
 	NSMutableArray *jsonArray = [NSMutableArray new];
 	jsonArray = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:nil];
-	[TOTPManager sharedInstance]->entriesArray = jsonArray;
+	[TOTPManager sharedInstance].entriesArray = jsonArray;
 	[[TOTPManager sharedInstance] saveDefaults];
 
 }
@@ -63,7 +63,7 @@
 	NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath: [self isJailbroken] ? kAzurePath : kAzureJailedPath];
 	[fileHandle seekToEndOfFile];
 
-	NSData *serializedData = [NSJSONSerialization dataWithJSONObject:[TOTPManager sharedInstance]->entriesArray
+	NSData *serializedData = [NSJSONSerialization dataWithJSONObject:[TOTPManager sharedInstance].entriesArray
 		options:0
 		error:nil
 	];

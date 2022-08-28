@@ -1,5 +1,6 @@
 #import "Sources/Constants/Constants.h"
-#import "Sources/Managers/Singletons/TOTPManager.h"
+#import "Sources/Libraries/MF_Base32Additions.h"
+#import "Sources/Libraries/TOTPGenerator.h"
 
 
 @class AzurePinCodeCell;

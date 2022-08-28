@@ -158,8 +158,8 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
-	[self animateViewsWhenNecessary];
-	return isFiltered ? filteredArray.count : [TOTPManager sharedInstance]->entriesArray.count;
+	[azureTableVCView animateViewsWhenNecessary];
+	return isFiltered ? filteredArray.count : [TOTPManager sharedInstance].entriesArray.count;
 
 }
 
@@ -173,12 +173,12 @@
 	if(isFiltered) [self setupDataSourceForArray:filteredArray atIndexPath:indexPath forCell:cell];
 
 	else
-		[self setupDataSourceForArray:[TOTPManager sharedInstance]->entriesArray
+		[self setupDataSourceForArray:[TOTPManager sharedInstance].entriesArray
 			atIndexPath:indexPath
 			forCell:cell
 		];
 
-	UIImage *image = [TOTPManager sharedInstance]->imagesDict[cell->issuer.lowercaseString];
+	UIImage *image = [TOTPManager sharedInstance].imagesDict[cell->issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
 	UIImage *placeholderImage = [[UIImage imageNamed: @"lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
@@ -212,13 +212,13 @@
 		title:@"Delete"
 		handler:^(UIContextualAction *action, UIView *sourceView, void (^completionHandler)(BOOL)) {
 
-		NSString *message = [NSString stringWithFormat: @"You're about to delete the code for the issuer named %@ ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to.", [[TOTPManager sharedInstance]->entriesArray[indexPath.row] objectForKey:@"Issuer"]];
+		NSString *message = [NSString stringWithFormat: @"You're about to delete the code for the issuer named %@ ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to.", [[TOTPManager sharedInstance].entriesArray[indexPath.row] objectForKey:@"Issuer"]];
 
 		UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Azure" message:message preferredStyle:UIAlertControllerStyleAlert];
 		UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
 
 			[[TOTPManager sharedInstance] removeObjectAtIndexPathForRow: indexPath.row];
-			[azureTableVCView.azureTableView reloadData];
+			[azureTableVCView.azureTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
 
 			completionHandler(YES);
 
@@ -329,13 +329,13 @@
 
 			[azureTableVCView.azureTableView reloadData];
 
-		} completion:^(BOOL finished) { [modalSheetVC vcNeedsDismissal]; }];
+		} completion:^(BOOL finished) { [modalSheetVC shouldDismissVC]; }];
 
 	}
 
 	else {
 
-		[modalSheetVC vcNeedsDismissal];
+		[modalSheetVC shouldDismissVC];
 
 		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.5 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
@@ -386,14 +386,14 @@
 
 	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.8 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
 
-		[modalSheetVC vcNeedsDismissal];
+		[modalSheetVC shouldDismissVC];
 
 	});
 
 }
 
 
-- (void)didTapDismissButton { [modalSheetVC vcNeedsDismissal]; }
+- (void)didTapDismissButton { [modalSheetVC shouldDismissVC]; }
 
 // ! PopoverVC
 
@@ -455,28 +455,7 @@
 	filteredArray = [NSMutableArray new];
 	NSPredicate *thePredicate = [NSPredicate predicateWithFormat:@"Issuer CONTAINS[cd] %@", textToSearch];
 	[filteredArray removeAllObjects];
-	filteredArray = [[TOTPManager sharedInstance]->entriesArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
-
-}
-
-// MARK: AzureTableVCView
-
-- (void)animateViewsWhenNecessary {
-
-	[UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.1 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-
-		if([TOTPManager sharedInstance]->entriesArray.count == 0) {
-			azureTableVCView.azureTableView.alpha = 0;
-			azureTableVCView.placeholderLabel.alpha = 1;
-			azureTableVCView.placeholderLabel.transform = CGAffineTransformMakeScale(1, 1);
-		}
-		else {
-			azureTableVCView.azureTableView.alpha = 1;
-			azureTableVCView.placeholderLabel.alpha = 0;
-			azureTableVCView.placeholderLabel.transform = CGAffineTransformMakeScale(0.1, 0.1);
-		}
-
-	} completion: nil];
+	filteredArray = [[TOTPManager sharedInstance].entriesArray filteredArrayUsingPredicate:thePredicate].mutableCopy;
 
 }
 

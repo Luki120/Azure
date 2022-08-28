@@ -1,7 +1,7 @@
 import UIKit
 
 
-@objc public class AzureTableVCView: UIView {
+@objc public final class AzureTableVCView: UIView {
 
 	@objc public var azureFloatingButtonView: AzureFloatingButtonView!
 	@objc public var azureTableView: UITableView!
@@ -9,7 +9,7 @@ import UIKit
 
 	private var kUserInterfaceStyle: Bool { return traitCollection.userInterfaceStyle == .dark }
 
-	@objc public lazy var placeholderLabel: UILabel = {
+	private lazy var placeholderLabel: UILabel = {
 		let label = UILabel()
 		label.font = .systemFont(ofSize: 16)
 		label.text = "No issuers were added yet. Tap the + button in order to add one."
@@ -72,6 +72,21 @@ import UIKit
 
 		addSubview(azureFloatingButtonView)
 		addSubview(azureToastView)
+	}
+
+	@objc public func animateViewsWhenNecessary() {
+		UIView.animate(withDuration:0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut, animations: {
+			if TOTPManager.sharedInstance.entriesArray.count == 0 {
+				self.azureTableView.alpha = 0
+				self.placeholderLabel.alpha = 1
+				self.placeholderLabel.transform = CGAffineTransform(scaleX: 1, y: 1)
+			}
+			else {
+				self.azureTableView.alpha = 1
+				self.placeholderLabel.alpha = 0
+				self.placeholderLabel.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+			}
+		}, completion: nil)
 	}
 
 }

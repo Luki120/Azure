@@ -1,5 +1,5 @@
+#import "Azure-Swift.h"
 #import "Sources/Constants/Constants.h"
-#import "Sources/Managers/Singletons/TOTPManager.h"
 @import UniformTypeIdentifiers;
 
 
