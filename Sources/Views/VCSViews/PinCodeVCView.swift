@@ -1,20 +1,20 @@
 import UIKit
 
 
-@objc public class PinCodeVCView: UIView {
+final class PinCodeVCView: UIView {
 
-	@objc public var issuerStackView: UIStackView!
-	@objc public var secretHashStackView: UIStackView!
-	@objc public var algorithmLabel: UILabel!
-	@objc public var issuerTextField: UITextField!
-	@objc public var secretTextField: UITextField!
-	@objc public var pinCodesTableView: UITableView!
-	@objc public var azToastView: AzureToastView!
+	var issuerStackView: UIStackView!
+	var secretHashStackView: UIStackView!
+	var algorithmLabel: UILabel!
+	var issuerTextField: UITextField!
+	var secretTextField: UITextField!
+	var pinCodesTableView: UITableView!
+	var azToastView: AzureToastView!
 
 	private var issuerLabel: UILabel!
 	private var secretLabel: UILabel!
 
-	@objc public init(withDataSource dataSource: UITableViewDataSource, tableViewDelegate: UITableViewDelegate) {
+	init(withDataSource dataSource: UITableViewDataSource, tableViewDelegate: UITableViewDelegate) {
 		super.init(frame: .zero)
 		setupUI()
 		pinCodesTableView.dataSource = dataSource
@@ -25,7 +25,7 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func layoutSubviews() {
+	override func layoutSubviews() {
 		super.layoutSubviews()
 		layoutUI()
 	}
@@ -94,8 +94,13 @@ import UIKit
 		return stackView
 	}
 
-	@objc public func configureConstraintsForStackView(
-		_ stackView: UIStackView,
+}
+
+extension PinCodeVCView {
+	// MARK: Public
+
+	func configureConstraints(
+		forStackView stackView: UIStackView,
 		forTextField textField: UITextField,
 		forCell cell: UITableViewCell
 	) {
@@ -105,17 +110,15 @@ import UIKit
 		textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
 	}
 
-	@objc public func resignFirstResponderIfNeeded() {
+	func resignFirstResponderIfNeeded() {
 		issuerTextField.resignFirstResponder()
 		secretTextField.resignFirstResponder()
 	}
-
 }
-
 
 extension PinCodeVCView: UITextFieldDelegate {
 
-	public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
 		if textField == issuerTextField {
 			textField.resignFirstResponder()
 			secretTextField.becomeFirstResponder()

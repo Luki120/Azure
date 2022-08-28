@@ -1,20 +1,20 @@
 import UIKit
 
 
-@objc public protocol ModalChildViewDelegate: AnyObject {
+protocol ModalChildViewDelegate: AnyObject {
 	func modalChildViewDidTapScanQRCodeButton()
 	func modalChildViewDidTapImportQRImageButton()
 	func modalChildViewDidTapEnterManuallyButton()
 	func modalChildViewDidTapDimmedView()
-	func modalChildViewDidPanWithGesture(_ gesture: UIPanGestureRecognizer, modifyingConstraint: NSLayoutConstraint)
+	func modalChildViewDidPanWithGesture(_ gesture: UIPanGestureRecognizer, modifyingConstraint constraint: NSLayoutConstraint)
 }
 
-@objc public class ModalChildView: UIView {
+final class ModalChildView: UIView {
 
-	@objc public let kDefaultHeight:CGFloat = 300
-	@objc public let kDismissableHeight:CGFloat = 215
-	@objc public var currentSheetHeight:CGFloat = 300
-	@objc public weak var delegate: ModalChildViewDelegate?
+	let kDefaultHeight:CGFloat = 300
+	let kDismissableHeight:CGFloat = 215
+	var currentSheetHeight:CGFloat = 300
+	weak var delegate: ModalChildViewDelegate?
 
 	private var containerViewBottomConstraint: NSLayoutConstraint?
 	private var containerViewHeightConstraint: NSLayoutConstraint?
@@ -49,7 +49,7 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func layoutSubviews() {
+	override func layoutSubviews() {
 		super.layoutSubviews()
 		let maskLayer = CAShapeLayer()
 		maskLayer.path = UIBezierPath(
@@ -194,11 +194,7 @@ import UIKit
 
 	// MARK: Selectors
 
-	@objc private func didTapScanQRCodeButton() { delegate?.modalChildViewDidTapScanQRCodeButton() }
-	@objc private func didTapImportQRImageButton() { delegate?.modalChildViewDidTapImportQRImageButton() }
-	@objc private func didTapEnterManuallyButton() { delegate?.modalChildViewDidTapEnterManuallyButton() }
 	@objc private func didTapView() { delegate?.modalChildViewDidTapDimmedView() }
-
 	@objc private func didPan(_ sender: UIPanGestureRecognizer) {
 		delegate?.modalChildViewDidPanWithGesture(sender, modifyingConstraint: containerViewHeightConstraint ?? NSLayoutConstraint())
 	}
@@ -210,8 +206,8 @@ import UIKit
 
 extension ModalChildView {
 
-	@objc public func animateViews() { animateSheet() }
-	@objc public func animateSheetHeight(_ height: CGFloat) {
+	func animateViews() { animateSheet() }
+	func animateSheetHeight(_ height: CGFloat) {
 		animateViews(withDuration: 0.3, animations: {
 			self.dimmedView.alpha = 0.6
 			self.containerViewHeightConstraint?.constant = height
@@ -221,7 +217,7 @@ extension ModalChildView {
 		currentSheetHeight = height
 	}
 
-	@objc public func animateDismiss(withCompletion completion: ((Bool) -> ())?) {
+	func animateDismiss(withCompletion completion: ((Bool) -> ())?) {
 		animateViews(withDuration: 0.3, animations: {
 			self.dimmedView.alpha = 0
 			self.containerViewBottomConstraint?.constant = self.kDefaultHeight
@@ -229,7 +225,7 @@ extension ModalChildView {
 		}, completion: completion)
 	}
 
-	@objc public func shouldCrossDissolveSubviews() {
+	func shouldCrossDissolveSubviews() {
 		UIView.transition(with: self, duration: 0.5, options: .transitionCrossDissolve, animations: {
 			self.strongTitleStackView?.alpha = 0
 			self.strongButtonsStackView?.alpha = 0
@@ -241,7 +237,7 @@ extension ModalChildView {
 		})
 	}
 
-	@objc public func setupModalChildWithTitle(
+	func setupModalChildWithTitle(
 		_ title: String,
 		subtitle: String,
 		buttonTitle: String,
@@ -250,13 +246,13 @@ extension ModalChildView {
 		secondButtonTitle: String,
 		forTarget secondTarget: Any?,
 		forSelector secondSelector: Selector,
-		thirdStackView usesThirdSV: Bool,
-		thirdButtonTitle: String?,
-		forTarget thirdTarget: Any?,
-		forSelector thirdSelector: Selector?,
+		thirdStackView usesThirdSV: Bool = false,
+		thirdButtonTitle: String? = nil,
+		forTarget thirdTarget: Any? = nil,
+		forSelector thirdSelector: Selector? = nil,
 		accessoryImage: UIImage,
 		secondAccessoryImage: UIImage,
-		thirdAccessoryImage: UIImage?,
+		thirdAccessoryImage: UIImage? = nil,
 		prepareForReuse reuse: Bool,
 		scaleAnimation scaleAnim: Bool
 
@@ -321,7 +317,7 @@ extension ModalChildView {
 
 	}
 
-	@objc public func calculateAlphaBasedOnTranslation(_ translation: CGPoint) {
+	func calculateAlpha(basedOnTranslation translation: CGPoint) {
 		let y = translation.y
 		let alpha = y / dimmedView.frame.height
 		dimmedView.alpha = 0.6 - alpha

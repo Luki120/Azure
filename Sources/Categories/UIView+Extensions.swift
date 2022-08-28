@@ -1,6 +1,50 @@
 import UIKit
 
 
+extension UIBarButtonItem {
+
+	static func getBarButtomItemWithImage(
+		_ image: UIImage,
+		forTarget target: Any?,
+		forSelector selector: Selector
+	) -> UIBarButtonItem {
+		let barButtonItem = UIBarButtonItem(image: image, style: .done, target: target, action: selector)
+		return barButtonItem
+	}
+
+}
+
+extension UIColor {
+
+	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
+
+}
+
+extension UIImage {
+
+	@objc public static func resizeImageFromImage(_ image: UIImage, withSize size: CGSize) -> UIImage {
+		let newSize = size
+
+		let scale = max(newSize.width / image.size.width, newSize.height / image.size.height)
+		let width = image.size.width * scale
+		let height = image.size.height * scale
+		let imageRect = CGRect(
+			x: (newSize.width - width) / 2.0,
+			y: (newSize.height - height) / 2.0,
+			width: width,
+			height: height
+		)
+		UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
+		image.draw(in: imageRect)
+
+		let newImage = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
+		UIGraphicsEndImageContext()
+
+		return newImage
+	}
+
+}
+
 extension UIView {
 
 	func animateViewWithDelay(_ delay: TimeInterval,
@@ -15,7 +59,15 @@ extension UIView {
 		)
 	}
 
-	@objc public func pinViewToAllEdges(_ view: UIView) {
+	func makeRotationTransformForView(_ view: UIView, andLabel label: UILabel) {
+		var rotation = CATransform3DIdentity
+		rotation.m34 = 1.0 / -500.0
+		rotation = CATransform3DRotate(rotation, 180 * CGFloat.pi / 180.0, 0.0, 1.0, 0.0)
+		view.layer.transform = rotation
+		label.layer.transform = rotation
+	}
+
+	func pinViewToAllEdges(_ view: UIView) {
 		view.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
 			view.topAnchor.constraint(equalTo: topAnchor),
@@ -25,15 +77,7 @@ extension UIView {
 		])
 	}
 
-	func makeRotationTransformForView(_ view: UIView, andLabel label: UILabel) {
-		var rotation = CATransform3DIdentity
-		rotation.m34 = 1.0 / -500.0
-		rotation = CATransform3DRotate(rotation, 180 * CGFloat.pi / 180.0, 0.0, 1.0, 0.0)
-		view.layer.transform = rotation
-		label.layer.transform = rotation
-	}
-
-	@objc public func pinViewToAllEdgesIncludingSafeAreas(_ view: UIView, bottomConstant: CGFloat) {
+	func pinViewToAllEdgesIncludingSafeAreas(_ view: UIView, bottomConstant: CGFloat) {
 		view.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
 			view.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
@@ -43,18 +87,12 @@ extension UIView {
 		])
 	}
 
-	@objc public func pinAzureToastToTheBottomCenteredOnTheXAxis(_ toastView: UIView, bottomConstant: CGFloat) {
+	func pinAzureToastToTheBottomCenteredOnTheXAxis(_ toastView: UIView, bottomConstant: CGFloat) {
 		toastView.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
 			toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: bottomConstant),
 			toastView.centerXAnchor.constraint(equalTo: centerXAnchor)
 		])
 	}
-
-}
-
-extension UIColor {
-
-	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
 
 }
