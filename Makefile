@@ -1,3 +1,4 @@
+ARCHS = arm64
 TARGET := iphone:clang:latest:latest
 INSTALL_TARGET_PROCESSES = Azure
 APPLICATION_NAME = Azure

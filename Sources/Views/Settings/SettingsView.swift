@@ -146,9 +146,6 @@ private extension String {
 	static let kFlatIconURL = "https://www.flaticon.com/free-icons/caps-lock"
 	static let kGoogleAuthenticatorURL = "https://github.com/google/google-authenticator"
 	static let kLicenseURL = "https://github.com/Luki120/Azure/blob/main/LICENSE"
-	static let kCheckra1n = "/var/checkra1n.dmg"
-	static let kTaurine = "/taurine"
-	static let kUnc0ver = "/private/etc/apt/undecimus"
 }
 
 private extension View {

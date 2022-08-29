@@ -1,6 +1,17 @@
 import UIKit
 
 
+extension String {
+	static let kIdentifier = "AzurePinCodeCell"
+	static let kCheckra1n = "/var/checkra1n.dmg"
+	static let kTaurine = "/taurine"
+	static let kUnc0ver = "/private/etc/apt/undecimus"
+	static let kAzureDir = "/var/mobile/Documents/Azure"
+	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
+	static let kAzureReasonSensitiveOperation = "Azure needs you to authenticate for a sensitive operation."
+}
+
+
 extension UIBarButtonItem {
 
 	static func getBarButtomItemWithImage(
@@ -16,6 +27,7 @@ extension UIBarButtonItem {
 
 extension UIColor {
 
+	static let kAzureLilacTintColor = UIColor(red: 0.70, green: 0.56, blue: 1.0, alpha: 1.0)
 	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
 
 }

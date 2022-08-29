@@ -146,8 +146,8 @@
 	atIndexPath:(NSIndexPath *)indexPath
 	forCell:(AzurePinCodeCell *)cell {
 
-	cell->issuer = [array[indexPath.row] objectForKey: @"Issuer"];
-	cell->hash = [array[indexPath.row] objectForKey: @"Secret"];
+	cell.issuer = [array[indexPath.row] objectForKey: @"Issuer"];
+	cell.hashString = [array[indexPath.row] objectForKey: @"Secret"];
 	[cell setSecret:[array[indexPath.row] objectForKey: @"Secret"]
 		withAlgorithm:[array[indexPath.row] objectForKey: @"encryptionType"]
 		allowingForTransition:NO
@@ -178,12 +178,12 @@
 			forCell:cell
 		];
 
-	UIImage *image = [TOTPManager sharedInstance].imagesDict[cell->issuer.lowercaseString];
+	UIImage *image = [TOTPManager sharedInstance].imagesDict[cell.issuer.lowercaseString];
 	UIImage *resizedImage = [UIImage resizeImageFromImage:image withSize:CGSizeMake(30, 30)];
 	UIImage *placeholderImage = [[UIImage imageNamed: @"lock"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
 
-	cell->issuerImageView.image = image ? resizedImage : placeholderImage;
-	cell->issuerImageView.tintColor = image ? nil : kAzureMintTintColor;
+	cell.issuerImageView.image = image ? resizedImage : placeholderImage;
+	cell.issuerImageView.tintColor = image ? nil : kAzureMintTintColor;
 
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	if([defaults boolForKey:@"copySecretPopoverView"]) return cell;
@@ -275,7 +275,7 @@
 - (void)fadeInOutToastForCell:(AzurePinCodeCell *)cell {
 
 	UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-	pasteboard.string = cell->hash;
+	pasteboard.string = cell.hashString;
 
 	[azureTableVCView.azureToastView fadeInOutToastViewWithMessage:@"Copied secret!" finalDelay:0.2];
 
@@ -301,7 +301,7 @@
 
 - (void)azurePinCodeCellDidTapInfoButton:(AzurePinCodeCell *)cell {
 
-	NSString *message = [NSString stringWithFormat:@"Issuer: %@", cell->issuer];
+	NSString *message = [NSString stringWithFormat:@"Issuer: %@", cell.issuer];
 	[azureTableVCView.azureToastView fadeInOutToastViewWithMessage:message finalDelay:0.2];
 
 }
