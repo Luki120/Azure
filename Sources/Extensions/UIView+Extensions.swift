@@ -9,16 +9,13 @@ extension String {
 	static let kAzureDir = "/var/mobile/Documents/Azure"
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 	static let kAzureReasonSensitiveOperation = "Azure needs you to authenticate for a sensitive operation."
+	static let kAzureUnlockAppOperation = "Azure needs you to authenticate in order to access the app."
 }
 
 
 extension UIBarButtonItem {
 
-	static func getBarButtomItemWithImage(
-		_ image: UIImage,
-		forTarget target: Any?,
-		forSelector selector: Selector
-	) -> UIBarButtonItem {
+	static func getBarButtomItem(withImage image: UIImage, forTarget target: Any?, forSelector selector: Selector) -> UIBarButtonItem {
 		let barButtonItem = UIBarButtonItem(image: image, style: .done, target: target, action: selector)
 		return barButtonItem
 	}
@@ -59,10 +56,7 @@ extension UIImage {
 
 extension UIView {
 
-	func animateViewWithDelay(_ delay: TimeInterval,
-		withAnimations animations: @escaping () -> (),
-		withCompletion completion: ((Bool) -> ())?
-	) {
+	func animateView(withDelay delay: TimeInterval, animations: @escaping () -> (), completion: ((Bool) -> ())?) {
 		UIView.animate(withDuration: 0.5,
 			delay: delay,
 			options: .curveEaseIn,
@@ -71,7 +65,7 @@ extension UIView {
 		)
 	}
 
-	func makeRotationTransformForView(_ view: UIView, andLabel label: UILabel) {
+	func makeRotationTransform(forView view: UIView, andLabel label: UILabel) {
 		var rotation = CATransform3DIdentity
 		rotation.m34 = 1.0 / -500.0
 		rotation = CATransform3DRotate(rotation, 180 * CGFloat.pi / 180.0, 0.0, 1.0, 0.0)

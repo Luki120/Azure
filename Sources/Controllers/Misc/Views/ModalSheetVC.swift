@@ -102,10 +102,10 @@ final class ModalSheetVC: UIViewController {
 		navVC = UINavigationController(rootViewController: vc)
 		vc.title = title
 		if isLeftBarButtonItem {
-			vc.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItemWithImage(image, forTarget: self, forSelector: selector)
+			vc.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItem(withImage: image, forTarget: self, forSelector: selector)
 		}
 		else {
-			vc.navigationItem.rightBarButtonItem = UIBarButtonItem.getBarButtomItemWithImage(image, forTarget: self, forSelector: selector)
+			vc.navigationItem.rightBarButtonItem = UIBarButtonItem.getBarButtomItem(withImage: image, forTarget: self, forSelector: selector)
 		}
 		navVC.modalTransitionStyle = .crossDissolve
 		navVC.modalPresentationStyle = .fullScreen
@@ -153,8 +153,8 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 			forSelector: #selector(didTapComposeButton),
 			isLeftBarButtonItem: false
 		)
-		pinCodeVC.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItemWithImage(
-			UIImage(systemName: "xmark.circle.fill") ?? UIImage(),
+		pinCodeVC.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItem(
+			withImage: UIImage(systemName: "xmark.circle.fill") ?? UIImage(),
 			forTarget: self,
 			forSelector: #selector(didTapDismissButton)
 		)

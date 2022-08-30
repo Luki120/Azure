@@ -55,16 +55,16 @@ final class AzureToastView: UIView {
 	}
 
 	private func fadeInOutToastView(withFinalDelay delay: TimeInterval) {
-		animateViewWithDelay(0, withAnimations: {
-			self.animateToastViewWithConstraintConstant(-20, andAlpha: 1)
-		}, withCompletion: { _ in
-			self.animateViewWithDelay(0.2, withAnimations: {
-				self.makeRotationTransformForView(self.toastView, andLabel: self.toastViewLabel)
+		animateView(withDelay: 0, animations: {
+			self.animateToastView(withConstraintConstant: -20, alpha: 1)
+		}, completion: { _ in
+			self.animateView(withDelay: 0.2, animations: {
+				self.makeRotationTransform(forView: self.toastView, andLabel: self.toastViewLabel)
 				self.layoutIfNeeded()
-			}, withCompletion: { _ in
-				self.animateViewWithDelay(delay, withAnimations: {
-					self.animateToastViewWithConstraintConstant(50, andAlpha: 0)
-				}, withCompletion: { _ in
+			}, completion: { _ in
+				self.animateView(withDelay: delay, animations: {
+					self.animateToastView(withConstraintConstant: 50, alpha: 0)
+				}, completion: { _ in
 					self.toastView.layer.transform = CATransform3DIdentity
 					self.toastViewLabel.layer.transform = CATransform3DIdentity
 				})
@@ -72,7 +72,7 @@ final class AzureToastView: UIView {
 		})
 	}
 
-	private func animateToastViewWithConstraintConstant(_ constant: CGFloat, andAlpha alpha: CGFloat) {
+	private func animateToastView(withConstraintConstant constant: CGFloat, alpha: CGFloat) {
 		bottomAnchorConstraint?.constant = constant
 		toastView.alpha = alpha
 		layoutIfNeeded()
