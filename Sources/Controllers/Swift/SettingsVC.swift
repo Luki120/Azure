@@ -1,9 +1,9 @@
 import SwiftUI
 
 
-@objcMembers public class SettingsVC: UIViewController {
+final class SettingsVC {
 
-	public func makeSettingsViewUI() -> UIViewController {
+	func makeSettingsViewUI() -> UIViewController {
 		let view = SettingsView()
 		let hostingController = UIHostingController(rootView: view)
 		return hostingController
