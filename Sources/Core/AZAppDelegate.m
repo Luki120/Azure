@@ -14,6 +14,9 @@ static UILabel *addressLabel;
 static UIWindow *strongWindow;
 static AuthManager *authManager;
 
+#define kAzureLilacTintColor [UIColor colorWithRed: 0.70 green: 0.56 blue: 1.0 alpha: 1.0]
+#define kAzureMintTintColor [UIColor colorWithRed: 0.40 green: 0.81 blue: 0.73 alpha: 1.0]
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
 	allocateClass(strongClass);
@@ -32,7 +35,7 @@ static AuthManager *authManager;
 	if(usesBiometrics && [authManager shouldUseBiometrics]) unsafePortalDispatch();
 	else window.rootViewController = [AzureRootVC new];
 
- 	UINavigationBar.appearance.shadowImage = [UIImage new];
+	UINavigationBar.appearance.shadowImage = [UIImage new];
 	UINavigationBar.appearance.translucent = NO;
 	UINavigationBar.appearance.barTintColor = UIColor.systemBackgroundColor;
 
