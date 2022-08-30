@@ -1,13 +1,13 @@
 import UIKit
 
 
-@objc public protocol AzureFloatingButtonViewDelegate: AnyObject {
+protocol AzureFloatingButtonViewDelegate: AnyObject {
 	func azureFloatingButtonViewDidTapFloatingButton()
 }
 
-@objc public class AzureFloatingButtonView: UIView {
+final class AzureFloatingButtonView: UIView {
 
-	@objc public weak var delegate: AzureFloatingButtonViewDelegate?
+	weak var delegate: AzureFloatingButtonViewDelegate?
 
 	private lazy var floatingButton: UIButton = {
 		let button = UIButton()
@@ -34,7 +34,7 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
 		floatingButton.layer.shadowColor = UIColor.label.cgColor
 	}
@@ -45,7 +45,14 @@ import UIKit
 	}
 
 	@objc private func didTapButton() { delegate?.azureFloatingButtonViewDidTapFloatingButton() }
-	@objc public func animateViewWithAlpha(_ alpha: CGFloat, translateX tx: CGFloat, translateY ty: CGFloat) {
+
+}
+
+extension AzureFloatingButtonView {
+
+	// ! Public
+
+	func animateView(withAlpha alpha: CGFloat, translateX tx: CGFloat, translateY ty: CGFloat) {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .transitionCrossDissolve, animations: {
 			self.alpha = alpha
 			self.transform = CGAffineTransform(translationX: tx, y: ty)

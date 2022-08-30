@@ -1,17 +1,17 @@
 import UIKit
 
 
-@objc public protocol ModalSheetVCDelegate: AnyObject {
+protocol ModalSheetVCDelegate: AnyObject {
 	func modalSheetVCShouldReloadData()
 }
 
-@objc public class ModalSheetVC: UIViewController {
+final class ModalSheetVC: UIViewController {
 
 	private var modalChildView: ModalChildView!
 	private var navVC: UINavigationController!
 	private var pinCodeVC: PinCodeVC!
 
-	@objc weak public var delegate: ModalSheetVCDelegate?
+	weak var delegate: ModalSheetVCDelegate?
 
 	init() {
 		super.init(nibName: nil, bundle: nil)
@@ -24,7 +24,7 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func viewDidAppear(_ animated: Bool) {
+	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		modalChildView.animateViews()
 	}
@@ -40,9 +40,9 @@ import UIKit
 
 	private func layoutUI() { view.pinViewToAllEdges(modalChildView) }
 
-	// MARK: Designated initializers
+	// MARK: Designated initializer
 
-	@objc public func setupChildWithTitle(
+	func setupChildWithTitle(
 		_ title: String,
 		subtitle: String,
 		buttonTitle: String,
@@ -51,13 +51,13 @@ import UIKit
 		secondButtonTitle: String,
 		forTarget secondTarget: Any?,
 		forSelector secondSelector: Selector,
-		thirdStackView usesThirdSV: Bool,
-		thirdButtonTitle: String?,
-		forTarget thirdTarget: Any?,
-		forSelector thirdSelector: Selector?,
+		thirdStackView usesThirdSV: Bool = false,
+		thirdButtonTitle: String? = nil,
+		forTarget thirdTarget: Any? = nil,
+		forSelector thirdSelector: Selector? = nil,
 		accessoryImage: UIImage,
 		secondAccessoryImage: UIImage,
-		thirdAccessoryImage: UIImage?,
+		thirdAccessoryImage: UIImage? = nil,
 		prepareForReuse reuse: Bool,
 		scaleAnimation scaleAnim: Bool
 
@@ -83,38 +83,8 @@ import UIKit
 		)
 	}
 
-	@objc public func setupChildWithTitle(
-		_ title: String,
-		subtitle: String,
-		buttonTitle: String,
-		forTarget target: Any?,
-		forSelector selector: Selector,
-		secondButtonTitle: String,
-		forTarget secondTarget: Any?,
-		forSelector secondSelector: Selector,
-		accessoryImage: UIImage,
-		secondAccessoryImage: UIImage,
-		prepareForReuse reuse: Bool,
-		scaleAnimation scaleAnim: Bool
-	) {
-		modalChildView.setupModalChildWithTitle(
-			title,
-			subtitle: subtitle,
-			buttonTitle: buttonTitle,
-			forTarget: target,
-			forSelector: selector,
-			secondButtonTitle: secondButtonTitle,
-			forTarget: secondTarget,
-			forSelector: secondSelector,
-			accessoryImage: accessoryImage,
-			secondAccessoryImage: secondAccessoryImage,
-			prepareForReuse: reuse,
-			scaleAnimation: scaleAnim
-		)
-	}
-
-	@objc public func shouldCrossDissolveChildSubviews() { modalChildView.shouldCrossDissolveSubviews() }
-	@objc public func shouldDismissVC() {
+	func shouldCrossDissolveChildSubviews() { modalChildView.shouldCrossDissolveSubviews() }
+	func shouldDismissVC() {
 		modalChildView.animateDismiss { _ in
 			self.dismiss(animated: true, completion: nil)
 		}
@@ -249,7 +219,7 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 
 extension ModalSheetVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
-	public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+	func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
 		guard let image = info[.originalImage] as? UIImage else { return }
 		let ciImage = CIImage(image: image)
 		let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
@@ -264,6 +234,6 @@ extension ModalSheetVC: UIImagePickerControllerDelegate, UINavigationControllerD
 		dismissVC()
 	}
 
-	public func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismissVC() }
+	func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismissVC() }
 
 }

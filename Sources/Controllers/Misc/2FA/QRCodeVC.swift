@@ -42,12 +42,12 @@ final class QRCodeVC: UIViewController {
 	private func checkAuthorizationStatus() {
 		switch AVCaptureDevice.authorizationStatus(for: .video) {
 			case .authorized: setupScanner()
-			case .denied: azToastView.fadeInOutToastViewWithMessage("Camera access denied.", finalDelay: 1.5)
+			case .denied: azToastView.fadeInOutToastView(withMessage: "Camera access denied.", finalDelay: 1.5)
 			case .notDetermined:
 				AVCaptureDevice.requestAccess(for: .video) { granted in
 					DispatchQueue.main.async {
 						if !granted {
-							self.azToastView.fadeInOutToastViewWithMessage("Camera access denied.", finalDelay: 1.5)
+							self.azToastView.fadeInOutToastView(withMessage: "Camera access denied.", finalDelay: 1.5)
 							return
 						}
 						self.setupScanner()

@@ -1,27 +1,26 @@
 import Foundation
 
 
-@objc public class BackupManager: NSObject {
+final class BackupManager {
 
 	private let fileM = FileManager.default
 	private var kDocumentsPathURL: URL!
 	private var kAzureJailedPathURL: URL!
 
-	override init() {
-		super.init()
+	init() {
 		kDocumentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
 		kAzureJailedPathURL = kDocumentsPathURL.appendingPathComponent("AzureBackup.json")
 	}
 
-	@objc public func isJailbroken() -> Bool {
-		if(fileM.fileExists(atPath: .kCheckra1n)
+	func isJailbroken() -> Bool {
+		if fileM.fileExists(atPath: .kCheckra1n)
 			|| fileM.fileExists(atPath: .kTaurine)
-			|| fileM.fileExists(atPath: .kUnc0ver)) { return true }
+			|| fileM.fileExists(atPath: .kUnc0ver) { return true }
 
 		return false
 	}
 
-	@objc public func makeDataOutOfJSON() {
+	func makeDataOutOfJSON() {
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
 		let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL: kAzureJailedPathURL)
@@ -30,7 +29,7 @@ import Foundation
 		TOTPManager.sharedInstance.saveDefaults()
 	}
 
-	@objc public func makeJSONOutOfData() {
+	func makeJSONOutOfData() {
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
 				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)

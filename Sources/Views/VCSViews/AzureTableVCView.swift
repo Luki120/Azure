@@ -1,11 +1,11 @@
 import UIKit
 
 
-@objc public final class AzureTableVCView: UIView {
+final class AzureTableVCView: UIView {
 
-	@objc public var azureFloatingButtonView: AzureFloatingButtonView!
-	@objc public var azureTableView: UITableView!
-	@objc public var azureToastView: AzureToastView!
+	var azureFloatingButtonView: AzureFloatingButtonView!
+	var azureTableView: UITableView!
+	var azureToastView: AzureToastView!
 
 	private var kUserInterfaceStyle: Bool { return traitCollection.userInterfaceStyle == .dark }
 
@@ -21,7 +21,7 @@ import UIKit
 		return label
 	}()
 
-	@objc public init(
+	init(
 		withDataSource dataSource: UITableViewDataSource,
 		tableViewDelegate: UITableViewDelegate,
 		floatingButtonViewDelegate: AzureFloatingButtonViewDelegate
@@ -37,7 +37,7 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func layoutSubviews() {
+	override func layoutSubviews() {
 		super.layoutSubviews()
 		pinViewToAllEdgesIncludingSafeAreas(azureTableView, bottomConstant: -50)
 		pinAzureToastToTheBottomCenteredOnTheXAxis(azureToastView, bottomConstant: -55)
@@ -56,7 +56,7 @@ import UIKit
 
 	}
 
-	override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
 		azureTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
 	}
@@ -74,7 +74,7 @@ import UIKit
 		addSubview(azureToastView)
 	}
 
-	@objc public func animateViewsWhenNecessary() {
+	func animateViewsWhenNecessary() {
 		UIView.animate(withDuration:0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut, animations: {
 			if TOTPManager.sharedInstance.entriesArray.count == 0 {
 				self.azureTableView.alpha = 0

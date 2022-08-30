@@ -1,7 +1,7 @@
 import UIKit
 
 
-@objc public class PopoverVC: UIViewController {
+final class PopoverVC: UIViewController {
 
 	private lazy var gradientLayer: CAGradientLayer = {
 		let firstColor = UIColor.kAzureMintTintColor
@@ -36,7 +36,7 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func viewDidLoad() {
+	override func viewDidLoad() {
 		super.viewDidLoad()
 
 		view.layer.insertSublayer(gradientLayer, at: 0)
@@ -47,7 +47,7 @@ import UIKit
 		infoLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 	}
 
-	override public func viewWillAppear(_ animated: Bool) {
+	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		popoverPresentationController?.containerView?.alpha = 0
 		popoverPresentationController?.containerView?.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
@@ -69,6 +69,6 @@ import UIKit
 		})
 	}
 
-	@objc public func fadeInPopover(withMessage message: String) { infoLabel.text = message }
+	func fadeInPopover(withMessage message: String) { infoLabel.text = message }
 
 }

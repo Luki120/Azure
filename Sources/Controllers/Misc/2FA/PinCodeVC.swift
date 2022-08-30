@@ -65,7 +65,7 @@ final class PinCodeVC: UIViewController {
  	@objc private func shouldSaveData() {
 		if pinCodeVCView.issuerTextField.text?.count ?? 0 <= 0
 			|| pinCodeVCView.secretTextField.text?.count ?? 0 <= 0 {
-			pinCodeVCView.azToastView.fadeInOutToastViewWithMessage("Fill out both forms", finalDelay: 1.5)
+			pinCodeVCView.azToastView.fadeInOutToastView(withMessage: "Fill out both forms", finalDelay: 1.5)
 			pinCodeVCView.resignFirstResponderIfNeeded()
 			return
 		}

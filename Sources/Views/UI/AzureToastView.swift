@@ -1,7 +1,7 @@
 import UIKit
 
 
-@objc public class AzureToastView: UIView {
+final class AzureToastView: UIView {
 
 	private var bottomAnchorConstraint: NSLayoutConstraint?
 
@@ -54,12 +54,7 @@ import UIKit
 		bottomAnchorConstraint?.isActive = true
 	}
 
-	@objc public func fadeInOutToastViewWithMessage(_ message: String, finalDelay delay: TimeInterval) {
-		toastViewLabel.text = message
-		fadeInOutToastViewWithFinalDelay(delay)
-	}
-
-	private func fadeInOutToastViewWithFinalDelay(_ delay: TimeInterval) {
+	private func fadeInOutToastView(withFinalDelay delay: TimeInterval) {
 		animateViewWithDelay(0, withAnimations: {
 			self.animateToastViewWithConstraintConstant(-20, andAlpha: 1)
 		}, withCompletion: { _ in
@@ -81,6 +76,17 @@ import UIKit
 		bottomAnchorConstraint?.constant = constant
 		toastView.alpha = alpha
 		layoutIfNeeded()
+	}
+
+}
+
+extension AzureToastView {
+
+	// ! Public
+
+	func fadeInOutToastView(withMessage message: String, finalDelay delay: TimeInterval) {
+		toastViewLabel.text = message
+		fadeInOutToastView(withFinalDelay: delay)
 	}
 
 }

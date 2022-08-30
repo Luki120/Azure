@@ -1,13 +1,13 @@
 import UIKit
 
 
-@objc public protocol AzurePinCodeCellDelegate: AnyObject {
+protocol AzurePinCodeCellDelegate: AnyObject {
 	func azurePinCodeCellDidTapCell(_ cell: AzurePinCodeCell)
 	func azurePinCodeCellDidTapInfoButton(_ cell: AzurePinCodeCell)
 	func azurePinCodeCellShouldFadeInOutToastView()
 }
 
-@objc public class AzurePinCodeCell: UITableViewCell {
+final class AzurePinCodeCell: UITableViewCell {
 
  	private var issuersStackView: UIStackView!
 	private var copyPinButton: UIButton!
@@ -19,12 +19,12 @@ import UIKit
 
 	private let π = Double.pi
 
-	@objc public var issuer = ""
-	@objc public var hashString = ""
+	var issuer = ""
+	var hashString = ""
 
-	@objc public weak var delegate: AzurePinCodeCellDelegate?
+	weak var delegate: AzurePinCodeCellDelegate?
 
- 	@objc public lazy var issuerImageView: UIImageView = {
+ 	lazy var issuerImageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.contentMode = .scaleAspectFit
 		imageView.clipsToBounds = true
@@ -66,17 +66,17 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func layoutSubviews() {
+	override func layoutSubviews() {
 		super.layoutSubviews()
 		layoutUI()
 	}
 
-	override public func prepareForReuse() {
+	override func prepareForReuse() {
 		super.prepareForReuse()
 		issuerImageView.image = nil
 	}
 
-	override public func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
 		circleLayer.shadowColor = UIColor.kAzureMintTintColor.cgColor
 	}
@@ -106,8 +106,6 @@ import UIKit
 			withImage: UIImage(systemName: "info.circle") ?? UIImage(),
 			forSelector: #selector(didTapInfoButton)
 		)
-		buttonsStackView.addArrangedSubview(copyPinButton)
-		buttonsStackView.addArrangedSubview(infoButton)
 
 		let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapCell))
 		contentView.addGestureRecognizer(tapRecognizer)
@@ -179,17 +177,6 @@ import UIKit
 		return timestamp
 	} 
 
-	@objc public func setSecret(
-		_ secret: String,
-		withAlgorithm algorithm: String,
-		allowingForTransition allowsTransition: Bool
-	) {
- 		let secretData = Data(NSData(base32String: secret))
-		generator = TOTPGenerator(secret: secretData, algorithm: algorithm, digits: 6, period: 30)
-		if(allowsTransition) { regeneratePIN() }
-		else { regeneratePINWithoutTransitions() }
-	}
-
  	private func regeneratePINWithoutTransitions() {
 		pinLabel.text = ""
 		pinLabel.text = generator?.generateOTP(for: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
@@ -217,6 +204,7 @@ import UIKit
 		button.tintColor = .label
 		button.setImage(image, for: .normal)
 		button.addTarget(self, action: selector, for: .touchUpInside)
+		buttonsStackView.addArrangedSubview(button)
 		return button
 	}
 
@@ -232,9 +220,22 @@ import UIKit
 
 }
 
+extension AzurePinCodeCell {
+
+	// ! Public
+
+	func setSecret(_ secret: String, withAlgorithm algorithm: String, allowingForTransition allows: Bool) {
+ 		let secretData = Data(NSData(base32String: secret))
+		generator = TOTPGenerator(secret: secretData, algorithm: algorithm, digits: 6, period: 30)
+		if(allows) { regeneratePIN() }
+		else { regeneratePINWithoutTransitions() }
+	}
+
+}
+
 extension AzurePinCodeCell: CAAnimationDelegate {
 
-	public func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+	func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
 		guard flag else { return }
 		let infiniteAnimation = setupAnimation(withDuration: 30, fromValue: 0, repeatCount: .infinity)
 		circleLayer.add(infiniteAnimation, forKey: nil)

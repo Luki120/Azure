@@ -1,18 +1,17 @@
 import UIKit
 
 
-@objc public class TOTPManager: NSObject {
+final class TOTPManager {
 
-	@objc public static let sharedInstance = TOTPManager()
+	static let sharedInstance = TOTPManager()
 
-	@objc public var selectedRow = 0
-	@objc public var entriesArray: NSMutableArray!
-	@objc public var imagesDict = [String: UIImage]()
+	var selectedRow = 0
+	var entriesArray: NSMutableArray!
+	var imagesDict = [String: UIImage]()
 
 	private var defaults = UserDefaults.standard
 
-	override init() {
-		super.init()
+	init() {
 		selectedRow = defaults.integer(forKey: "selectedRow")
 		entriesArray = NSMutableArray(array: defaults.array(forKey: "entriesArray") ?? [])
 		setupImagesDict()
@@ -49,17 +48,17 @@ import UIKit
 		saveDefaults()
 	}
 
-	@objc public func removeObjectAtIndexPath(forRow row: Int) {
+	func removeObjectAtIndexPath(forRow row: Int) {
 		entriesArray.removeObject(at: row)
 		saveDefaults()
 	}
 
-	@objc public func removeAllObjectsFromArray() {
+	func removeAllObjectsFromArray() {
 		entriesArray.removeAllObjects()
 		saveDefaults()
 	}
 
-	@objc public func saveDefaults() {
+	func saveDefaults() {
 		defaults.set(entriesArray, forKey: "entriesArray")
 	}
 

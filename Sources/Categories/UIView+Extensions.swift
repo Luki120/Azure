@@ -34,7 +34,7 @@ extension UIColor {
 
 extension UIImage {
 
-	@objc public static func resizeImageFromImage(_ image: UIImage, withSize size: CGSize) -> UIImage {
+	func resizeImage(_ image: UIImage, withSize size: CGSize) -> UIImage {
 		let newSize = size
 
 		let scale = max(newSize.width / image.size.width, newSize.height / image.size.height)
