@@ -1,7 +1,7 @@
 import UIKit
 
 
-@objc public class AzureRootVC: UITabBarController {
+final class AzureRootVC: UITabBarController {
 
 	private var isSelected = false
 
@@ -30,7 +30,7 @@ import UIKit
 		super.init(coder: aDecoder)
 	}
 
-	override public func viewDidLoad() {
+	override func viewDidLoad() {
 		super.viewDidLoad()
 		delegate = self
 		tabBar.isTranslucent = false
@@ -44,7 +44,7 @@ import UIKit
 
 extension AzureRootVC: UITabBarControllerDelegate {
 
-	public func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+	func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
 		let tabViewControllers = tabBarController.viewControllers
 		let vcIndex = tabViewControllers?.firstIndex(of: viewController)
 
