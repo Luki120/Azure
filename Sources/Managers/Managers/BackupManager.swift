@@ -30,7 +30,6 @@ final class BackupManager {
 	}
 
 	func makeJSONOutOfData() {
-
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
 				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)
