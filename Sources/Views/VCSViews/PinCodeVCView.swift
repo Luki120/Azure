@@ -14,7 +14,7 @@ final class PinCodeVCView: UIView {
 	private var issuerLabel: UILabel!
 	private var secretLabel: UILabel!
 
-	init(withDataSource dataSource: UITableViewDataSource, tableViewDelegate: UITableViewDelegate) {
+	init(dataSource: UITableViewDataSource, tableViewDelegate: UITableViewDelegate) {
 		super.init(frame: .zero)
 		setupUI()
 		pinCodesTableView.dataSource = dataSource
@@ -81,7 +81,6 @@ final class PinCodeVCView: UIView {
 		textField.delegate = self
 		textField.placeholder = placeholder
 		textField.returnKeyType = keyType
-		textField.translatesAutoresizingMaskIntoConstraints = false
 		return textField
 	}
 
@@ -98,7 +97,6 @@ final class PinCodeVCView: UIView {
 
 extension PinCodeVCView {
 	// MARK: Public
-
 	func configureConstraints(
 		forStackView stackView: UIStackView,
 		forTextField textField: UITextField,
@@ -106,8 +104,7 @@ extension PinCodeVCView {
 	) {
 		stackView.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 15).isActive = true
 		stackView.centerYAnchor.constraint(equalTo: cell.centerYAnchor).isActive = true
-		textField.widthAnchor.constraint(equalToConstant: cell.frame.width - 43).isActive = true
-		textField.heightAnchor.constraint(equalToConstant: 44).isActive = true
+		setupSizeConstraints(forView: textField, width: cell.frame.width - 43, height: 44)
 	}
 
 	func resignFirstResponderIfNeeded() {

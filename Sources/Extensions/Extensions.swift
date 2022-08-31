@@ -9,7 +9,7 @@ extension String {
 	static let kAzureDir = "/var/mobile/Documents/Azure"
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 	static let kAzureReasonSensitiveOperation = "Azure needs you to authenticate for a sensitive operation."
-	static let kAzureUnlockAppOperation = "Azure needs you to authenticate in order to access the app."
+	static let kAzureReasonUnlockApp = "Azure needs you to authenticate in order to access the app."
 }
 
 
@@ -98,6 +98,22 @@ extension UIView {
 		NSLayoutConstraint.activate([
 			toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: bottomConstant),
 			toastView.centerXAnchor.constraint(equalTo: centerXAnchor)
+		])
+	}
+
+	func centerViewOnBothAxes(_ view: UIView) {
+		view.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			view.centerXAnchor.constraint(equalTo: centerXAnchor),
+			view.centerYAnchor.constraint(equalTo: centerYAnchor)
+		])
+	}
+
+	func setupSizeConstraints(forView view: UIView, width: CGFloat, height: CGFloat) {
+		view.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			view.widthAnchor.constraint(equalToConstant: width),
+			view.heightAnchor.constraint(equalToConstant: height)
 		])
 	}
 

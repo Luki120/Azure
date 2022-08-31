@@ -13,7 +13,6 @@ final class AzureFloatingButtonView: UIView {
 		let button = UIButton()
 		button.tintColor = .label
 		button.backgroundColor = .kAzureMintTintColor
-		button.translatesAutoresizingMaskIntoConstraints = false
 		button.layer.shadowColor = UIColor.label.cgColor
 		button.layer.cornerRadius = 30
 		button.layer.shadowRadius = 8
@@ -55,7 +54,7 @@ extension AzureFloatingButtonView {
 	func animateView(withAlpha alpha: CGFloat, translateX tx: CGFloat, translateY ty: CGFloat) {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .transitionCrossDissolve, animations: {
 			self.alpha = alpha
-			self.transform = CGAffineTransform(translationX: tx, y: ty)
+			self.transform = .init(translationX: tx, y: ty)
 		})
 	}
 

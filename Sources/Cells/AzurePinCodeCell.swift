@@ -83,10 +83,10 @@ final class AzurePinCodeCell: UITableViewCell {
 
  	private func initializeTimers() {
 		let timestamp = Int(ceil(Date().timeIntervalSince1970))
-		DispatchQueue.main.asyncAfter(deadline: .now() + Double(30 - timestamp % 30), execute: {
+		DispatchQueue.main.asyncAfter(deadline: .now() + Double(30 - timestamp % 30)) {
 			self.perform(#selector(self.startTimer), with: self, afterDelay: Double(30 - timestamp % 30))
 			Timer.scheduledTimer(timeInterval: Double(30 - timestamp % 30), target: self, selector: #selector(self.regeneratePIN), userInfo: nil, repeats: false)
-		})
+		}
 	}
 
 	private func setupUI() {

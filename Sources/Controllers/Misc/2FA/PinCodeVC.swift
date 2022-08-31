@@ -32,7 +32,7 @@ final class PinCodeVC: UIViewController {
 		super.init(coder: aDecoder)
 	}
 
-	private func setupMainView() { pinCodeVCView = PinCodeVCView(withDataSource: self, tableViewDelegate: self) }
+	private func setupMainView() { pinCodeVCView = PinCodeVCView(dataSource: self, tableViewDelegate: self) }
 
 	override func loadView() { view = pinCodeVCView }
 

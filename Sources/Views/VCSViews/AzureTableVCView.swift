@@ -3,9 +3,9 @@ import UIKit
 
 final class AzureTableVCView: UIView {
 
-	var azureFloatingButtonView: AzureFloatingButtonView!
-	var azureTableView: UITableView!
-	var azureToastView: AzureToastView!
+	var azureFloatingButtonView = AzureFloatingButtonView()
+	var azureTableView = UITableView()
+	var azureToastView = AzureToastView()
 
 	private var kUserInterfaceStyle: Bool { return traitCollection.userInterfaceStyle == .dark }
 
@@ -16,13 +16,12 @@ final class AzureTableVCView: UIView {
 		label.textColor = .placeholderText
 		label.numberOfLines = 0
 		label.textAlignment = .center
-		label.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(label)
 		return label
 	}()
 
 	init(
-		withDataSource dataSource: UITableViewDataSource,
+		dataSource: UITableViewDataSource,
 		tableViewDelegate: UITableViewDelegate,
 		floatingButtonViewDelegate: AzureFloatingButtonViewDelegate
 	) {
@@ -46,11 +45,9 @@ final class AzureTableVCView: UIView {
 
 		azureFloatingButtonView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -74).isActive = true
 		azureFloatingButtonView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25).isActive = true
-		azureFloatingButtonView.widthAnchor.constraint(equalToConstant: 60).isActive = true
-		azureFloatingButtonView.heightAnchor.constraint(equalToConstant: 60).isActive = true
+		setupSizeConstraints(forView: azureFloatingButtonView, width: 60, height: 60)
 
-		placeholderLabel.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
-		placeholderLabel.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+		centerViewOnBothAxes(placeholderLabel)
 		placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10).isActive = true
 		placeholderLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10).isActive = true
 
@@ -62,14 +59,10 @@ final class AzureTableVCView: UIView {
 	}
 
 	private func setupViews() {
-		azureTableView = UITableView()
 		azureTableView.separatorStyle = .none
 		azureTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
+
 		addSubview(azureTableView)
-
-		azureFloatingButtonView = AzureFloatingButtonView()
-		azureToastView = AzureToastView()
-
 		addSubview(azureFloatingButtonView)
 		addSubview(azureToastView)
 	}
@@ -79,12 +72,12 @@ final class AzureTableVCView: UIView {
 			if TOTPManager.sharedInstance.entriesArray.count == 0 {
 				self.azureTableView.alpha = 0
 				self.placeholderLabel.alpha = 1
-				self.placeholderLabel.transform = CGAffineTransform(scaleX: 1, y: 1)
+				self.placeholderLabel.transform = .init(scaleX: 1, y: 1)
 			}
 			else {
 				self.azureTableView.alpha = 1
 				self.placeholderLabel.alpha = 0
-				self.placeholderLabel.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+				self.placeholderLabel.transform = .init(scaleX: 0.1, y: 0.1)
 			}
 		}, completion: nil)
 	}

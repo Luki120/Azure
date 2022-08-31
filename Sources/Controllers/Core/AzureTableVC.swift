@@ -29,7 +29,7 @@ final class AzureTableVC: UIViewController {
 	deinit { NotificationCenter.default.removeObserver(self) }
 
 	private func setupMainView() {
-		azureTableVCView = AzureTableVCView(withDataSource: self, tableViewDelegate: self, floatingButtonViewDelegate: self)
+		azureTableVCView = AzureTableVCView(dataSource: self, tableViewDelegate: self, floatingButtonViewDelegate: self)
 	}
 
 	private func setupObservers() {

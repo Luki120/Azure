@@ -33,7 +33,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 	}
 
 	private func unsafePortalDispatch() {
-		authManager.setupAuth(withReason: .kAzureUnlockAppOperation, reply: { success, error in
+		authManager.setupAuth(withReason: .kAzureReasonUnlockApp, reply: { success, error in
 			DispatchQueue.main.async {
 				let laError = error as? LAError
 				guard success && laError?.code != .passcodeNotSet else {
@@ -52,13 +52,24 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
 extension UIApplication {
 	override open var next: UIResponder? {
-		NotAuthenticatedVC.awake()
+		AwakeHelper.initialize()
 		return super.next
 	}
 }
 
-private protocol Awake: AnyObject {
+private protocol Awake {
 	static dynamic func awake()
+}
+
+private final class AwakeHelper {
+
+	private static let runOnce: Any? = {
+		NotAuthenticatedVC.awake()
+		return nil
+	}()
+
+	static func initialize() { _ = AwakeHelper.runOnce }
+
 }
 
 extension NotAuthenticatedVC: Awake {
@@ -74,7 +85,7 @@ extension NotAuthenticatedVC: Awake {
 		method_exchangeImplementations(origMethod, swizzledMethod)
 	}
 
-	@objc dynamic func azure_viewDidLoad() {
+	@objc dynamic private func azure_viewDidLoad() {
 		azure_viewDidLoad()
 
 		let quitButton = UIButton()
@@ -86,12 +97,10 @@ extension NotAuthenticatedVC: Awake {
 		quitButton.translatesAutoresizingMaskIntoConstraints = false
 		quitButton.setTitle("Quit", for: .normal)
 		quitButton.addTarget(self, action: #selector(didTapQuitButton), for: .touchUpInside)
-		view.addSubview(quitButton)
 
-		quitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-		quitButton.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-		quitButton.widthAnchor.constraint(equalToConstant: 120).isActive = true
-		quitButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+		view.addSubview(quitButton)
+		view.centerViewOnBothAxes(quitButton)
+		view.setupSizeConstraints(forView: quitButton, width: 120, height: 40)
 
 		UIView.animate(withDuration: 0.5, delay: 0.8, options: .curveEaseIn, animations: {
 			quitButton.alpha = 1

@@ -11,7 +11,6 @@ final class AzureToastView: UIView {
 		view.backgroundColor = .kAzureMintTintColor
 		view.layer.cornerCurve = .continuous
 		view.layer.cornerRadius = 20
-		view.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(view)
 		return view
 	}()
@@ -23,7 +22,6 @@ final class AzureToastView: UIView {
 		label.numberOfLines = 0
 		label.textAlignment = .center
 		label.adjustsFontSizeToFitWidth = true
-		label.translatesAutoresizingMaskIntoConstraints = false
 		toastView.addSubview(label)
 		return label
 	}()
@@ -39,16 +37,14 @@ final class AzureToastView: UIView {
 
 	private func setupToastView() {
 		translatesAutoresizingMaskIntoConstraints = false
-		NSLayoutConstraint.activate([
-			toastView.centerXAnchor.constraint(equalTo: centerXAnchor),
-			toastView.widthAnchor.constraint(equalToConstant: 120),
-			toastView.heightAnchor.constraint(equalToConstant: 40),
 
-			toastViewLabel.centerXAnchor.constraint(equalTo: toastView.centerXAnchor),
-			toastViewLabel.centerYAnchor.constraint(equalTo: toastView.centerYAnchor),
-			toastViewLabel.leadingAnchor.constraint(equalTo: toastView.leadingAnchor, constant: 10),
-			toastViewLabel.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -10)
-		])
+		setupSizeConstraints(forView: toastView, width: 120, height: 40)
+		toastView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+
+		centerViewOnBothAxes(toastViewLabel)
+		toastViewLabel.leadingAnchor.constraint(equalTo: toastView.leadingAnchor, constant: 10).isActive = true
+		toastViewLabel.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -10).isActive = true
+
 		let guide = safeAreaLayoutGuide	
 		bottomAnchorConstraint = toastView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: 50)
 		bottomAnchorConstraint?.isActive = true
