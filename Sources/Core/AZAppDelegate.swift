@@ -1,9 +1,10 @@
 import UIKit
+import LocalAuthentication
 import ObjectiveC.runtime
 
 
 @UIApplicationMain
-class AZAppDelegate: UIResponder, UIApplicationDelegate {
+final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
 	var strongWindow: UIWindow!
@@ -34,8 +35,8 @@ class AZAppDelegate: UIResponder, UIApplicationDelegate {
 	private func unsafePortalDispatch() {
 		authManager.setupAuth(withReason: .kAzureUnlockAppOperation, reply: { success, error in
 			DispatchQueue.main.async {
-				let nsError = error as? NSError ?? NSError()
-				guard success && nsError.code != -5 else {
+				let laError = error as? LAError
+				guard success && laError?.code != .passcodeNotSet else {
 					self.strongWindow.rootViewController = NotAuthenticatedVC()
 					return
 				}
