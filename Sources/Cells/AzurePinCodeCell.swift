@@ -15,7 +15,7 @@ final class AzurePinCodeCell: UITableViewCell {
 	private var buttonsStackView: UIStackView!
 	private var generator: TOTPGenerator?
 	private var circleProgressView: UIView!
-	private var duration = 0
+	private var duration = 30
 
 	private let π = Double.pi
 
@@ -118,11 +118,9 @@ final class AzurePinCodeCell: UITableViewCell {
 		circleProgressView.translatesAutoresizingMaskIntoConstraints = false
 		buttonsStackView.addArrangedSubview(circleProgressView)
 
-		duration = 30
-
 		let currentUNIXTimestampOffset = Int(ceil(Date().timeIntervalSince1970)) % 30
 		duration = 30 - currentUNIXTimestampOffset
-		let startingPoint = CGFloat(currentUNIXTimestampOffset / 30)
+		let startingPoint = CGFloat(currentUNIXTimestampOffset) / 30.0
 
 		let singleAnimation = setupAnimation(withDuration: CGFloat(duration), fromValue: startingPoint, repeatCount: 1)
 		singleAnimation.delegate = self
@@ -224,10 +222,10 @@ extension AzurePinCodeCell {
 
 	// ! Public
 
-	func setSecret(_ secret: String, withAlgorithm algorithm: String, allowingForTransition allows: Bool) {
+	func setSecret(_ secret: String, withAlgorithm algorithm: String, withTransition transition: Bool) {
  		let secretData = Data(NSData(base32String: secret))
 		generator = TOTPGenerator(secret: secretData, algorithm: algorithm, digits: 6, period: 30)
-		if(allows) { regeneratePIN() }
+		if(transition) { regeneratePIN() }
 		else { regeneratePINWithoutTransitions() }
 	}
 
