@@ -248,7 +248,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		cell.setSecret(
 			source.object(forKey: "Secret") as? String ?? "", 
 			withAlgorithm: source.object(forKey: "encryptionType") as? String ?? "",
-			allowingForTransition: false
+			withTransition: false
 		)
 
 	}
