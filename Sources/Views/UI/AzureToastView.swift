@@ -41,7 +41,7 @@ final class AzureToastView: UIView {
 		setupSizeConstraints(forView: toastView, width: 120, height: 40)
 		toastView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
 
-		centerViewOnBothAxes(toastViewLabel)
+		toastView.centerViewOnBothAxes(toastViewLabel)
 		toastViewLabel.leadingAnchor.constraint(equalTo: toastView.leadingAnchor, constant: 10).isActive = true
 		toastViewLabel.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -10).isActive = true
 
