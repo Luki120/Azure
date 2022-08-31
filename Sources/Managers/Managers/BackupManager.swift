@@ -23,22 +23,23 @@ final class BackupManager {
 	func makeDataOutOfJSON() {
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
-		let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL: kAzureJailedPathURL)
+		let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL)
 		let jsonArray = try! JSONSerialization.jsonObject(with: data ?? Data(), options: .mutableContainers) as? NSMutableArray ?? []
 		TOTPManager.sharedInstance.entriesArray = jsonArray
 		TOTPManager.sharedInstance.saveDefaults()
 	}
 
 	func makeJSONOutOfData() {
+
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
 				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)
 			}
 			createFile(atPath: .kAzurePath)
 		}
-		else { createFile(atPath: kAzureJailedPathURL.absoluteString) }
+		else { createFile(atPath: kAzureJailedPathURL.path) }
 
- 		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.absoluteString)
+ 		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.path)
 		fileHandle?.seekToEndOfFile()
 
 		let serializedData = try! JSONSerialization.data(withJSONObject: TOTPManager.sharedInstance.entriesArray ?? [])

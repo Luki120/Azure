@@ -114,11 +114,12 @@ final class AzureTableVC: UIViewController {
 		else {
 			modalSheetVC.shouldDismissVC()
 
-			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
 				let utType = [UTType.json]
 				let documentPickerVC = UIDocumentPickerViewController(forOpeningContentTypes: utType)
+				documentPickerVC.delegate = self
 				self.present(documentPickerVC, animated: true)
-			})
+			}
 		}
 	}
 
