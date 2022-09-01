@@ -18,19 +18,12 @@ final class TOTPManager {
 	}
 
 	private func setupImagesDict() {
-		imagesDict = [
-			"dashlane": UIImage(named: "Dashlane") ?? UIImage(),
-			"discord": UIImage(named: "Discord") ?? UIImage(),
-			"facebook": UIImage(named: "Facebook") ?? UIImage(),
-			"github": UIImage(named: "GitHub") ?? UIImage(),
-			"instagram": UIImage(named: "Instagram") ?? UIImage(),
-			"kraken": UIImage(named: "Kraken") ?? UIImage(),
-			"snapchat": UIImage(named: "Snapchat") ?? UIImage(),
-			"paypal": UIImage(named: "PayPal") ?? UIImage(),
-			"twitter": UIImage(named: "Twitter") ?? UIImage(),
-			"zoho": UIImage(named: "ZohoMail") ?? UIImage(),
-			"zohomail": UIImage(named: "ZohoMail") ?? UIImage()
-		]
+		let images = try? FileManager.default.contentsOfDirectory(atPath: Bundle.main.resourcePath ?? "/Applications/Azure.app/").filter { $0.hasSuffix("png") }
+
+		for img in images ?? [] {
+			let cleanImage = (img as NSString).deletingPathExtension
+			imagesDict.updateValue(UIImage(named: cleanImage) ?? UIImage(), forKey: cleanImage.lowercased())
+		}
 	}
 
 	func feedSelectedRow(withRow row: Int) {
