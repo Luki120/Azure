@@ -201,7 +201,7 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 	func pinCodeVCShouldPushAlgorithmVC() {
 		let algorithmVC = AlgorithmVC()
 		algorithmVC.title = "Algorithm"
-		present(algorithmVC, animated: true, completion: nil)
+		navVC.pushViewController(algorithmVC, animated: true)
 	}
 
 	func qrCodeVCDidCreateIssuerOutOfQRCode() {

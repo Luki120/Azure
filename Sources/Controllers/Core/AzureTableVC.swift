@@ -347,7 +347,7 @@ extension AzureTableVC: AzureFloatingButtonViewDelegate, ModalSheetVCDelegate, U
 			scaleAnimation: true
 		)
 		modalSheetVC.modalPresentationStyle = .overFullScreen
-		present(modalSheetVC, animated: true)
+		present(modalSheetVC, animated: false)
 	}
 
 	// ! ModalSheetVCDelegate
