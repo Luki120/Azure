@@ -82,10 +82,10 @@ final class AzurePinCodeCell: UITableViewCell {
 	}
 
  	private func initializeTimers() {
-		let timestamp = Int(ceil(Date().timeIntervalSince1970))
-		DispatchQueue.main.asyncAfter(deadline: .now() + Double(30 - timestamp % 30)) {
-			self.perform(#selector(self.startTimer), with: self, afterDelay: Double(30 - timestamp % 30))
-			Timer.scheduledTimer(timeInterval: Double(30 - timestamp % 30), target: self, selector: #selector(self.regeneratePIN), userInfo: nil, repeats: false)
+		let delay = TimeInterval(30 - Int(Date().timeIntervalSince1970) % 30)
+		DispatchQueue.main.async() {
+			self.perform(#selector(self.startTimer), with: self, afterDelay: delay)
+			Timer.scheduledTimer(timeInterval: delay, target: self, selector: #selector(self.regeneratePIN), userInfo: nil, repeats: false)
 		}
 	}
 
@@ -118,11 +118,11 @@ final class AzurePinCodeCell: UITableViewCell {
 		circleProgressView.translatesAutoresizingMaskIntoConstraints = false
 		buttonsStackView.addArrangedSubview(circleProgressView)
 
-		let currentUNIXTimestampOffset = Int(ceil(Date().timeIntervalSince1970)) % 30
-		duration = 30 - currentUNIXTimestampOffset
+		let currentUNIXTimestampOffset = Int(Date().timeIntervalSince1970) % 30
+		let duration = TimeInterval(30 - currentUNIXTimestampOffset)
 		let startingPoint = CGFloat(currentUNIXTimestampOffset) / 30.0
 
-		let singleAnimation = setupAnimation(withDuration: CGFloat(duration), fromValue: startingPoint, repeatCount: 1)
+		let singleAnimation = setupAnimation(withDuration: duration, fromValue: startingPoint, repeatCount: 1)
 		singleAnimation.delegate = self
 		circleLayer.add(singleAnimation, forKey: nil)
 	}
@@ -170,9 +170,8 @@ final class AzurePinCodeCell: UITableViewCell {
 	}
 
 	private func getLastUNIXTimestamp() -> Int {
-		var timestamp = Int(ceil(Date().timeIntervalSince1970))
-		if(timestamp % 30 != 0) { timestamp -= timestamp % 30 }
-		return timestamp
+		let timestamp = Int(Date().timeIntervalSince1970)
+		return timestamp - timestamp % 30
 	} 
 
  	private func regeneratePINWithoutTransitions() {
@@ -183,7 +182,7 @@ final class AzurePinCodeCell: UITableViewCell {
 	// ! Reusable
 
 	private func setupAnimation(
-		withDuration duration: CGFloat,
+		withDuration duration: TimeInterval,
 		fromValue value: CGFloat,
 		repeatCount: Float
 	) -> CABasicAnimation {
