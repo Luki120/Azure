@@ -24,7 +24,7 @@ final class BackupManager {
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
 		let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL)
-		let jsonArray = try! JSONSerialization.jsonObject(with: data ?? Data(), options: .mutableContainers) as? NSMutableArray ?? []
+		let jsonArray = try! JSONSerialization.jsonObject(with: data ?? Data(), options: .mutableContainers) as? [[String:String]] ?? []
 		TOTPManager.sharedInstance.entriesArray = jsonArray
 		TOTPManager.sharedInstance.saveDefaults()
 	}
@@ -41,7 +41,7 @@ final class BackupManager {
  		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.path)
 		fileHandle?.seekToEndOfFile()
 
-		let serializedData = try! JSONSerialization.data(withJSONObject: TOTPManager.sharedInstance.entriesArray ?? [])
+		let serializedData = try! JSONSerialization.data(withJSONObject: TOTPManager.sharedInstance.entriesArray)
 		fileHandle?.write(serializedData)
 		fileHandle?.closeFile()
 	}

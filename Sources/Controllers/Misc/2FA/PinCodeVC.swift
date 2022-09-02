@@ -70,8 +70,8 @@ final class PinCodeVC: UIViewController {
 			return
 		}
 		TOTPManager.sharedInstance.feedDictionary(
-			withObject: pinCodeVCView.issuerTextField.text ?? "",
-			andObject: pinCodeVCView.secretTextField.text ?? ""
+			withIssuer: pinCodeVCView.issuerTextField.text ?? "",
+			secret: pinCodeVCView.secretTextField.text ?? ""
 		)
 		delegate?.pinCodeVCShouldDismissVC()
 

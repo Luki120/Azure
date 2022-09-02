@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 final class AzureTableVC: UIViewController {
 
 	private var isFiltered = false
-	private var filteredArray: NSMutableArray!
+	private var filteredArray = [[String:String]]()
 	private var azureTableVCView: AzureTableVCView!
 	private var authManager: AuthManager!
 	private var backupManager: BackupManager!
@@ -192,13 +192,12 @@ extension AzureTableVC: UISearchControllerDelegate, UISearchResultsUpdating {
 		let textToSearch = string.trimmingCharacters(in: .whitespacesAndNewlines)
 		isFiltered = !textToSearch.isEmpty ? true : false
 
-		let results = TOTPManager.sharedInstance.entriesArray.filter { dict in
+		filteredArray = TOTPManager.sharedInstance.entriesArray.filter { dict in
 			if let issuer = (dict as AnyObject).object(forKey: "Issuer") as? String {
 				return issuer.range(of: textToSearch, options: .caseInsensitive) != nil
 			}
 			return false
 		}
-		filteredArray = NSMutableArray(array: results)
 	}
 
 }
@@ -239,7 +238,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	// ! UITableViewDataSource
 
 	private func setupDataSource(
-		forArray array: NSMutableArray,
+		forArray array: [[String:String]],
 		at indexPath: IndexPath,
 		forCell cell: AzurePinCodeCell
 	) {
@@ -298,7 +297,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 			let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
 
 			let confirmAction = UIAlertAction(title: "Yes", style: .default, handler: { _ in
-				TOTPManager.sharedInstance.removeObjectAtIndexPath(forRow: indexPath.row)
+				TOTPManager.sharedInstance.removeObject(at: indexPath)
 				self.azureTableVCView.azureTableView.deleteRows(at: [indexPath], with: .fade)
 
 				completion(true)
