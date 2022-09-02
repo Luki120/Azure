@@ -40,11 +40,23 @@ final class AzureRootVC: UITabBarController {
 
 	}
 
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+
+		guard UserDefaults.standard.object(forKey: "selectedIndex") != nil else { return }
+		selectedIndex = UserDefaults.standard.integer(forKey: "selectedIndex")
+	}
+
 }
 
 extension AzureRootVC: UITabBarControllerDelegate {
 
-	func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+	func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+		UserDefaults.standard.set(selectedIndex, forKey: "selectedIndex")
+	}
+
+ 	func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+
 		let tabViewControllers = tabBarController.viewControllers
 		let vcIndex = tabViewControllers?.firstIndex(of: viewController)
 
