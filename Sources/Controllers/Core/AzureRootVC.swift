@@ -56,7 +56,6 @@ extension AzureRootVC: UITabBarControllerDelegate {
 	}
 
  	func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
-
 		let tabViewControllers = tabBarController.viewControllers
 		let vcIndex = tabViewControllers?.firstIndex(of: viewController)
 
