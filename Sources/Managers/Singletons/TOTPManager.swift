@@ -6,14 +6,14 @@ final class TOTPManager {
 	static let sharedInstance = TOTPManager()
 
 	var selectedRow = 0
-	var entriesArray: NSMutableArray!
-	var imagesDict = [String: UIImage]()
+	var entriesArray = [[String:String]]()
+	var imagesDict = [String:UIImage]()
 
 	private var defaults = UserDefaults.standard
 
-	init() {
+	private init() {
 		selectedRow = defaults.integer(forKey: "selectedRow")
-		entriesArray = NSMutableArray(array: defaults.array(forKey: "entriesArray") ?? [])
+		entriesArray = defaults.array(forKey: "entriesArray") as? [[String:String]] ?? [[String:String]]()
 		setupImagesDict()
 	}
 
@@ -35,62 +35,59 @@ final class TOTPManager {
 		defaults.set(row, forKey: "selectedRow")
 	}
 
-	func feedDictionary(withObject obj: String, andObject: String) {
-		let issuersDict = NSMutableDictionary()
-		issuersDict.setObject(obj, forKey: "Issuer" as NSCopying)
-		issuersDict.setObject(andObject, forKey: "Secret" as NSCopying)
-		configureEncryptionType(forDict: issuersDict)
+	func feedDictionary(withIssuer issuer: String, secret: String) {
+		var dict = [
+			"Issuer": issuer,
+			"Secret": secret,
+		]
+		configureEncryptionType(forDict: &dict)
 
-		entriesArray.add(issuersDict)
+		entriesArray.append(dict)
 		saveDefaults()
 	}
 
-	func removeObjectAtIndexPath(forRow row: Int) {
-		entriesArray.removeObject(at: row)
+	func removeObject(at indexPath: IndexPath) {
+		entriesArray.remove(at: indexPath.row)
 		saveDefaults()
 	}
 
 	func removeAllObjectsFromArray() {
-		entriesArray.removeAllObjects()
+		entriesArray.removeAll()
 		saveDefaults()
 	}
 
-	func saveDefaults() {
-		defaults.set(entriesArray, forKey: "entriesArray")
-	}
+	func saveDefaults() { defaults.set(entriesArray, forKey: "entriesArray") }
 
-	private let issuerDict = NSMutableDictionary()
+	private var issuerDict = [String:String]()
 
 	func makeURL(outOfOtPauthString string: String) {
 		let unsafeUrl = URL(string: string)
-		guard let url = unsafeUrl else { return }
+		guard let safeUrl = unsafeUrl else { return }
 
-		let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+		let urlComponents = URLComponents(url: safeUrl, resolvingAgainstBaseURL: false)
 		let queryItems = urlComponents?.queryItems ?? []
 
 		for item in queryItems {
 			switch item.name {
-				case "issuer": issuerDict.setObject(item.value ?? "", forKey: "Issuer" as NSCopying)
-				case "secret": issuerDict.setObject(item.value ?? "", forKey: "Secret" as NSCopying)
-				case "algorithm": issuerDict.setObject(item.value ?? "", forKey: "encryptionType" as NSCopying)
+				case "issuer": issuerDict["Issuer"] = item.value
+				case "secret": issuerDict["Secret"] = item.value
+				case "algorithm": issuerDict["encryptionType"] = item.value
 				default: break
 			}
- 			if item.name.range(of: "algorithm") != nil && item.name.range(of: "issuer") != nil {
+  			if item.name.range(of: "algorithm") != nil {
 				finished()
-				break
+				return
 			}
 			else {
-				if item.name.range(of: "algorithm") == nil {
-					issuerDict.setObject(kOTPGeneratorSHA1Algorithm, forKey: "encryptionType" as NSCopying)
+ 				if item.name.range(of: "algorithm") == nil {
+					issuerDict["encryptionType"] = kOTPGeneratorSHA1Algorithm
 				}
  				if item.name.range(of: "issuer") == nil {
 					let scanner = Scanner(string: string)
 					scanner.charactersToBeSkipped = CharacterSet(charactersIn: "")
 					_ = scanner.scanUpToString("/totp/")
 					if let _ = scanner.scanString("/totp/") {
-						if let result = scanner.scanUpToString("?") {
-							issuerDict.setObject(result, forKey: "Issuer" as NSCopying)
-						}
+						if let result = scanner.scanUpToString("?") { issuerDict["Issuer"] = result }
 					}
 				}
 			}
@@ -99,15 +96,15 @@ final class TOTPManager {
 	}
 
 	private func finished() {
-		entriesArray.add(issuerDict)
+		entriesArray.append(issuerDict)
 		saveDefaults()
 	}
 
-	private func configureEncryptionType(forDict dict: NSMutableDictionary) {
+	private func configureEncryptionType(forDict dict: inout [String:String]) {
 		switch selectedRow {
-			case 0: dict.setObject(kOTPGeneratorSHA1Algorithm, forKey: "encryptionType" as NSCopying)
-			case 1: dict.setObject(kOTPGeneratorSHA256Algorithm, forKey: "encryptionType" as NSCopying)
-			case 2: dict.setObject(kOTPGeneratorSHA512Algorithm, forKey: "encryptionType" as NSCopying)
+			case 0: dict["encryptionType"] = kOTPGeneratorSHA1Algorithm
+			case 1: dict["encryptionType"] = kOTPGeneratorSHA256Algorithm
+			case 2: dict["encryptionType"] = kOTPGeneratorSHA512Algorithm
 			default: break
 		}
 	}
