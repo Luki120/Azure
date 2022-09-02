@@ -61,8 +61,7 @@ final class TOTPManager {
 	private var issuerDict = [String:String]()
 
 	func makeURL(outOfOtPauthString string: String) {
-		let unsafeUrl = URL(string: string)
-		guard let safeUrl = unsafeUrl else { return }
+		guard let safeUrl = URL(string: string) else { return }
 
 		let urlComponents = URLComponents(url: safeUrl, resolvingAgainstBaseURL: false)
 		let queryItems = urlComponents?.queryItems ?? []
@@ -74,19 +73,17 @@ final class TOTPManager {
 				case "algorithm": issuerDict["encryptionType"] = item.value
 				default: break
 			}
-  			if item.name.range(of: "algorithm") != nil {
-				finished()
-				return
-			}
-			else {
- 				if item.name.range(of: "algorithm") == nil {
-					issuerDict["encryptionType"] = kOTPGeneratorSHA1Algorithm
-				}
- 				if item.name.range(of: "issuer") == nil {
-					let scanner = Scanner(string: string)
-					scanner.charactersToBeSkipped = CharacterSet(charactersIn: "")
-					_ = scanner.scanUpToString("/totp/")
-					if let _ = scanner.scanString("/totp/") {
+		}
+		if issuerDict.keys.contains("Issuer") && issuerDict.keys.contains("encryptionType") {
+			finished()
+			return
+		}
+		else {
+			if issuerDict["encryptionType"] == nil { issuerDict["encryptionType"] = kOTPGeneratorSHA1Algorithm }
+			if issuerDict["Issuer"] == nil {
+				let scanner = Scanner(string: string)
+				if scanner.scanUpToString("/totp/") != nil {
+					if scanner.scanString("/totp/") != nil {
 						if let result = scanner.scanUpToString("?") { issuerDict["Issuer"] = result }
 					}
 				}
