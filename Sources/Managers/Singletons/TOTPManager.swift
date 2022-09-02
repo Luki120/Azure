@@ -21,7 +21,11 @@ final class TOTPManager {
 		let images = try? FileManager.default.contentsOfDirectory(atPath: Bundle.main.resourcePath ?? "/Applications/Azure.app/").filter { $0.hasSuffix("png") }
 
 		for img in images ?? [] {
-			let cleanImage = (img as NSString).deletingPathExtension
+			var components = img.components(separatedBy: ".")
+			guard components.count > 1 else { return }
+			components.removeLast()
+
+			let cleanImage = components.joined(separator: ".")
 			imagesDict.updateValue(UIImage(named: cleanImage) ?? UIImage(), forKey: cleanImage.lowercased())
 		}
 	}
