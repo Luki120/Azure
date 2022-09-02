@@ -276,7 +276,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		cell.issuerImageView.tintColor = image != nil ? nil : .kAzureMintTintColor
 
 		let defaults = UserDefaults.standard
-		if(defaults.bool(forKey: "copySecretPopoverView")) { return cell }
+		if defaults.bool(forKey: "copySecretPopoverView") { return cell }
 		initPopoverVC(withSourceView: cell)
 		defaults.set(true, forKey: "copySecretPopoverView")
 
