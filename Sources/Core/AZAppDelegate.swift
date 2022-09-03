@@ -26,8 +26,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 		else { window?.rootViewController = AzureRootVC() }
 
 		UINavigationBar.appearance().shadowImage = UIImage()
-		UINavigationBar.appearance().isTranslucent = false
-		UINavigationBar.appearance().barTintColor = .systemBackground
+		UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
 
 		return true
 	}
@@ -94,7 +93,6 @@ extension NotAuthenticatedVC: Awake {
 		quitButton.backgroundColor = .kAzureMintTintColor
 		quitButton.layer.cornerCurve = .continuous
 		quitButton.layer.cornerRadius = 20
-		quitButton.translatesAutoresizingMaskIntoConstraints = false
 		quitButton.setTitle("Quit", for: .normal)
 		quitButton.addTarget(self, action: #selector(didTapQuitButton), for: .touchUpInside)
 
