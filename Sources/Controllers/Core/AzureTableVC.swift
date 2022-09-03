@@ -192,11 +192,9 @@ extension AzureTableVC: UISearchControllerDelegate, UISearchResultsUpdating {
 		let textToSearch = string.trimmingCharacters(in: .whitespacesAndNewlines)
 		isFiltered = !textToSearch.isEmpty ? true : false
 
-		filteredArray = TOTPManager.sharedInstance.entriesArray.filter { dict in
-			if let issuer = (dict as AnyObject).object(forKey: "Issuer") as? String {
-				return issuer.range(of: textToSearch, options: .caseInsensitive) != nil
-			}
-			return false
+		filteredArray = TOTPManager.sharedInstance.entriesArray.filter {
+			let issuer = $0["Issuer"]
+			return issuer?.range(of: textToSearch, options: .caseInsensitive) != nil
 		}
 	}
 
