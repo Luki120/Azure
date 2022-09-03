@@ -40,7 +40,7 @@ final class AzureTableVC: UIViewController {
 	private func setupSearchController() {
 		let searchC = UISearchController()
 		searchC.searchResultsUpdater = self
-		searchC.obscuresBackgroundDuringPresentation = true
+		searchC.obscuresBackgroundDuringPresentation = false
 
 		definesPresentationContext = true
 		extendedLayoutIncludesOpaqueBars = true
