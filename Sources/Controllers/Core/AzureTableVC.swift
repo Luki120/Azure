@@ -42,8 +42,6 @@ final class AzureTableVC: UIViewController {
 		searchC.searchResultsUpdater = self
 		searchC.obscuresBackgroundDuringPresentation = false
 
-		definesPresentationContext = true
-		extendedLayoutIncludesOpaqueBars = true
 		navigationItem.searchController = searchC
 	}
 
