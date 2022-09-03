@@ -12,14 +12,6 @@ final class BackupManager {
 		kAzureJailedPathURL = kDocumentsPathURL.appendingPathComponent("AzureBackup.json")
 	}
 
-	func isJailbroken() -> Bool {
-		if fileM.fileExists(atPath: .kCheckra1n)
-			|| fileM.fileExists(atPath: .kTaurine)
-			|| fileM.fileExists(atPath: .kUnc0ver) { return true }
-
-		return false
-	}
-
 	func makeDataOutOfJSON() {
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 

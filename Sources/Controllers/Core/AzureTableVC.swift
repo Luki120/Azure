@@ -101,7 +101,7 @@ final class AzureTableVC: UIViewController {
 	// ! ModalSheetVC
 
 	@objc private func didTapLoadBackupButton() {
-		if backupManager.isJailbroken() {
+		if isJailbroken() {
 			backupManager.makeDataOutOfJSON()
 			UIView.transition(with: view, duration: 0.5, animations: {
 				self.azureTableVCView.azureTableView.reloadData()
@@ -122,7 +122,7 @@ final class AzureTableVC: UIViewController {
 	}
 
 	@objc private func didTapMakeBackupButton() {
-		let subtitle = "Do you want to view your backup in \(backupManager.isJailbroken() ? "Filza" : "Files") now?"
+		let subtitle = "Do you want to view your backup in \(isJailbroken() ? "Filza" : "Files") now?"
 
 		backupManager.makeJSONOutOfData()
 		modalSheetVC.shouldCrossDissolveChildSubviews()
@@ -146,7 +146,7 @@ final class AzureTableVC: UIViewController {
 		let pathToFilza = "filza://view" + .kAzurePath
 		let pathToFiles = "shareddocuments://"
 
-		let urlString = backupManager.isJailbroken() ? pathToFilza : pathToFiles
+		let urlString = isJailbroken() ? pathToFilza : pathToFiles
 		guard let backupURLPath = URL(string: urlString) else { return }
 		UIApplication.shared.open(backupURLPath)
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.8, execute: {

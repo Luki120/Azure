@@ -118,3 +118,12 @@ extension UIView {
 	}
 
 }
+
+func isJailbroken() -> Bool {
+	let fileM = FileManager.default
+	if fileM.fileExists(atPath: .kCheckra1n)
+		|| fileM.fileExists(atPath: .kTaurine)
+		|| fileM.fileExists(atPath: .kUnc0ver) { return true }
+
+	return false
+}
