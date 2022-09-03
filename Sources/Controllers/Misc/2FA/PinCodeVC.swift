@@ -21,7 +21,6 @@ final class PinCodeVC: UIViewController {
 		super.init(nibName: nil, bundle: nil)
 		algorithmVC.delegate = self
 		setupMainView()
-		pinCodeVCView.pinCodesTableView.register(UITableViewCell.self, forCellReuseIdentifier: "VanillaCell")
 
 		NotificationCenter.default.addObserver(self, selector: #selector(shouldSaveData), name: Notification.Name("checkIfDataShouldBeSaved"), object: nil)
 	}
@@ -91,6 +90,7 @@ extension PinCodeVC: UITableViewDataSource, UITableViewDelegate {
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return 3
 	}
+
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "VanillaCell", for: indexPath)
 		cell.backgroundColor = .clear
@@ -104,10 +104,11 @@ extension PinCodeVC: UITableViewDataSource, UITableViewDelegate {
 				pinCodeVCView.configureConstraints(forStackView: pinCodeVCView.secretHashStackView, forTextField: pinCodeVCView.secretTextField, forCell: cell)
 			case 2:
 				cell.accessoryType = .disclosureIndicator
-				cell.textLabel?.font = .systemFont(ofSize: 14)
-				cell.textLabel?.text = "Algorithm"
 
+				cell.contentView.addSubview(pinCodeVCView.algorithmTitleLabel)
 				cell.contentView.addSubview(pinCodeVCView.algorithmLabel)
+				pinCodeVCView.algorithmTitleLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 15).isActive = true
+				pinCodeVCView.algorithmTitleLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
 				pinCodeVCView.algorithmLabel.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -20).isActive = true
 				pinCodeVCView.algorithmLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
 			default: break
@@ -115,6 +116,7 @@ extension PinCodeVC: UITableViewDataSource, UITableViewDelegate {
 
 		return cell
 	}
+
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
 		guard indexPath.row == 2 else { return }

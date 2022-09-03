@@ -30,6 +30,8 @@ final class AzureTableVCView: UIView {
 		azureTableView.dataSource = dataSource
 		azureTableView.delegate = tableViewDelegate
 		azureFloatingButtonView.delegate = floatingButtonViewDelegate
+
+		azureTableView.register(AzurePinCodeCell.self, forCellReuseIdentifier: .kIdentifier)
 	}
 
 	required init?(coder aDecoder: NSCoder) {

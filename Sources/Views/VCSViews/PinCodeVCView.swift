@@ -5,6 +5,7 @@ final class PinCodeVCView: UIView {
 
 	var issuerStackView: UIStackView!
 	var secretHashStackView: UIStackView!
+	var algorithmTitleLabel: UILabel!
 	var algorithmLabel: UILabel!
 	var issuerTextField: UITextField!
 	var secretTextField: UITextField!
@@ -19,6 +20,7 @@ final class PinCodeVCView: UIView {
 		setupUI()
 		pinCodesTableView.dataSource = dataSource
 		pinCodesTableView.delegate = tableViewDelegate
+		pinCodesTableView.register(UITableViewCell.self, forCellReuseIdentifier: "VanillaCell")
 	}
 
 	required init?(coder aDecoder: NSCoder) {
@@ -32,14 +34,17 @@ final class PinCodeVCView: UIView {
 
 	private func setupUI() {
 		pinCodesTableView = UITableView(frame: .zero, style: .grouped)
+		pinCodesTableView.isScrollEnabled = false
 		pinCodesTableView.backgroundColor = .systemBackground
 		addSubview(pinCodesTableView)
 
 		issuerStackView = setupStackView()
 		secretHashStackView = setupStackView()
 
-		issuerLabel = createLabel(withText: "Issuer", textColor: .label)
+		issuerLabel = createLabel(withText: "Issuer:", textColor: .label)
 		secretLabel = createLabel(withText: "Secret hash:", textColor: .label)
+		algorithmTitleLabel = createLabel(withText: "Algorithm", textColor: .label)
+		algorithmTitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
 		issuerTextField = createTextField(withPlaceholder: "For example: GitHub", keyType: .next)
 		secretTextField = createTextField(withPlaceholder: "Enter secret", keyType: .default)

@@ -7,8 +7,8 @@ final class AzureTableVC: UIViewController {
 	private var isFiltered = false
 	private var filteredArray = [[String:String]]()
 	private var azureTableVCView: AzureTableVCView!
-	private var authManager: AuthManager!
-	private var backupManager: BackupManager!
+	private var authManager = AuthManager()
+	private var backupManager = BackupManager()
 	private var modalSheetVC: ModalSheetVC!
 
 	init() {
@@ -16,10 +16,6 @@ final class AzureTableVC: UIViewController {
 		setupMainView()
 		setupObservers()
 		setupSearchController()
-
-		authManager = AuthManager()
-		backupManager = BackupManager()
-		azureTableVCView.azureTableView.register(AzurePinCodeCell.self, forCellReuseIdentifier: .kIdentifier)
 	}
 
 	required init?(coder aDecoder: NSCoder) {
