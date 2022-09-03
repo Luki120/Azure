@@ -38,12 +38,12 @@ final class AzureTableVCView: UIView {
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		pinViewToAllEdgesIncludingSafeAreas(azureTableView, bottomConstant: -50)
-		pinAzureToastToTheBottomCenteredOnTheXAxis(azureToastView, bottomConstant: -55)
+		pinViewToAllEdgesIncludingSafeAreas(azureTableView, bottomConstant: 0)
+		pinAzureToastToTheBottomCenteredOnTheXAxis(azureToastView, bottomConstant: -5)
 
 		let guide = safeAreaLayoutGuide
 
-		azureFloatingButtonView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -74).isActive = true
+		azureFloatingButtonView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -25).isActive = true
 		azureFloatingButtonView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25).isActive = true
 		setupSizeConstraints(forView: azureFloatingButtonView, width: 60, height: 60)
 
