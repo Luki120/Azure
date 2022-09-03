@@ -242,12 +242,11 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		at indexPath: IndexPath,
 		forCell cell: AzurePinCodeCell
 	) {
-		let source = array[indexPath.row] as AnyObject
-		cell.issuer = source.object(forKey: "Issuer") as? String ?? ""
-		cell.hashString = source.object(forKey: "Secret") as? String ?? ""
+		cell.issuer = array[indexPath.row]["Issuer"] ?? ""
+		cell.hashString = array[indexPath.row]["Secret"] ?? ""
 		cell.setSecret(
-			source.object(forKey: "Secret") as? String ?? "", 
-			withAlgorithm: source.object(forKey: "encryptionType") as? String ?? "",
+			array[indexPath.row]["Secret"] ?? "",
+			withAlgorithm: array[indexPath.row]["encryptionType"] ?? "",
 			withTransition: false
 		)
 
@@ -264,6 +263,12 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		}
 		cell.delegate = self
 		cell.backgroundColor = .clear
+
+/* 		let sortedArray = TOTPManager.sharedInstance.entriesArray.sorted(by: {
+			$0["Issuer"] ?? "" < $1["Issuer"] ?? ""
+		})
+		TOTPManager.sharedInstance.entriesArray = sortedArray */
+
 		if isFiltered { setupDataSource(forArray: filteredArray, at: indexPath, forCell: cell) }
 		else {
 			setupDataSource(forArray: TOTPManager.sharedInstance.entriesArray, at: indexPath, forCell: cell)
@@ -291,8 +296,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 		let action = UIContextualAction(style: .destructive, title: "Delete", handler: { _, _, completion in
-			let source = TOTPManager.sharedInstance.entriesArray[indexPath.row] as AnyObject
-			let issuerName = source.object(forKey: "Issuer") as? String ?? ""
+			let issuerName = TOTPManager.sharedInstance.entriesArray[indexPath.row]["Issuer"] ?? ""
 			let message = "You're about to delete the code for the issuer named \(issuerName) ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to."
 			let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
 
