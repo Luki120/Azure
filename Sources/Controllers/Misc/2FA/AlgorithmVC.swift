@@ -14,6 +14,7 @@ final class AlgorithmVC: UITableViewController {
 
 	init() {
 		super.init(style: .grouped)
+		tableView.isScrollEnabled = false
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "VanillaCell")
 	}
 
