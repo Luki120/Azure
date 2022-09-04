@@ -1,8 +1,6 @@
 # Azure
 
-* [Insert ss here]
-
-* A vanilla TOTP (also known as 2FA) app, yet FOSS with a clean, elegant, straightforward UI.
+<img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Azure/AzureHome.jpeg" width="300"> &nbsp; <img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Azure/AzureSettings.jpeg" width="300">
 
 ## Features
 
@@ -15,19 +13,14 @@
 * **NO** phone number required.
 * Pleasant, clean UIKit animations.
 * Purge all data.
+* Rearrangeable issuers.
 
 ## To do
 
-* - [x] Bottom sheet menu when tapping the floating button with options to either import a QR code, scan one or enter the hash manually.
-* - [x] Identify most common issuers with their respective app logo.
-* - [x] IPA support.
-* - [x] Credits and license stuff in the app itself.
-* - [x] More UIKit animations.
-* - [x] Placeholder UI for main table view when no issuers were added yet.
-* - [x] Replace stock iOS alert when trying to create a new issuer without filling all blanks with Azure's toast view.
-* - [x] Search bar in main view controller.
-* - [x] Support for different SHA hashing encryption methods.
-* - [x] UI color scheme overhaul/redesign.
+* - [ ] App icon.
+* - [ ] Fix CoreAnimation bug.
+* - [ ] Group issuers into different sections.
+* - [ ] "No search results were found" label.
 
 ## Socials
 
@@ -48,7 +41,7 @@
 
 ## LICENSE
 
-* [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
+* [GNU General Public License 2.0](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
 
 ## Assets LICENSE
 
