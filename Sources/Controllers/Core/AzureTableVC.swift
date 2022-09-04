@@ -66,7 +66,7 @@ final class AzureTableVC: UIViewController {
 	}
 
 	private func updateSortButtonState() {
-		navigationItem.rightBarButtonItem?.isEnabled = TOTPManager.sharedInstance.entriesArray.count > 1
+		navigationItem.rightBarButtonItem?.isEnabled = TOTPManager.sharedInstance.entriesArray.count > 0
 	}
 
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -305,7 +305,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		tableView.deselectRow(at: indexPath, animated: true)
 	}
 
- 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 		let action = UIContextualAction(style: .destructive, title: "Delete", handler: { _, _, completion in
 			let issuerName = TOTPManager.sharedInstance.entriesArray[indexPath.row]["Issuer"] ?? ""
 			let message = "You're about to delete the code for the issuer named \(issuerName) ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to."
