@@ -46,6 +46,27 @@ final class AzureTableVC: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
+
+		let pencilImage = UIImage(systemName: "pencil.and.outline", withConfiguration: UIImage.SymbolConfiguration(weight: .bold))
+
+		let sortButtonItem = UIBarButtonItem(
+			image: pencilImage,
+			style: .plain,
+			target: self,
+			action: #selector(didTapSortButton)
+		)
+		navigationItem.rightBarButtonItem = sortButtonItem
+	}
+
+	@objc private func didTapSortButton() {
+		if azureTableVCView.azureTableView.isEditing {
+			azureTableVCView.azureTableView.setEditing(false, animated: true)
+		}
+		else { azureTableVCView.azureTableView.setEditing(true, animated: true) }
+	}
+
+	private func updateSortButtonState() {
+		navigationItem.rightBarButtonItem?.isEnabled = TOTPManager.sharedInstance.entriesArray.count > 1
 	}
 
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -60,6 +81,7 @@ final class AzureTableVC: UIViewController {
 	@objc private func purgeData() {
 		TOTPManager.sharedInstance.removeAllObjectsFromArray()
 		azureTableVCView.azureTableView.reloadData()
+		updateSortButtonState()
 	}
 
 	@objc private func shouldMakeBackup() {
@@ -256,11 +278,6 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		cell.delegate = self
 		cell.backgroundColor = .clear
 
-/* 		let sortedArray = TOTPManager.sharedInstance.entriesArray.sorted(by: {
-			$0["Issuer"] ?? "" < $1["Issuer"] ?? ""
-		})
-		TOTPManager.sharedInstance.entriesArray = sortedArray */
-
 		if isFiltered { setupDataSource(forArray: filteredArray, at: indexPath, forCell: cell) }
 		else {
 			setupDataSource(forArray: TOTPManager.sharedInstance.entriesArray, at: indexPath, forCell: cell)
@@ -270,6 +287,8 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		let placeholderImage = UIImage(named: "lock")?.withRenderingMode(.alwaysTemplate)
 		cell.issuerImageView.image = image != nil ? resizedImage : placeholderImage
 		cell.issuerImageView.tintColor = image != nil ? nil : .kAzureMintTintColor
+
+		updateSortButtonState()
 
 		let defaults = UserDefaults.standard
 		if defaults.bool(forKey: "copySecretPopoverView") { return cell }
@@ -286,7 +305,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		tableView.deselectRow(at: indexPath, animated: true)
 	}
 
-	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+ 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 		let action = UIContextualAction(style: .destructive, title: "Delete", handler: { _, _, completion in
 			let issuerName = TOTPManager.sharedInstance.entriesArray[indexPath.row]["Issuer"] ?? ""
 			let message = "You're about to delete the code for the issuer named \(issuerName) ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to."
@@ -295,6 +314,8 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 			let confirmAction = UIAlertAction(title: "Yes", style: .default, handler: { _ in
 				TOTPManager.sharedInstance.removeObject(at: indexPath)
 				self.azureTableVCView.azureTableView.deleteRows(at: [indexPath], with: .fade)
+
+				self.updateSortButtonState()
 
 				completion(true)
 			})
@@ -313,8 +334,14 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		return actions
 	}
 
-}
+	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+		let entriesArray = TOTPManager.sharedInstance.entriesArray[sourceIndexPath.row]
+		TOTPManager.sharedInstance.entriesArray.remove(at: sourceIndexPath.row)
+		TOTPManager.sharedInstance.entriesArray.insert(entriesArray, at: destinationIndexPath.row)
+		TOTPManager.sharedInstance.saveDefaults()
+	}
 
+}
 
 extension AzureTableVC: AzureFloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumentPickerDelegate, UIPopoverPresentationControllerDelegate {
 
