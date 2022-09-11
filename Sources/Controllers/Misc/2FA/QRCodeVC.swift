@@ -7,18 +7,28 @@ protocol QRCodeVCDelegate: AnyObject {
 }
 
 final class QRCodeVC: UIViewController {
-	var audioPlayer: AVAudioPlayer!
-	var captureSession: AVCaptureSession!
-	var captureVideoPreviewLayer: AVCaptureVideoPreviewLayer!
-	var azToastView: AzureToastView!
+
+	private let azToastView = AzureToastView()
+	private let captureSession = AVCaptureSession()
+	private var captureVideoPreviewLayer: AVCaptureVideoPreviewLayer!
 
 	weak var delegate: QRCodeVCDelegate?
+
+	private lazy var squareView: UIView = {
+		let view = UIView()
+		view.frame = CGRect(x: 0, y: 0, width: 180, height: 180)
+		view.center = self.view.center
+		view.layer.borderColor = UIColor.white.cgColor
+		view.layer.borderWidth = 2
+		view.layer.cornerCurve = .continuous
+		view.layer.cornerRadius = 20
+		self.view.addSubview(view)
+		return view
+	}()
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
-
-		azToastView = AzureToastView()
 		view.addSubview(azToastView)
 
 		checkAuthorizationStatus()
@@ -59,7 +69,6 @@ final class QRCodeVC: UIViewController {
 	}
 
 	private func setupScanner() {
-		captureSession = AVCaptureSession()
 		guard let captureDevice = AVCaptureDevice.default(for: .video) else { return }
 		guard let input = try? AVCaptureDeviceInput(device: captureDevice) else { return }
 
@@ -73,7 +82,10 @@ final class QRCodeVC: UIViewController {
 		captureVideoPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
 		captureVideoPreviewLayer.frame = view.layer.bounds
 		captureVideoPreviewLayer.videoGravity = .resizeAspectFill
-		view.layer.addSublayer(captureVideoPreviewLayer)
+		view.layer.insertSublayer(captureVideoPreviewLayer, at: 0)
+
+ 		let layerRect = squareView.frame
+		captureMetadataOutput.rectOfInterest = captureVideoPreviewLayer.metadataOutputRectConverted(fromLayerRect: layerRect)
 
 		captureSession.startRunning()
 	}
