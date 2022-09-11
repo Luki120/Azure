@@ -16,8 +16,6 @@ final class QRCodeVC: UIViewController {
 
 	private lazy var squareView: UIView = {
 		let view = UIView()
-		view.frame = CGRect(x: 0, y: 0, width: 180, height: 180)
-		view.center = self.view.center
 		view.layer.borderColor = UIColor.white.cgColor
 		view.layer.borderWidth = 2
 		view.layer.cornerCurve = .continuous
@@ -47,6 +45,8 @@ final class QRCodeVC: UIViewController {
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		view.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -15)
+		view.centerViewOnBothAxes(squareView)
+		view.setupSizeConstraints(forView: squareView, width: 180, height: 180)
 	}
 
 	private func checkAuthorizationStatus() {
@@ -83,6 +83,7 @@ final class QRCodeVC: UIViewController {
 		captureVideoPreviewLayer.frame = view.layer.bounds
 		captureVideoPreviewLayer.videoGravity = .resizeAspectFill
 		view.layer.insertSublayer(captureVideoPreviewLayer, at: 0)
+		view.layoutIfNeeded()
 
  		let layerRect = squareView.frame
 		captureMetadataOutput.rectOfInterest = captureVideoPreviewLayer.metadataOutputRectConverted(fromLayerRect: layerRect)
