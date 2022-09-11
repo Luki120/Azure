@@ -9,6 +9,7 @@ protocol QRCodeVCDelegate: AnyObject {
 final class QRCodeVC: UIViewController {
 
 	private let azToastView = AzureToastView()
+	private let gradientLayer = CAGradientLayer()
 	private let captureSession = AVCaptureSession()
 	private var captureVideoPreviewLayer: AVCaptureVideoPreviewLayer!
 
@@ -29,6 +30,7 @@ final class QRCodeVC: UIViewController {
 		view.backgroundColor = .systemBackground
 		view.addSubview(azToastView)
 
+		setupGradientLayer()
 		checkAuthorizationStatus()
 	}
 
@@ -47,6 +49,12 @@ final class QRCodeVC: UIViewController {
 		view.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -15)
 		view.centerViewOnBothAxes(squareView)
 		view.setupSizeConstraints(forView: squareView, width: 180, height: 180)
+	}
+
+	private func setupGradientLayer() {
+		gradientLayer.colors = [UIColor.blue.withAlphaComponent(0), UIColor.blue]
+		gradientLayer.frame = CGRect(x: 0, y: 0, width: 180, height: 15)
+		gradientLayer.opacity = 0.4
 	}
 
 	private func checkAuthorizationStatus() {
@@ -83,6 +91,7 @@ final class QRCodeVC: UIViewController {
 		captureVideoPreviewLayer.frame = view.layer.bounds
 		captureVideoPreviewLayer.videoGravity = .resizeAspectFill
 		view.layer.insertSublayer(captureVideoPreviewLayer, at: 0)
+		squareView.layer.insertSublayer(gradientLayer, at: 0)
 		view.layoutIfNeeded()
 
  		let layerRect = squareView.frame
