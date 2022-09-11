@@ -83,7 +83,7 @@ extension UIView {
 		])
 	}
 
-	func pinViewToAllEdgesIncludingSafeAreas(_ view: UIView, bottomConstant: CGFloat) {
+	func pinViewToAllEdgesIncludingSafeAreas(_ view: UIView, bottomConstant: CGFloat = 0) {
 		view.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
 			view.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),

@@ -40,7 +40,7 @@ final class AzureTableVCView: UIView {
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		pinViewToAllEdgesIncludingSafeAreas(azureTableView, bottomConstant: 0)
+		pinViewToAllEdgesIncludingSafeAreas(azureTableView)
 		pinAzureToastToTheBottomCenteredOnTheXAxis(azureToastView, bottomConstant: -5)
 
 		let guide = safeAreaLayoutGuide
