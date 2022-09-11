@@ -1,4 +1,5 @@
 import UIKit
+import PhotosUI
 
 
 protocol ModalSheetVCDelegate: AnyObject {
@@ -139,10 +140,12 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 	}
 
 	@objc func modalChildViewDidTapImportQRImageButton() {
-		let imagePickerVC = UIImagePickerController()
-		imagePickerVC.delegate = self
-		imagePickerVC.sourceType = .photoLibrary
-		present(imagePickerVC, animated: true, completion: nil)
+		var configuration = PHPickerConfiguration()
+		configuration.filter = PHPickerFilter.images
+
+		let phPickerVC = PHPickerViewController(configuration: configuration)
+		phPickerVC.delegate = self
+		present(phPickerVC, animated: true, completion: nil)
 	}
 
 	@objc func modalChildViewDidTapEnterManuallyButton() {
@@ -217,23 +220,27 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 
 }
 
-extension ModalSheetVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension ModalSheetVC: PHPickerViewControllerDelegate {
 
-	func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-		guard let image = info[.originalImage] as? UIImage else { return }
-		let ciImage = CIImage(image: image)
-		let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
-		let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options)
+	func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+		for result in results {
+			result.itemProvider.loadObject(ofClass: UIImage.self, completionHandler: { object, error in
+				guard let image = object as? UIImage, error == nil else { return }
+				DispatchQueue.main.async {
+					let ciImage = CIImage(image: image)
+					let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+					let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options)
 
-		let features = detector?.features(in: ciImage ?? CIImage()) as? [CIQRCodeFeature] ?? []
+					let features = detector?.features(in: ciImage ?? CIImage()) as? [CIQRCodeFeature] ?? []
 
-		for feature in features {
-			TOTPManager.sharedInstance.makeURL(outOfOtPauthString: feature.messageString ?? "")
-			delegate?.modalSheetVCShouldReloadData()
+					for feature in features {
+						TOTPManager.sharedInstance.makeURL(outOfOtPauthString: feature.messageString ?? "")
+						self.delegate?.modalSheetVCShouldReloadData()
+					}
+				}
+			})
 		}
 		dismissVC()
 	}
-
-	func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { dismissVC() }
 
 }
