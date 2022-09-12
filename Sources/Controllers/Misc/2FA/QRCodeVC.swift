@@ -6,31 +6,75 @@ protocol QRCodeVCDelegate: AnyObject {
 	func qrCodeVCDidCreateIssuerOutOfQRCode()
 }
 
+// Slightly modified from -> https://github.com/mattrubin/Authenticator/blob/develop/Authenticator/Source/ScannerOverlayView.swift
+
+private final class DimmedView: UIView {
+
+	private var gradientFrame: CGRect!
+
+	override init(frame: CGRect) {
+		super.init(frame: frame)
+		isOpaque = false
+	}
+
+	required init?(coder aDecoder: NSCoder) {
+		super.init(coder: aDecoder)
+	}
+
+	override func draw(_ rect: CGRect) {
+		guard let context = UIGraphicsGetCurrentContext() else { return }
+		UIColor.black.withAlphaComponent(0.5).setFill()
+		UIColor.white.setStroke()
+
+		gradientFrame = CGRect(
+			x: windowWithCoordinates(fromRect: rect).origin.x,
+			y: windowWithCoordinates(fromRect: rect).origin.y,
+			width: windowWithCoordinates(fromRect: rect).size.width, 
+			height: 15
+		)
+		setupGradientLayer()
+
+		context.fill(rect)
+		context.clear(windowWithCoordinates(fromRect: rect))
+		context.stroke(windowWithCoordinates(fromRect: rect), width: 2)
+
+	}
+
+	private func setupGradientLayer() {
+		let gradientLayer = CAGradientLayer()
+		gradientLayer.colors = [UIColor.systemGreen.withAlphaComponent(0).cgColor, UIColor.systemGreen.cgColor]
+		gradientLayer.frame = gradientFrame
+		gradientLayer.opacity = 0.4
+		layer.insertSublayer(gradientLayer, at: 0)
+
+		let initialYPosition = gradientLayer.position.y
+		let finalYPosition = initialYPosition + (windowWithCoordinates(fromRect: frame).height - gradientLayer.frame.height)
+
+		let animation = CABasicAnimation(keyPath: "position.y")
+		animation.fromValue = initialYPosition
+		animation.toValue = finalYPosition
+		animation.duration = 2
+		animation.repeatCount = .infinity
+		animation.autoreverses = true
+		gradientLayer.add(animation, forKey: nil)
+	}
+}
+
 final class QRCodeVC: UIViewController {
 
 	private let azToastView = AzureToastView()
-	private let gradientLayer = CAGradientLayer()
+	private let dimmedView = DimmedView()
 	private let captureSession = AVCaptureSession()
 	private var captureVideoPreviewLayer: AVCaptureVideoPreviewLayer!
 
 	weak var delegate: QRCodeVCDelegate?
 
-	private lazy var squareView: UIView = {
-		let view = UIView()
-		view.layer.borderColor = UIColor.white.cgColor
-		view.layer.borderWidth = 2
-		view.layer.cornerCurve = .continuous
-		view.layer.cornerRadius = 20
-		self.view.addSubview(view)
-		return view
-	}()
-
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
 		view.addSubview(azToastView)
+		view.addSubview(dimmedView)
 
-		setupGradientLayer()
 		checkAuthorizationStatus()
 	}
 
@@ -47,14 +91,7 @@ final class QRCodeVC: UIViewController {
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		view.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -15)
-		view.centerViewOnBothAxes(squareView)
-		view.setupSizeConstraints(forView: squareView, width: 180, height: 180)
-	}
-
-	private func setupGradientLayer() {
-		gradientLayer.colors = [UIColor.blue.withAlphaComponent(0), UIColor.blue]
-		gradientLayer.frame = CGRect(x: 0, y: 0, width: 180, height: 15)
-		gradientLayer.opacity = 0.4
+		view.pinViewToAllEdges(dimmedView)
 	}
 
 	private func checkAuthorizationStatus() {
@@ -64,7 +101,7 @@ final class QRCodeVC: UIViewController {
 			case .notDetermined:
 				AVCaptureDevice.requestAccess(for: .video) { granted in
 					DispatchQueue.main.async {
-						if !granted {
+						guard granted else {
 							self.azToastView.fadeInOutToastView(withMessage: "Camera access denied.", finalDelay: 1.5)
 							return
 						}
@@ -91,11 +128,11 @@ final class QRCodeVC: UIViewController {
 		captureVideoPreviewLayer.frame = view.layer.bounds
 		captureVideoPreviewLayer.videoGravity = .resizeAspectFill
 		view.layer.insertSublayer(captureVideoPreviewLayer, at: 0)
-		squareView.layer.insertSublayer(gradientLayer, at: 0)
 		view.layoutIfNeeded()
 
- 		let layerRect = squareView.frame
-		captureMetadataOutput.rectOfInterest = captureVideoPreviewLayer.metadataOutputRectConverted(fromLayerRect: layerRect)
+		let layerRect = view.windowWithCoordinates(fromRect: dimmedView.frame)
+		let rectOfInterest = captureVideoPreviewLayer.metadataOutputRectConverted(fromLayerRect: layerRect)
+		captureMetadataOutput.rectOfInterest = rectOfInterest
 
 		captureSession.startRunning()
 	}
@@ -103,14 +140,29 @@ final class QRCodeVC: UIViewController {
 
 extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 	func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-		if metadataObjects.count == 0 { return }
+		guard metadataObjects.count != 0 else { return }
 		guard let metadataObject = metadataObjects[0] as? AVMetadataMachineReadableCodeObject else { return }
 		guard let outputString = metadataObject.stringValue else { return }
 
 		captureSession.stopRunning()
 		captureVideoPreviewLayer.removeFromSuperlayer()
+		dimmedView.layer.removeAllAnimations()
 
 		TOTPManager.sharedInstance.makeURL(outOfOtPauthString: outputString)
 		delegate?.qrCodeVCDidCreateIssuerOutOfQRCode()
+	}
+}
+
+private extension UIView {
+	func windowWithCoordinates(fromRect rect: CGRect) -> CGRect {
+		let smallestDimension = min(bounds.width, bounds.height)
+		let windowSize = 0.5 * smallestDimension
+		let window = CGRect(
+			x: rect.midX - (windowSize / 2),
+			y: rect.midY - (windowSize / 2),
+			width: windowSize,
+			height: windowSize
+		)
+		return window
 	}
 }
