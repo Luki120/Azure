@@ -38,25 +38,23 @@ final class AzureToastView: UIView {
 	private func setupToastView() {
 		translatesAutoresizingMaskIntoConstraints = false
 
-		setupSizeConstraints(forView: toastView, width: 120, height: 40)
-		toastView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+		setupHorizontalConstraints(forView: toastView, leadingPadding: 10, trailingPadding: -10)
+		toastView.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
 		toastView.centerViewOnBothAxes(toastViewLabel)
-		toastViewLabel.leadingAnchor.constraint(equalTo: toastView.leadingAnchor, constant: 10).isActive = true
-		toastViewLabel.trailingAnchor.constraint(equalTo: toastView.trailingAnchor, constant: -10).isActive = true
+		toastView.setupHorizontalConstraints(forView: toastViewLabel, leadingPadding: 10, trailingPadding: -10)
 
-		let guide = safeAreaLayoutGuide	
+		let guide = safeAreaLayoutGuide
 		bottomAnchorConstraint = toastView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: 50)
 		bottomAnchorConstraint?.isActive = true
 	}
 
 	private func fadeInOutToastView(withFinalDelay delay: TimeInterval) {
-		animateView(withDelay: 0, animations: {
+		animateView(animations: {
 			self.animateToastView(withConstraintConstant: -20, alpha: 1)
 		}, completion: { _ in
 			self.animateView(withDelay: 0.2, animations: {
-				self.makeRotationTransform(forView: self.toastView, andLabel: self.toastViewLabel)
-				self.layoutIfNeeded()
+				self.makeRotationTransform(forViews: [self.toastView, self.toastViewLabel])
 			}, completion: { _ in
 				self.animateView(withDelay: delay, animations: {
 					self.animateToastView(withConstraintConstant: 50, alpha: 0)
