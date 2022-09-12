@@ -246,7 +246,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	}
 
 	func azurePinCodeCellShouldFadeInOutToastView() {
-		azureTableVCView.azureToastView.fadeInOutToastView(withMessage: "Copied!", finalDelay: 0.2)
+		azureTableVCView.azureToastView.fadeInOutToastView(withMessage: "Copied code!", finalDelay: 0.2)
 	}
 
 	// ! UITableViewDataSource

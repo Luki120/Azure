@@ -56,7 +56,7 @@ extension UIImage {
 
 extension UIView {
 
-	func animateView(withDelay delay: TimeInterval, animations: @escaping () -> (), completion: ((Bool) -> ())?) {
+	func animateView(withDelay delay: TimeInterval = 0, animations: @escaping () -> (), completion: ((Bool) -> ())?) {
 		UIView.animate(withDuration: 0.5,
 			delay: delay,
 			options: .curveEaseIn,
@@ -65,12 +65,13 @@ extension UIView {
 		)
 	}
 
-	func makeRotationTransform(forView view: UIView, andLabel label: UILabel) {
+	func makeRotationTransform(forViews views: [UIView]) {
+		let π = Double.pi
 		var rotation = CATransform3DIdentity
 		rotation.m34 = 1.0 / -500.0
-		rotation = CATransform3DRotate(rotation, 180 * CGFloat.pi / 180.0, 0.0, 1.0, 0.0)
-		view.layer.transform = rotation
-		label.layer.transform = rotation
+		rotation = CATransform3DRotate(rotation, π, 0.0, 1.0, 0.0)
+		views[0].layer.transform = rotation
+		views[1].layer.transform = rotation
 	}
 
 	func pinViewToAllEdges(_ view: UIView) {
@@ -106,6 +107,14 @@ extension UIView {
 		NSLayoutConstraint.activate([
 			view.centerXAnchor.constraint(equalTo: centerXAnchor),
 			view.centerYAnchor.constraint(equalTo: centerYAnchor)
+		])
+	}
+
+	func setupHorizontalConstraints(forView view: UIView, leadingPadding: CGFloat, trailingPadding: CGFloat) {
+		view.translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: leadingPadding),
+			view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: trailingPadding)
 		])
 	}
 

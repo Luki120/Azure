@@ -6,7 +6,7 @@ protocol ModalChildViewDelegate: AnyObject {
 	func modalChildViewDidTapImportQRImageButton()
 	func modalChildViewDidTapEnterManuallyButton()
 	func modalChildViewDidTapDimmedView()
-	func modalChildViewDidPanWithGesture(_ gesture: UIPanGestureRecognizer, modifyingConstraint constraint: NSLayoutConstraint)
+	func modalChildViewDidPan(withGesture gesture: UIPanGestureRecognizer, modifyingConstraint constraint: NSLayoutConstraint)
 }
 
 final class ModalChildView: UIView {
@@ -195,8 +195,8 @@ final class ModalChildView: UIView {
 	// MARK: Selectors
 
 	@objc private func didTapView() { delegate?.modalChildViewDidTapDimmedView() }
-	@objc private func didPan(_ sender: UIPanGestureRecognizer) {
-		delegate?.modalChildViewDidPanWithGesture(sender, modifyingConstraint: containerViewHeightConstraint ?? NSLayoutConstraint())
+	@objc private func didPan(_ gesture: UIPanGestureRecognizer) {
+		delegate?.modalChildViewDidPan(withGesture: gesture, modifyingConstraint: containerViewHeightConstraint ?? NSLayoutConstraint())
 	}
 
 }
