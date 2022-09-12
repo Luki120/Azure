@@ -1,5 +1,5 @@
-import UIKit
 import PhotosUI
+import UIKit
 
 
 protocol ModalSheetVCDelegate: AnyObject {
@@ -8,16 +8,15 @@ protocol ModalSheetVCDelegate: AnyObject {
 
 final class ModalSheetVC: UIViewController {
 
-	private var modalChildView: ModalChildView!
+	private let azToastView = AzureToastView()
+	private let modalChildView = ModalChildView()
 	private var navVC: UINavigationController!
-	private var pinCodeVC: PinCodeVC!
+	private let pinCodeVC = PinCodeVC()
 
 	weak var delegate: ModalSheetVCDelegate?
 
 	init() {
 		super.init(nibName: nil, bundle: nil)
-		pinCodeVC = PinCodeVC()
-		pinCodeVC.delegate = self
 		setupViews()
 	}
 
@@ -31,9 +30,10 @@ final class ModalSheetVC: UIViewController {
 	}
 
 	private func setupViews() {
-		view.backgroundColor = .clear
-		modalChildView = ModalChildView()
 		modalChildView.delegate = self
+		pinCodeVC.delegate = self
+
+		view.backgroundColor = .clear
 		view.addSubview(modalChildView)
 
 		layoutUI()
@@ -87,7 +87,7 @@ final class ModalSheetVC: UIViewController {
 	func shouldCrossDissolveChildSubviews() { modalChildView.shouldCrossDissolveSubviews() }
 	func shouldDismissVC() {
 		modalChildView.animateDismiss { _ in
-			self.dismiss(animated: true, completion: nil)
+			self.dismiss(animated: true)
 		}
 	}
 
@@ -116,7 +116,7 @@ final class ModalSheetVC: UIViewController {
 		dismiss(animated: true, completion: nil)
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
 			self.modalChildView.animateDismiss { _ in
-				self.dismiss(animated: true, completion: nil)
+				self.dismiss(animated: true)
 			}
 		}
 	}
@@ -136,7 +136,7 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 			forSelector: #selector(didTapDismissButton),
 			isLeftBarButtonItem: true
 		)
-		present(navVC, animated: true, completion: nil)
+		present(navVC, animated: true)
 	}
 
 	@objc func modalChildViewDidTapImportQRImageButton() {
@@ -145,7 +145,12 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 
 		let phPickerVC = PHPickerViewController(configuration: configuration)
 		phPickerVC.delegate = self
-		present(phPickerVC, animated: true, completion: nil)
+		present(phPickerVC, animated: true)
+
+		let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.filter { $0.activationState == .foregroundActive }
+		let window = scenes.first?.windows.last
+		window?.addSubview(azToastView)
+		window?.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -5)
 	}
 
 	@objc func modalChildViewDidTapEnterManuallyButton() {
@@ -161,16 +166,16 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 			forTarget: self,
 			forSelector: #selector(didTapDismissButton)
 		)
-		present(navVC, animated: true, completion: nil)
+		present(navVC, animated: true)
 	}
 
 	func modalChildViewDidTapDimmedView() {
 		modalChildView.animateDismiss { _ in
-			self.dismiss(animated: true, completion: nil)
+			self.dismiss(animated: true)
 		}
 	}
 
-	func modalChildViewDidPanWithGesture(_ gesture: UIPanGestureRecognizer, modifyingConstraint constraint: NSLayoutConstraint) {
+	func modalChildViewDidPan(withGesture gesture: UIPanGestureRecognizer, modifyingConstraint constraint: NSLayoutConstraint) {
 		let translation = gesture.translation(in: view)
 		let newHeight = modalChildView.currentSheetHeight - translation.y
 
@@ -223,24 +228,27 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 extension ModalSheetVC: PHPickerViewControllerDelegate {
 
 	func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-		for result in results {
-			result.itemProvider.loadObject(ofClass: UIImage.self, completionHandler: { object, error in
-				guard let image = object as? UIImage, error == nil else { return }
-				DispatchQueue.main.async {
-					let ciImage = CIImage(image: image)
-					let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
-					let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options)
-
-					let features = detector?.features(in: ciImage ?? CIImage()) as? [CIQRCodeFeature] ?? []
-
-					for feature in features {
-						TOTPManager.sharedInstance.makeURL(outOfOtPauthString: feature.messageString ?? "")
-						self.delegate?.modalSheetVCShouldReloadData()
-					}
-				}
-			})
+		guard !results.isEmpty else {
+			dismissVC()
+			return
 		}
-		dismissVC()
+		results.first?.itemProvider.loadObject(ofClass: UIImage.self, completionHandler: { object, error in
+			guard let image = object as? UIImage, error == nil else { return }
+			DispatchQueue.main.async {
+				let ciImage = CIImage(image: image)
+				let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+				let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options)
+
+				let features = detector?.features(in: ciImage ?? CIImage()) as? [CIQRCodeFeature] ?? []
+				guard let otPauthString = features.first?.messageString else {
+					self.azToastView.fadeInOutToastView(withMessage: "No QR Code was detected on this image.", finalDelay: 1.5)
+					return
+				}
+				TOTPManager.sharedInstance.makeURL(outOfOtPauthString: otPauthString)
+				self.delegate?.modalSheetVCShouldReloadData()
+				self.dismissVC()
+			}
+		})
 	}
 
 }
