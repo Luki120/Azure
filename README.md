@@ -20,7 +20,7 @@
 * - [ ] App icon.
 * - [ ] Fix CoreAnimation bug.
 * - [ ] Group issuers into different sections.
-* - [ ] "No search results were found" label.
+* - [x] "No search results were found" label.
 
 ## Socials
 
