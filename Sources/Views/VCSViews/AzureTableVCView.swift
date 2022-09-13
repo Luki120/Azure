@@ -9,16 +9,8 @@ final class AzureTableVCView: UIView {
 
 	private var kUserInterfaceStyle: Bool { return traitCollection.userInterfaceStyle == .dark }
 
-	private lazy var placeholderLabel: UILabel = {
-		let label = UILabel()
-		label.font = .systemFont(ofSize: 16)
-		label.text = "No issuers were added yet. Tap the + button in order to add one."
-		label.textColor = .placeholderText
-		label.numberOfLines = 0
-		label.textAlignment = .center
-		addSubview(label)
-		return label
-	}()
+	private lazy var noIssuersLabel = UILabel()
+	private lazy var noResultsLabel = UILabel()
 
 	init(
 		dataSource: UITableViewDataSource,
@@ -26,6 +18,7 @@ final class AzureTableVCView: UIView {
 		floatingButtonViewDelegate: AzureFloatingButtonViewDelegate
 	) {
 		super.init(frame: .zero)
+
 		setupViews()
 		azureTableView.dataSource = dataSource
 		azureTableView.delegate = tableViewDelegate
@@ -40,19 +33,7 @@ final class AzureTableVCView: UIView {
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		pinViewToAllEdgesIncludingSafeAreas(azureTableView)
-		pinAzureToastToTheBottomCenteredOnTheXAxis(azureToastView, bottomConstant: -5)
-
-		let guide = safeAreaLayoutGuide
-
-		azureFloatingButtonView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -25).isActive = true
-		azureFloatingButtonView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25).isActive = true
-		setupSizeConstraints(forView: azureFloatingButtonView, width: 60, height: 60)
-
-		centerViewOnBothAxes(placeholderLabel)
-		placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10).isActive = true
-		placeholderLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10).isActive = true
-
+		layoutViews()
 	}
 
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -64,24 +45,74 @@ final class AzureTableVCView: UIView {
 		azureTableView.separatorStyle = .none
 		azureTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
 
+		noIssuersLabel = createLabel(withText: "No issuers were added yet. Tap the + button in order to add one.")
+		noResultsLabel = createLabel(withText: "No results were found for this query.")
+		noResultsLabel.alpha = 0
+
 		addSubview(azureTableView)
 		addSubview(azureFloatingButtonView)
 		addSubview(azureToastView)
+		addSubview(noIssuersLabel)
+		addSubview(noResultsLabel)
 	}
 
-	func animateViewsWhenNecessary() {
-		UIView.animate(withDuration:0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut, animations: {
+	private func layoutViews() {
+		pinViewToAllEdgesIncludingSafeAreas(azureTableView)
+		pinAzureToastToTheBottomCenteredOnTheXAxis(azureToastView, bottomConstant: -5)
+
+		let guide = safeAreaLayoutGuide
+
+		azureFloatingButtonView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -25).isActive = true
+		azureFloatingButtonView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25).isActive = true
+		setupSizeConstraints(forView: azureFloatingButtonView, width: 60, height: 60)
+
+		centerViewOnBothAxes(noIssuersLabel)
+		centerViewOnBothAxes(noResultsLabel)
+		setupHorizontalConstraints(forView: noIssuersLabel, leadingPadding: 10, trailingPadding: -10)
+		setupHorizontalConstraints(forView: noResultsLabel, leadingPadding: 10, trailingPadding: -10)
+	}
+
+	// ! Reusable
+
+	private func createLabel(withText text: String) -> UILabel {
+		let label = UILabel()
+		label.font = .systemFont(ofSize: 16)
+		label.text = text
+		label.textColor = .placeholderText
+		label.numberOfLines = 0
+		label.textAlignment = .center
+		addSubview(label)
+		return label
+	}
+
+}
+
+extension AzureTableVCView {
+
+	// ! Public
+
+	func animateNoIssuersLabel() {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut) {
 			if TOTPManager.sharedInstance.entriesArray.count == 0 {
 				self.azureTableView.alpha = 0
-				self.placeholderLabel.alpha = 1
-				self.placeholderLabel.transform = .init(scaleX: 1, y: 1)
+				self.noIssuersLabel.alpha = 1
+				self.noIssuersLabel.transform = .init(scaleX: 1, y: 1)
 			}
 			else {
 				self.azureTableView.alpha = 1
-				self.placeholderLabel.alpha = 0
-				self.placeholderLabel.transform = .init(scaleX: 0.1, y: 0.1)
+				self.noIssuersLabel.alpha = 0
+				self.noIssuersLabel.transform = .init(scaleX: 0.1, y: 0.1)
 			}
-		}, completion: nil)
+		}
+	}
+
+	func animateNoSearchResultsLabel(forArray array: [[String:String]], isFiltering: Bool) {
+		UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {	
+			if array.count == 0 && TOTPManager.sharedInstance.entriesArray.count > 0 && isFiltering {
+				self.noResultsLabel.alpha = 1
+			}
+			else { self.noResultsLabel.alpha = 0 }
+		}
 	}
 
 }

@@ -4,11 +4,12 @@ import UniformTypeIdentifiers
 
 final class AzureTableVC: UIViewController {
 
+	private let authManager = AuthManager()
+	private let backupManager = BackupManager()
+
 	private var isFiltered = false
 	private var filteredArray = [[String:String]]()
 	private var azureTableVCView: AzureTableVCView!
-	private var authManager = AuthManager()
-	private var backupManager = BackupManager()
 	private var modalSheetVC: ModalSheetVC!
 
 	init() {
@@ -267,7 +268,8 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	}
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		azureTableVCView.animateViewsWhenNecessary()
+		azureTableVCView.animateNoIssuersLabel()
+		azureTableVCView.animateNoSearchResultsLabel(forArray: filteredArray, isFiltering: isFiltered)
 		return isFiltered ? filteredArray.count : TOTPManager.sharedInstance.entriesArray.count
 	}
 
