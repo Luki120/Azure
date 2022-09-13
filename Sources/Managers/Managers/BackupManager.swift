@@ -13,6 +13,7 @@ final class BackupManager {
 	}
 
 	func makeDataOutOfJSON() {
+		if !fileM.fileExists(atPath: .kAzurePath) || !fileM.fileExists(atPath: kAzureJailedPathURL.path) { return }
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
 		let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL)
@@ -22,6 +23,7 @@ final class BackupManager {
 	}
 
 	func makeJSONOutOfData() {
+		guard TOTPManager.sharedInstance.entriesArray.count > 0 else { return }		
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
 				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)
