@@ -10,6 +10,7 @@ extension String {
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 	static let kAzureReasonSensitiveOperation = "Azure needs you to authenticate for a sensitive operation."
 	static let kAzureReasonUnlockApp = "Azure needs you to authenticate in order to access the app."
+	static let kIssuersPath = "/Applications/Azure.app/Issuers/"
 }
 
 

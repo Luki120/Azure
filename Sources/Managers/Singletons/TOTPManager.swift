@@ -18,15 +18,12 @@ final class TOTPManager {
 	}
 
 	private func setupImagesDict() {
-		let images = try? FileManager.default.contentsOfDirectory(atPath: Bundle.main.resourcePath ?? "/Applications/Azure.app/").filter { $0.hasSuffix("png") }
+		let imagesArray = try? Bundle.main.urls(forResourcesWithExtension: "png", subdirectory: "Issuers") ??
+			FileManager.default.contentsOfDirectory(atPath: .kIssuersPath).compactMap { URL(string: $0) }
 
-		for img in images ?? [] {
-			var components = img.components(separatedBy: ".")
-			guard components.count > 1 else { return }
-			components.removeLast()
-
-			let cleanImage = components.joined(separator: ".")
-			imagesDict.updateValue(UIImage(named: cleanImage) ?? UIImage(), forKey: cleanImage.lowercased())
+		for image in imagesArray ?? [] {
+			let strippedName = image.lastPathComponent.components(separatedBy: ".").first!
+			imagesDict.updateValue(UIImage(named: "Issuers/" + strippedName)!, forKey: strippedName.lowercased())
 		}
 	}
 
