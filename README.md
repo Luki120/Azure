@@ -17,7 +17,7 @@
 
 ## To do
 
-* - [ ] App icon.
+* - [x] App icon.
 * - [ ] Fix CoreAnimation bug.
 * - [ ] Group issuers into different sections.
 * - [x] "No search results were found" label.
