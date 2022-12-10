@@ -27,7 +27,7 @@ struct SettingsView: View {
 					Button("Backup options") {
 						NotificationCenter.default.post(name: Notification.Name("makeBackup"), object: nil)
 					}
-					.foregroundColor(Color(.label))
+					.foregroundColor(.primary)
 
 					Button("Purge data") {
 						shouldShowWarningAlert.toggle()
@@ -36,7 +36,7 @@ struct SettingsView: View {
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),
-							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗️Don’t be a dumbass, you’ll regret it later. I warned you 😈. Also keep in mind that this won't remove 2FA from your accounts, so make sure you disable it from the issuers' settings in order to prevent being locked out."),
+							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗Don’t be a dumbass, you’ll regret it later, I warned you. Besides, keep in mind that this won't remove 2FA from your accounts, so make sure you also disable it from the issuers' settings in order to prevent being locked out."),
 							primaryButton: .destructive(Text("I'm sure")) {
 								NotificationCenter.default.post(name: Notification.Name("purgeDataDone"), object: nil)
 							},
@@ -49,7 +49,7 @@ struct SettingsView: View {
 				Section(header: Text("Other apps you may like")) {
 					VStack(alignment: .leading) {
 						Button("Aurora") { shouldShowAuroraSheet.toggle() }
-							.foregroundColor(Color(.label))
+							.foregroundColor(.primary)
 							.openSafariSheet(shouldShow: $shouldShowAuroraSheet, urlString: .kAuroraDepictionURL)
 
 						Text("Vanilla password manager")
@@ -59,7 +59,7 @@ struct SettingsView: View {
 
 					VStack(alignment: .leading) {
 						Button("Cora") { shouldShowCoraSheet.toggle() }
-							.foregroundColor(Color(.label))
+							.foregroundColor(.primary)
 							.openSafariSheet(shouldShow: $shouldShowCoraSheet, urlString: .kCoraDepictionURL)
 
 						Text("See your device's uptime in less clicks")
@@ -70,7 +70,7 @@ struct SettingsView: View {
 
 				Section(header: Text("Misc")) {
 					Button("Credits") { shouldShowCreditsSheet.toggle() }
-						.foregroundColor(Color(.label))
+						.foregroundColor(.primary)
 						.sheet(isPresented: $shouldShowCreditsSheet) { creditsView }
 				}
 
@@ -98,7 +98,7 @@ struct SettingsView: View {
 					Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
 						.openSafariSheet(shouldShow: $shouldShowSourceCodeSheet, urlString: .kSourceCodeURL)
 				}
-				.foregroundColor(Color(.label))
+				.foregroundColor(.primary)
 
 			}
 
@@ -111,7 +111,7 @@ struct SettingsView: View {
 					Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
 						.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
 				}
-				.foregroundColor(Color(.label))
+				.foregroundColor(.primary)
 
 			}
 
@@ -140,8 +140,8 @@ private struct SafariView: UIViewControllerRepresentable {
 }
 
 private extension String {
-	static let kAuroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.auroraswiftui"
-	static let kCoraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.coraswiftui"
+	static let kAuroraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.aurora"
+	static let kCoraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.cora"
 	static let kSourceCodeURL = "https://github.com/Luki120/Azure"
 	static let kFlatIconURL = "https://www.flaticon.com/free-icons/caps-lock"
 	static let kGoogleAuthenticatorURL = "https://github.com/google/google-authenticator"
