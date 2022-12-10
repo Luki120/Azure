@@ -35,7 +35,7 @@ final class BackupManager {
  		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.path)
 		fileHandle?.seekToEndOfFile()
 
-		let serializedData = try! JSONSerialization.data(withJSONObject: TOTPManager.sharedInstance.entriesArray)
+		let serializedData = try! JSONSerialization.data(withJSONObject: TOTPManager.sharedInstance.entriesArray, options: .prettyPrinted)
 		fileHandle?.write(serializedData)
 		fileHandle?.closeFile()
 	}
