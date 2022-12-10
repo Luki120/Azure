@@ -313,7 +313,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 			let message = "You're about to delete the code for the issuer named \(issuerName) ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to."
 			let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
 
-			let confirmAction = UIAlertAction(title: "Yes", style: .default, handler: { _ in
+			let confirmAction = UIAlertAction(title: "Yes", style: .destructive, handler: { _ in
 				TOTPManager.sharedInstance.removeObject(at: indexPath)
 				self.azureTableVCView.azureTableView.deleteRows(at: [indexPath], with: .fade)
 
@@ -321,7 +321,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 
 				completion(true)
 			})
-			let dismissAction = UIAlertAction(title: "Oops", style: .default, handler: { _ in
+			let dismissAction = UIAlertAction(title: "Oops", style: .cancel, handler: { _ in
 				completion(true)
 			})
 
