@@ -18,7 +18,7 @@ final class AzureFloatingButtonView: UIView {
 		button.layer.shadowRadius = 8
 		button.layer.shadowOffset = CGSize(width: 0, height: 1)
 		button.layer.shadowOpacity = 0.5
-		button.setImage(UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+		button.setImage(UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20)), for: .normal)
 		button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 		addSubview(button)
 		return button
@@ -41,10 +41,22 @@ final class AzureFloatingButtonView: UIView {
 	private func setupFloatingButton() {
 		translatesAutoresizingMaskIntoConstraints = false
 		pinViewToAllEdges(floatingButton)
+
+		if #available(iOS 15.0, *) { floatingButton.configuration = .plain() }
+		else { floatingButton.adjustsImageWhenHighlighted = false }
 	}
 
-	@objc private func didTapButton() { delegate?.azureFloatingButtonViewDidTapFloatingButton() }
-
+	@objc private func didTapButton() {
+ 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1) {
+			self.transform = .init(scaleX: 0.8, y: 0.8)
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+				UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1) {
+					self.transform = .init(scaleX: 1, y: 1)
+				}
+			}
+		}
+		delegate?.azureFloatingButtonViewDidTapFloatingButton()
+	}
 }
 
 extension AzureFloatingButtonView {
