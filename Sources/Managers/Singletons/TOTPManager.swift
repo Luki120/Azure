@@ -37,7 +37,12 @@ final class TOTPManager {
 			"Issuer": issuer,
 			"Secret": secret,
 		]
-		configureEncryptionType(forDict: &dict)
+		switch selectedRow {
+			case 0: dict["encryptionType"] = kOTPGeneratorSHA1Algorithm
+			case 1: dict["encryptionType"] = kOTPGeneratorSHA256Algorithm
+			case 2: dict["encryptionType"] = kOTPGeneratorSHA512Algorithm
+			default: break
+		}
 
 		entriesArray.append(dict)
 		saveDefaults()
@@ -92,15 +97,6 @@ final class TOTPManager {
 	private func finished() {
 		entriesArray.append(issuerDict)
 		saveDefaults()
-	}
-
-	private func configureEncryptionType(forDict dict: inout [String:String]) {
-		switch selectedRow {
-			case 0: dict["encryptionType"] = kOTPGeneratorSHA1Algorithm
-			case 1: dict["encryptionType"] = kOTPGeneratorSHA256Algorithm
-			case 2: dict["encryptionType"] = kOTPGeneratorSHA512Algorithm
-			default: break
-		}
 	}
 
 }
