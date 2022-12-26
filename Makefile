@@ -3,7 +3,9 @@ TARGET := iphone:clang:latest:latest
 INSTALL_TARGET_PROCESSES = Azure
 APPLICATION_NAME = Azure
 
-Azure_FILES = $(shell find * -name "*.m") $(shell find * -name "*.swift")
+rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+
+Azure_FILES = $(call rwildcard,Sources,*.swift *.m)
 Azure_CFLAGS = -fobjc-arc
 Azure_FRAMEWORKS = UIKit CoreGraphics
 Azure_SWIFT_BRIDGING_HEADER = Azure-Bridging-Header.h
