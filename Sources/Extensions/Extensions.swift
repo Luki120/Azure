@@ -6,6 +6,7 @@ extension String {
 	static let kCheckra1n = "/var/checkra1n.dmg"
 	static let kTaurine = "/taurine"
 	static let kUnc0ver = "/private/etc/apt/undecimus"
+	static let kZina = "/var/jb/"
 	static let kAzureDir = "/var/mobile/Documents/Azure"
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 	static let kAzureReasonSensitiveOperation = "Azure needs you to authenticate for a sensitive operation."
@@ -133,7 +134,8 @@ func isJailbroken() -> Bool {
 	let fileM = FileManager.default
 	if fileM.fileExists(atPath: .kCheckra1n)
 		|| fileM.fileExists(atPath: .kTaurine)
-		|| fileM.fileExists(atPath: .kUnc0ver) { return true }
+		|| fileM.fileExists(atPath: .kUnc0ver)
+		|| fileM.fileExists(atPath: .kZina) { return true }
 
 	return false
 }
