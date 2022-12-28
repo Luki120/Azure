@@ -6,22 +6,26 @@ import ObjectiveC.runtime
 @UIApplicationMain
 final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
-	var window: UIWindow?
-	var strongWindow: UIWindow!
 	private let authManager = AuthManager()
 
+	var window: UIWindow?
+	private var strongWindow: UIWindow!
+	private var NotAuthenticatedVClass: AnyClass!
+	private lazy var NotAuthenticatedVC = NotAuthenticatedVClass.alloc() as? UIViewController
+
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+
+		setupNotAuthenticatedVC()
 
 		window = UIWindow()
 		window?.tintColor = .kAzureLilacTintColor
 		window?.backgroundColor = .systemBackground
-		window?.rootViewController = NotAuthenticatedVC()
+		window?.rootViewController = UIViewController()
 		window?.makeKeyAndVisible()
 
 		strongWindow = window
 
-		let defaults = UserDefaults.standard
-		let usesBiometrics = defaults.bool(forKey: "useBiometrics")
+		let usesBiometrics = UserDefaults.standard.bool(forKey: "useBiometrics")
 		if usesBiometrics && authManager.shouldUseBiometrics() { unsafePortalDispatch() }
 		else { window?.rootViewController = AzureRootVC() }
 
@@ -29,83 +33,82 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 		UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
 
 		return true
+
 	}
 
 	private func unsafePortalDispatch() {
-		authManager.setupAuth(withReason: .kAzureReasonUnlockApp, reply: { success, error in
+		authManager.setupAuth(withReason: .kAzureReasonUnlockApp, reply: { [weak self] success, error in
 			DispatchQueue.main.async {
 				let laError = error as? LAError
 				guard success && laError?.code != .passcodeNotSet else {
-					self.strongWindow.rootViewController = NotAuthenticatedVC()
+					self?.strongWindow.rootViewController = self?.NotAuthenticatedVC
 					return
 				}
-				self.strongWindow.rootViewController = AzureRootVC()
-
+				guard let window = self?.strongWindow else { return }
+				UIView.transition(with: window, duration: 0.25, options: .transitionCrossDissolve) {
+					window.rootViewController = AzureRootVC()
+				}
 			}
 		})
 	}
 
-}
+	private func setupNotAuthenticatedVC() {
 
-// :trollJackOLantern:
+		allocateClass { notAuthenticatedVC in
+			self.sendSuper()
 
-extension UIApplication {
-	override open var next: UIResponder? {
-		AwakeHelper.initialize()
-		return super.next
-	}
-}
+			let quitButton = UIButton()
+			quitButton.alpha = 0
+			quitButton.transform = .init(scaleX: 0.1, y: 0.1)
+			quitButton.backgroundColor = .kAzureMintTintColor
+			quitButton.layer.cornerCurve = .continuous
+			quitButton.layer.cornerRadius = 20
+			quitButton.setTitle("Retry", for: .normal)
+			quitButton.addTarget(notAuthenticatedVC, action: NSSelectorFromString("didTapRetryButton"), for: .touchUpInside)
 
-private protocol Awake {
-	static dynamic func awake()
-}
+			notAuthenticatedVC.view.addSubview(quitButton)
+			notAuthenticatedVC.view.centerViewOnBothAxes(quitButton)
+			notAuthenticatedVC.view.setupSizeConstraints(forView: quitButton, width: 120, height: 40)
 
-private final class AwakeHelper {
+			UIView.animate(withDuration: 0.5, delay: 0.5, options: .curveEaseIn) {
+				quitButton.alpha = 1
+				quitButton.transform = .init(scaleX: 1, y: 1)
+			}
 
-	private static let runOnce: Any? = {
-		NotAuthenticatedVC.awake()
-		return nil
-	}()
+			self.didTapRetryButton { self.unsafePortalDispatch() }
+		}
 
-	static func initialize() { _ = AwakeHelper.runOnce }
-
-}
-
-extension NotAuthenticatedVC: Awake {
-
-	static dynamic func awake() {
-		guard self === NotAuthenticatedVC.self else { return }
-		let origSelector = #selector(viewDidLoad)
-		let swizzledSelector = #selector(azure_viewDidLoad)
-
-		let origMethod = class_getInstanceMethod(self, origSelector)!
-		let swizzledMethod = class_getInstanceMethod(self, swizzledSelector)!
-
-		method_exchangeImplementations(origMethod, swizzledMethod)
 	}
 
-	@objc dynamic private func azure_viewDidLoad() {
-		azure_viewDidLoad()
+	private func allocateClass(imp: @escaping @convention(block) (_ self: UIViewController) -> ()) {
+		NotAuthenticatedVClass = objc_allocateClassPair(UIViewController.self, "NotAuthenticatedVC", 0)!
 
-		let quitButton = UIButton()
-		quitButton.alpha = 0
-		quitButton.transform = .init(scaleX: 0.1, y: 0.1)
-		quitButton.backgroundColor = .kAzureMintTintColor
-		quitButton.layer.cornerCurve = .continuous
-		quitButton.layer.cornerRadius = 20
-		quitButton.setTitle("Quit", for: .normal)
-		quitButton.addTarget(self, action: #selector(didTapQuitButton), for: .touchUpInside)
+		let method = class_getInstanceMethod(UIViewController.self, #selector(UIViewController.viewDidLoad))!
+		let azure_viewDidLoad = imp_implementationWithBlock(unsafeBitCast(imp, to: AnyObject.self))
+		let typeEncoding = method_getTypeEncoding(method)!
+		class_addMethod(NotAuthenticatedVClass, #selector(UIViewController.viewDidLoad), azure_viewDidLoad, typeEncoding)
 
-		view.addSubview(quitButton)
-		view.centerViewOnBothAxes(quitButton)
-		view.setupSizeConstraints(forView: quitButton, width: 120, height: 40)
-
-		UIView.animate(withDuration: 0.5, delay: 0.8, options: .curveEaseIn, animations: {
-			quitButton.alpha = 1
-			quitButton.transform = .init(scaleX: 1, y: 1)
-		})
+		objc_registerClassPair(NotAuthenticatedVClass)
 	}
 
-	@objc private func didTapQuitButton() { abort() }
+	private func sendSuper() {
+		let superclass: AnyClass = class_getSuperclass(NotAuthenticatedVClass)!
+		let selector = #selector(UIViewController.viewDidLoad)
+		let imp = class_getMethodImplementation(superclass, selector)
+
+		typealias ObjcVoidFunc = @convention(c) (AnyObject, Selector) -> ()
+
+		let superCall = unsafeBitCast(imp, to: ObjcVoidFunc.self)
+		superCall(NotAuthenticatedVClass, selector)
+	}
+
+	private func didTapRetryButton(imp: @escaping @convention(block) () -> ()) {
+		class_addMethod(
+			NotAuthenticatedVClass,
+			NSSelectorFromString("didTapRetryButton"),
+			imp_implementationWithBlock(unsafeBitCast(imp, to: AnyObject.self)),
+			"v@:"
+		)
+	}
 
 }
