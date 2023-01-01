@@ -6,12 +6,13 @@ import ObjectiveC.runtime
 @UIApplicationMain
 final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
-	private let authManager = AuthManager()
-
 	var window: UIWindow?
 	private var strongWindow: UIWindow!
-	private var NotAuthenticatedVClass: AnyClass!
-	private lazy var NotAuthenticatedVC = NotAuthenticatedVClass.alloc() as? UIViewController
+
+	private static var NotAuthenticatedVClass: AnyClass!
+	private lazy var NotAuthenticatedVC = AZAppDelegate.NotAuthenticatedVClass.alloc() as? UIViewController
+
+	private let authManager = AuthManager()
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
@@ -25,12 +26,12 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
 		strongWindow = window
 
+		UINavigationBar.appearance().shadowImage = UIImage()
+		UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+
 		let usesBiometrics = UserDefaults.standard.bool(forKey: "useBiometrics")
 		if usesBiometrics && authManager.shouldUseBiometrics() { unsafePortalDispatch() }
 		else { window?.rootViewController = AzureRootVC() }
-
-		UINavigationBar.appearance().shadowImage = UIImage()
-		UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
 
 		return true
 
@@ -44,10 +45,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 					self?.strongWindow.rootViewController = self?.NotAuthenticatedVC
 					return
 				}
-				guard let window = self?.strongWindow else { return }
-				UIView.transition(with: window, duration: 0.25, options: .transitionCrossDissolve) {
-					window.rootViewController = AzureRootVC()
-				}
+				self?.strongWindow.rootViewController = AzureRootVC()
 			}
 		})
 	}
@@ -55,7 +53,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 	private func setupNotAuthenticatedVC() {
 
 		allocateClass { notAuthenticatedVC in
-			self.sendSuper()
+			AZAppDelegate.sendSuper()
 
 			let quitButton = UIButton()
 			quitButton.alpha = 0
@@ -75,23 +73,23 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 				quitButton.transform = .init(scaleX: 1, y: 1)
 			}
 
-			self.didTapRetryButton { self.unsafePortalDispatch() }
+			AZAppDelegate.didTapRetryButton { self.unsafePortalDispatch() }
 		}
 
 	}
 
 	private func allocateClass(imp: @escaping @convention(block) (_ self: UIViewController) -> ()) {
-		NotAuthenticatedVClass = objc_allocateClassPair(UIViewController.self, "NotAuthenticatedVC", 0)!
+		AZAppDelegate.NotAuthenticatedVClass = objc_allocateClassPair(UIViewController.self, "NotAuthenticatedVC", 0)!
 
 		let method = class_getInstanceMethod(UIViewController.self, #selector(UIViewController.viewDidLoad))!
 		let azure_viewDidLoad = imp_implementationWithBlock(unsafeBitCast(imp, to: AnyObject.self))
 		let typeEncoding = method_getTypeEncoding(method)!
-		class_addMethod(NotAuthenticatedVClass, #selector(UIViewController.viewDidLoad), azure_viewDidLoad, typeEncoding)
+		class_addMethod(AZAppDelegate.NotAuthenticatedVClass, #selector(UIViewController.viewDidLoad), azure_viewDidLoad, typeEncoding)
 
-		objc_registerClassPair(NotAuthenticatedVClass)
+		objc_registerClassPair(AZAppDelegate.NotAuthenticatedVClass)
 	}
 
-	private func sendSuper() {
+	private static func sendSuper() {
 		let superclass: AnyClass = class_getSuperclass(NotAuthenticatedVClass)!
 		let selector = #selector(UIViewController.viewDidLoad)
 		let imp = class_getMethodImplementation(superclass, selector)
@@ -102,7 +100,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 		superCall(NotAuthenticatedVClass, selector)
 	}
 
-	private func didTapRetryButton(imp: @escaping @convention(block) () -> ()) {
+	private static func didTapRetryButton(imp: @escaping @convention(block) () -> ()) {
 		class_addMethod(
 			NotAuthenticatedVClass,
 			NSSelectorFromString("didTapRetryButton"),
