@@ -15,7 +15,6 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 	private let authManager = AuthManager()
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-
 		setupNotAuthenticatedVC()
 
 		window = UIWindow()
@@ -34,11 +33,10 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 		else { window?.rootViewController = AzureRootVC() }
 
 		return true
-
 	}
 
 	private func unsafePortalDispatch() {
-		authManager.setupAuth(withReason: .kAzureReasonUnlockApp, reply: { [weak self] success, error in
+		authManager.setupAuth(withReason: .unlockApp, reply: { [weak self] success, error in
 			DispatchQueue.main.async {
 				let laError = error as? LAError
 				guard success && laError?.code != .passcodeNotSet else {
@@ -51,7 +49,6 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 	}
 
 	private func setupNotAuthenticatedVC() {
-
 		allocateClass { notAuthenticatedVC in
 			AZAppDelegate.sendSuper()
 
@@ -75,7 +72,6 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
 			AZAppDelegate.didTapRetryButton { self.unsafePortalDispatch() }
 		}
-
 	}
 
 	private func allocateClass(imp: @escaping @convention(block) (_ self: UIViewController) -> ()) {

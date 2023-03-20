@@ -90,7 +90,7 @@ final class AzureTableVC: UIViewController {
 			makeBackup()
 			return
 		}
-		authManager.setupAuth(withReason: .kAzureReasonSensitiveOperation, reply: { success, _ in
+		authManager.setupAuth(withReason: .sensitiveOperation, reply: { success, _ in
 			DispatchQueue.main.async {
 				guard success else { return }
 				self.makeBackup()
@@ -233,7 +233,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 			fadeInOutToast(forCell: cell)
 			return
 		}
-		authManager.setupAuth(withReason: .kAzureReasonSensitiveOperation, reply: { success, _ in
+		authManager.setupAuth(withReason: .sensitiveOperation, reply: { success, _ in
 			DispatchQueue.main.async {
 				guard success else { return }
 				self.fadeInOutToast(forCell: cell)	
@@ -274,7 +274,10 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-		guard let cell = tableView.dequeueReusableCell(withIdentifier: .kIdentifier, for: indexPath) as? AzurePinCodeCell else {
+		guard let cell = tableView.dequeueReusableCell(
+			withIdentifier: AzurePinCodeCell.identifier,
+			for: indexPath
+		) as? AzurePinCodeCell else {
 			return UITableViewCell()
 		}
 		cell.delegate = self

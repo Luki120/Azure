@@ -26,23 +26,25 @@ final class AzureToastView: UIView {
 		return label
 	}()
 
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		setupToastView()
 	}
 
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-	}
+	// ! Private
 
 	private func setupToastView() {
 		translatesAutoresizingMaskIntoConstraints = false
 
-		setupHorizontalConstraints(forView: toastView, leadingPadding: 10, trailingPadding: -10)
+		setupHorizontalConstraints(forView: toastView, leadingConstant: 10, trailingConstant: -10)
 		toastView.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
 		toastView.centerViewOnBothAxes(toastViewLabel)
-		toastView.setupHorizontalConstraints(forView: toastViewLabel, leadingPadding: 10, trailingPadding: -10)
+		toastView.setupHorizontalConstraints(forView: toastViewLabel, leadingConstant: 10, trailingConstant: -10)
 
 		let guide = safeAreaLayoutGuide
 		bottomAnchorConstraint = toastView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: 50)

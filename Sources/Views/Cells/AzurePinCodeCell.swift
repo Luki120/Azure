@@ -9,6 +9,8 @@ protocol AzurePinCodeCellDelegate: AnyObject {
 
 final class AzurePinCodeCell: UITableViewCell {
 
+	static let identifier = "AzurePinCodeCell"
+
 	private var generator: TOTPGenerator?
 	private var copyPinButton, infoButton: UIButton!
 	private var issuersStackView, buttonsStackView: UIStackView!

@@ -2,37 +2,23 @@ import UIKit
 
 
 extension String {
-	static let kIdentifier = "AzurePinCodeCell"
-	static let kCheckra1n = "/var/checkra1n.dmg"
-	static let kTaurine = "/taurine"
-	static let kUnc0ver = "/private/etc/apt/undecimus"
-	static let kZina = "/var/jb/"
 	static let kAzureDir = "/var/mobile/Documents/Azure"
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
-	static let kAzureReasonSensitiveOperation = "Azure needs you to authenticate for a sensitive operation."
-	static let kAzureReasonUnlockApp = "Azure needs you to authenticate in order to access the app."
-	static let kIssuersPath = "/Applications/Azure.app/Issuers/"
 }
 
 
 extension UIBarButtonItem {
-
 	static func getBarButtomItem(withImage image: UIImage, forTarget target: Any?, forSelector selector: Selector) -> UIBarButtonItem {
-		let barButtonItem = UIBarButtonItem(image: image, style: .done, target: target, action: selector)
-		return barButtonItem
+		return UIBarButtonItem(image: image, style: .done, target: target, action: selector)
 	}
-
 }
 
 extension UIColor {
-
 	static let kAzureLilacTintColor = UIColor(red: 0.70, green: 0.56, blue: 1.0, alpha: 1.0)
 	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
-
 }
 
 extension UIImage {
-
 	func resizeImage(_ image: UIImage, withSize size: CGSize) -> UIImage {
 		let newSize = size
 
@@ -53,13 +39,12 @@ extension UIImage {
 
 		return newImage
 	}
-
 }
 
 extension UIView {
-
 	func animateView(withDelay delay: TimeInterval = 0, animations: @escaping () -> (), completion: ((Bool) -> ())?) {
-		UIView.animate(withDuration: 0.5,
+		UIView.animate(
+			withDuration: 0.5,
 			delay: delay,
 			options: .curveEaseIn,
 			animations: animations,
@@ -98,44 +83,45 @@ extension UIView {
 
 	func pinAzureToastToTheBottomCenteredOnTheXAxis(_ toastView: UIView, bottomConstant: CGFloat) {
 		toastView.translatesAutoresizingMaskIntoConstraints = false
-		NSLayoutConstraint.activate([
-			toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: bottomConstant),
-			toastView.centerXAnchor.constraint(equalTo: centerXAnchor)
-		])
+		toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: bottomConstant).isActive = true
+		toastView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
 	}
 
 	func centerViewOnBothAxes(_ view: UIView) {
 		view.translatesAutoresizingMaskIntoConstraints = false
-		NSLayoutConstraint.activate([
-			view.centerXAnchor.constraint(equalTo: centerXAnchor),
-			view.centerYAnchor.constraint(equalTo: centerYAnchor)
-		])
+		view.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+		view.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
 	}
 
-	func setupHorizontalConstraints(forView view: UIView, leadingPadding: CGFloat, trailingPadding: CGFloat) {
+	func setupHorizontalConstraints(forView view: UIView, leadingConstant: CGFloat, trailingConstant: CGFloat) {
 		view.translatesAutoresizingMaskIntoConstraints = false
-		NSLayoutConstraint.activate([
-			view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: leadingPadding),
-			view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: trailingPadding)
-		])
+		view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: leadingConstant).isActive = true
+		view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: trailingConstant).isActive = true
 	}
 
 	func setupSizeConstraints(forView view: UIView, width: CGFloat, height: CGFloat) {
 		view.translatesAutoresizingMaskIntoConstraints = false
-		NSLayoutConstraint.activate([
-			view.widthAnchor.constraint(equalToConstant: width),
-			view.heightAnchor.constraint(equalToConstant: height)
-		])
+		view.widthAnchor.constraint(equalToConstant: width).isActive = true
+		view.heightAnchor.constraint(equalToConstant: height).isActive = true
 	}
-
 }
 
-func isJailbroken() -> Bool {
-	let fileM = FileManager.default
-	if fileM.fileExists(atPath: .kCheckra1n)
-		|| fileM.fileExists(atPath: .kTaurine)
-		|| fileM.fileExists(atPath: .kUnc0ver)
-		|| fileM.fileExists(atPath: .kZina) { return true }
+private enum Jailbreak {
+	case checkra1n, taurine, unc0ver, zina
 
+	var jailbreakPath: String {
+		switch self {
+			case .checkra1n: return "/var/checkra1n.dmg"
+			case .taurine: return "/taurine"
+			case .unc0ver: return "/private/etc/apt/undecimus"
+			case .zina: return "/var/jb/" 
+		}
+	}
+}
+
+private let jailbreak: Jailbreak = .checkra1n
+
+func isJailbroken() -> Bool {
+	if FileManager.default.fileExists(atPath: jailbreak.jailbreakPath) { return true }
 	return false
 }

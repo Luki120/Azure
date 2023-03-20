@@ -3,6 +3,8 @@ import UIKit
 
 final class TOTPManager {
 
+	private let kIssuersPath = "/Applications/Azure.app/Issuers/"
+
 	static let sharedInstance = TOTPManager()
 
 	var selectedRow = 0
@@ -19,7 +21,7 @@ final class TOTPManager {
 
 	private func setupImagesDict() {
 		let imagesArray = try? Bundle.main.urls(forResourcesWithExtension: "png", subdirectory: "Issuers") ??
-			FileManager.default.contentsOfDirectory(atPath: .kIssuersPath).compactMap { URL(string: $0) }
+			FileManager.default.contentsOfDirectory(atPath: kIssuersPath).compactMap { URL(string: $0) }
 
 		for image in imagesArray ?? [] {
 			let strippedName = image.lastPathComponent.components(separatedBy: ".").first!
