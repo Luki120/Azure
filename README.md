@@ -17,10 +17,14 @@
 
 ## To do
 
-* - [x] App icon.
-* - [ ] Fix CoreAnimation bug.
-* - [ ] Group issuers into different sections.
-* - [x] "No search results were found" label.
+* [ ] Add docs 💀
+* [ ] Create a social cell to show & tap GitHub/Twitter links + update credits.
+* [ ] Explain what a user should do to get an issuer’s icon for the respective app.
+* [ ] Fix CoreAnimation bug.
+* [ ] Group issuers into different sections.
+* [ ] Refactor model logic to create a Codable object rather than having to (de)serialize the JSON dict directly.
+* [ ] Replace UserDefaults with Keychain 💀
+* [x] Rewrite lib code using native CryptoKit framework so Google can go ✈️
 
 ## Socials
 
@@ -34,10 +38,6 @@
 	* If you're a contributor with write access to this repository, you **should NOT** push to main branch, preferably push to a new one and *then* create the PR.
 	* Keep commit titles short and then explain them in comments or preferably in the commit's description.
 	* Push small commits (e.g if you changed 2 directories, commit one directory, then commit the other one and only THEN push)
-
-## Credits
-
-* Azure uses open source components from [Google Authenticator](https://github.com/google/google-authenticator/tree/master/mobile/ios), which are licensed under the [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## LICENSE
 
