@@ -2,6 +2,10 @@ import UIKit
 
 
 extension String {
+	static let kCheckra1n = "/var/checkra1n.dmg"
+	static let kTaurine = "/taurine"
+	static let kUnc0ver = "/private/etc/apt/undecimus"
+	static let kZina = "/var/jb/"
 	static let kAzureDir = "/var/mobile/Documents/Azure"
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 }
@@ -106,22 +110,12 @@ extension UIView {
 	}
 }
 
-private enum Jailbreak {
-	case checkra1n, taurine, unc0ver, zina
-
-	var jailbreakPath: String {
-		switch self {
-			case .checkra1n: return "/var/checkra1n.dmg"
-			case .taurine: return "/taurine"
-			case .unc0ver: return "/private/etc/apt/undecimus"
-			case .zina: return "/var/jb/" 
-		}
-	}
-}
-
-private let jailbreak: Jailbreak = .checkra1n
-
 func isJailbroken() -> Bool {
-	if FileManager.default.fileExists(atPath: jailbreak.jailbreakPath) { return true }
+	let fileM = FileManager.default
+	if fileM.fileExists(atPath: .kCheckra1n)
+		|| fileM.fileExists(atPath: .kTaurine)
+		|| fileM.fileExists(atPath: .kUnc0ver)
+		|| fileM.fileExists(atPath: .kZina) { return true }
+
 	return false
 }
