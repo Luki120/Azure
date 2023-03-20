@@ -3,6 +3,7 @@ import UIKit
 
 final class AzureToastView: UIView {
 
+	private var isAnimating = false
 	private var bottomAnchorConstraint: NSLayoutConstraint?
 
 	private lazy var toastView: UIView = {
@@ -52,20 +53,23 @@ final class AzureToastView: UIView {
 	}
 
 	private func fadeInOutToastView(withFinalDelay delay: TimeInterval) {
-		animateView(animations: {
+		guard !isAnimating else { return }
+		animateView() {
+			self.isAnimating = true
 			self.animateToastView(withConstraintConstant: -20, alpha: 1)
-		}, completion: { _ in
-			self.animateView(withDelay: 0.2, animations: {
+		} completion: { _ in
+			self.animateView(withDelay: 0.2) {
 				self.makeRotationTransform(forViews: [self.toastView, self.toastViewLabel])
-			}, completion: { _ in
-				self.animateView(withDelay: delay, animations: {
+			} completion: { _ in
+				self.animateView(withDelay: delay) {
 					self.animateToastView(withConstraintConstant: 50, alpha: 0)
-				}, completion: { _ in
+				} completion: { _ in
+					self.isAnimating = false
 					self.toastView.layer.transform = CATransform3DIdentity
 					self.toastViewLabel.layer.transform = CATransform3DIdentity
-				})
-			})
-		})
+				}
+			}
+		}
 	}
 
 	private func animateToastView(withConstraintConstant constant: CGFloat, alpha: CGFloat) {
