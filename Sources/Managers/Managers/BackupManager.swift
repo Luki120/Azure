@@ -23,7 +23,7 @@ final class BackupManager {
 	}
 
 	func makeJSONOutOfData() {
-		guard TOTPManager.sharedInstance.entriesArray.count > 0 else { return }		
+		guard TOTPManager.sharedInstance.entriesArray.count > 0 else { return }
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
 				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)

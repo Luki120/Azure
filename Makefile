@@ -8,7 +8,6 @@ rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(
 Azure_FILES = $(call rwildcard, Sources, *.swift *.m)
 Azure_CFLAGS = -fobjc-arc
 Azure_FRAMEWORKS = UIKit CoreGraphics
-Azure_SWIFT_BRIDGING_HEADER = Azure-Bridging-Header.h
 
 include $(THEOS)/makefiles/common.mk
 include $(THEOS_MAKE_PATH)/application.mk

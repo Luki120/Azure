@@ -37,10 +37,10 @@ final class TOTPManager {
 			"Issuer": issuer,
 			"Secret": secret,
 		]
-		switch selectedRow {
-			case 0: dict["encryptionType"] = kOTPGeneratorSHA1Algorithm
-			case 1: dict["encryptionType"] = kOTPGeneratorSHA256Algorithm
-			case 2: dict["encryptionType"] = kOTPGeneratorSHA512Algorithm
+ 		switch selectedRow {
+			case 0: dict["encryptionType"] = "SHA1"
+			case 1: dict["encryptionType"] = "SHA256"
+			case 2: dict["encryptionType"] = "SHA512"
 			default: break
 		}
 
@@ -81,7 +81,7 @@ final class TOTPManager {
 			return
 		}
 		else {
-			if issuerDict["encryptionType"] == nil { issuerDict["encryptionType"] = kOTPGeneratorSHA1Algorithm }
+			if issuerDict["encryptionType"] == nil { issuerDict["encryptionType"] = "SHA1" }
 			if issuerDict["Issuer"] == nil {
 				let scanner = Scanner(string: string)
 				if scanner.scanUpToString("/totp/") != nil {
