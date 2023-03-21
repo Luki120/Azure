@@ -257,9 +257,9 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 		forCell cell: AzurePinCodeCell
 	) {
 		cell.setIssuer(
-			withName: TOTPManager.sharedInstance.issuers[indexPath.row].name,
-			secret: TOTPManager.sharedInstance.issuers[indexPath.row].secret,
-			algorithm: TOTPManager.sharedInstance.issuers[indexPath.row].algorithm,
+			withName: array[indexPath.row].name,
+			secret: array[indexPath.row].secret,
+			algorithm: array[indexPath.row].algorithm,
 			withTransition: false
 		)
 	}
