@@ -22,7 +22,7 @@
 * [ ] Explain what a user should do to get an issuer’s icon for the respective app.
 * [ ] Fix CoreAnimation bug.
 * [ ] Group issuers into different sections.
-* [ ] Refactor model logic to create a Codable object rather than having to (de)serialize the JSON dict directly.
+* [x] Refactor model logic to create a Codable object rather than having to (de)serialize the JSON dict directly.
 * [ ] Replace UserDefaults with Keychain 💀
 * [x] Rewrite lib code using native CryptoKit framework so Google can go ✈️
 
