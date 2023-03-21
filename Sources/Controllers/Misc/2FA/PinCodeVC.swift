@@ -61,16 +61,17 @@ final class PinCodeVC: UIViewController {
 
 	// MARK: NSNotificationCenter
 
- 	@objc private func shouldSaveData() {
+	@objc private func shouldSaveData() {
 		if pinCodeVCView.issuerTextField.text?.count ?? 0 <= 0
 			|| pinCodeVCView.secretTextField.text?.count ?? 0 <= 0 {
 			pinCodeVCView.azToastView.fadeInOutToastView(withMessage: "Fill out both forms", finalDelay: 1.5)
 			pinCodeVCView.resignFirstResponderIfNeeded()
 			return
 		}
-		TOTPManager.sharedInstance.feedDictionary(
-			withIssuer: pinCodeVCView.issuerTextField.text ?? "",
-			secret: pinCodeVCView.secretTextField.text ?? ""
+
+		TOTPManager.sharedInstance.feedIssuer(
+			withName: pinCodeVCView.issuerTextField.text ?? "",
+			secret: .base32DecodedString(pinCodeVCView.secretTextField.text ?? "")
 		)
 		delegate?.pinCodeVCShouldDismissVC()
 

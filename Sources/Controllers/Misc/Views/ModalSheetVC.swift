@@ -244,7 +244,7 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 					self.azToastView.fadeInOutToastView(withMessage: "No QR Code was detected on this image.", finalDelay: 1.5)
 					return
 				}
-				TOTPManager.sharedInstance.makeURL(outOfOtPauthString: otPauthString)
+				TOTPManager.sharedInstance.createIssuer(outOfOtPauthString: otPauthString)
 				self.delegate?.modalSheetVCShouldReloadData()
 				self.dismissVC()
 			}

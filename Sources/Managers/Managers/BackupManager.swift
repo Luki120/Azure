@@ -16,14 +16,14 @@ final class BackupManager {
 		if !fileM.fileExists(atPath: .kAzurePath) || !fileM.fileExists(atPath: kAzureJailedPathURL.path) { return }
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
-		let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL)
-		let jsonArray = try! JSONSerialization.jsonObject(with: data ?? Data(), options: .mutableContainers) as? [[String:String]] ?? []
-		TOTPManager.sharedInstance.entriesArray = jsonArray
-		TOTPManager.sharedInstance.saveDefaults()
+		guard let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL) else { return }
+		let issuers = try! JSONDecoder().decode([Issuer].self, from: data)
+		TOTPManager.sharedInstance.issuers = issuers
+		TOTPManager.sharedInstance.saveIssuers()
 	}
 
 	func makeJSONOutOfData() {
-		guard TOTPManager.sharedInstance.entriesArray.count > 0 else { return }
+		guard TOTPManager.sharedInstance.issuers.count > 0 else { return }
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
 				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)
@@ -35,8 +35,11 @@ final class BackupManager {
  		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.path)
 		fileHandle?.seekToEndOfFile()
 
-		let serializedData = try! JSONSerialization.data(withJSONObject: TOTPManager.sharedInstance.entriesArray, options: .prettyPrinted)
-		fileHandle?.write(serializedData)
+		let encoder = JSONEncoder()
+		encoder.outputFormatting = .prettyPrinted
+		guard let encodedData = try? encoder.encode(TOTPManager.sharedInstance.issuers) else { return }
+
+		fileHandle?.write(encodedData)
 		fileHandle?.closeFile()
 	}
 

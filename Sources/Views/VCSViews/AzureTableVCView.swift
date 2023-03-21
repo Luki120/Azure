@@ -95,7 +95,7 @@ extension AzureTableVCView {
 
 	func animateNoIssuersLabel() {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut) {
-			if TOTPManager.sharedInstance.entriesArray.count == 0 {
+			if TOTPManager.sharedInstance.issuers.count == 0 {
 				self.azureTableView.alpha = 0
 				self.noIssuersLabel.alpha = 1
 				self.noIssuersLabel.transform = .init(scaleX: 1, y: 1)
@@ -108,9 +108,9 @@ extension AzureTableVCView {
 		}
 	}
 
-	func animateNoSearchResultsLabel(forArray array: [[String:String]], isFiltering: Bool) {
+	func animateNoSearchResultsLabel(forArray array: [Issuer], isFiltering: Bool) {
 		UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {	
-			if array.count == 0 && TOTPManager.sharedInstance.entriesArray.count > 0 && isFiltering {
+			if array.count == 0 && TOTPManager.sharedInstance.issuers.count > 0 && isFiltering {
 				self.noResultsLabel.alpha = 1
 			}
 			else { self.noResultsLabel.alpha = 0 }

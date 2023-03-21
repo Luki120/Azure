@@ -11,7 +11,7 @@ final class AzurePinCodeCell: UITableViewCell {
 
 	static let identifier = "AzurePinCodeCell"
 
-	private var generator: TOTPGenerator?
+	private var issuer: Issuer?
 	private var copyPinButton, infoButton: UIButton!
 	private var issuersStackView, buttonsStackView: UIStackView!
 	private var circleProgressView: UIView!
@@ -19,8 +19,8 @@ final class AzurePinCodeCell: UITableViewCell {
 
 	private let π = Double.pi
 
-	var issuer = ""
-	var hashString = ""
+	private(set) var name = ""
+	private(set) var secret = ""
 
 	weak var delegate: AzurePinCodeCellDelegate?
 
@@ -92,7 +92,7 @@ final class AzurePinCodeCell: UITableViewCell {
 	}
 
 	private func setupUI() {
-		pinLabel.text = generator?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
+		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
 
 		issuersStackView = setupStackView()
 		issuersStackView.addArrangedSubview(issuerImageView)
@@ -167,7 +167,7 @@ final class AzurePinCodeCell: UITableViewCell {
 		transition.timingFunction = .init(name: .easeInEaseOut)
 		pinLabel.layer.add(transition, forKey: nil)
 
-		pinLabel.text = generator?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
+		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
 	}
 
 	private func getLastUNIXTimestamp() -> Int {
@@ -177,7 +177,7 @@ final class AzurePinCodeCell: UITableViewCell {
 
 	private func regeneratePINWithoutTransitions() {
 		pinLabel.text = ""
-		pinLabel.text = generator?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
+		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
 	}
 
 	// ! Reusable
@@ -220,8 +220,11 @@ extension AzurePinCodeCell {
 
 	// ! Public
 
-	func setSecret(_ secret: String, withAlgorithm algorithm: String, withTransition transition: Bool) {
-		generator = TOTPGenerator(secret: .base32DecodedString(secret))
+	func setIssuer(withName name: String, secret: Data, algorithm: Issuer.Algorithm, withTransition transition: Bool) {
+		self.name = name
+		self.secret = String(decoding: secret, as: UTF8.self)
+		issuer = Issuer(name: name, secret: secret, algorithm: algorithm)
+
 		if(transition) { regeneratePIN() }
 		else { regeneratePINWithoutTransitions() }
 	}

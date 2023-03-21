@@ -148,7 +148,7 @@ extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 		captureVideoPreviewLayer.removeFromSuperlayer()
 		dimmedView.layer.removeAllAnimations()
 
-		TOTPManager.sharedInstance.makeURL(outOfOtPauthString: outputString)
+		TOTPManager.sharedInstance.createIssuer(outOfOtPauthString: outputString)
 		delegate?.qrCodeVCDidCreateIssuerOutOfQRCode()
 	}
 }
