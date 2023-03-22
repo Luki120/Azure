@@ -4,8 +4,19 @@ import LocalAuthentication
 
 final class AuthManager {
 
-	func setupAuth(withReason reason: String, reply: @escaping (Bool, Error?) -> ()) {
-		LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason:reason, reply: reply)
+	enum Reason {
+		case sensitiveOperation, unlockApp
+
+		var reason: String {
+			switch self {
+				case .sensitiveOperation: return "Azure needs you to authenticate for a sensitive operation."
+				case .unlockApp: return "Azure needs you to authenticate in order to access the app."
+			}
+		}
+	}
+
+	func setupAuth(withReason reason: Reason, reply: @escaping (Bool, Error?) -> ()) {
+		LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason.reason, reply: reply)
 	}
 
 	func shouldUseBiometrics() -> Bool {

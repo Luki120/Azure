@@ -59,23 +59,33 @@ final class PinCodeVC: UIViewController {
 		}
 	}
 
-	// MARK: NSNotificationCenter
+	// ! NSNotificationCenter
 
- 	@objc private func shouldSaveData() {
-		if pinCodeVCView.issuerTextField.text?.count ?? 0 <= 0
-			|| pinCodeVCView.secretTextField.text?.count ?? 0 <= 0 {
-			pinCodeVCView.azToastView.fadeInOutToastView(withMessage: "Fill out both forms", finalDelay: 1.5)
+	@objc private func shouldSaveData() {
+		if pinCodeVCView.issuerTextField.text?.count ?? 0 == 0
+			|| pinCodeVCView.secretTextField.text?.count ?? 0 == 0 {
+			pinCodeVCView.azToastView.fadeInOutToastView(withMessage: "Fill out both forms.", finalDelay: 1.5)
 			pinCodeVCView.resignFirstResponderIfNeeded()
 			return
 		}
-		TOTPManager.sharedInstance.feedDictionary(
-			withIssuer: pinCodeVCView.issuerTextField.text ?? "",
-			secret: pinCodeVCView.secretTextField.text ?? ""
-		)
-		delegate?.pinCodeVCShouldDismissVC()
 
-		pinCodeVCView.issuerTextField.text = ""
-		pinCodeVCView.secretTextField.text = ""
+		TOTPManager.sharedInstance.feedIssuer(
+			withName: pinCodeVCView.issuerTextField.text ?? "",
+			secret: .base32DecodedString(pinCodeVCView.secretTextField.text ?? "")
+		) { isDuplicateItem, issuer in
+
+			guard !isDuplicateItem else {
+				pinCodeVCView.azToastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+				pinCodeVCView.resignFirstResponderIfNeeded()
+				return
+			}
+
+			TOTPManager.sharedInstance.issuers.append(issuer)
+			delegate?.pinCodeVCShouldDismissVC()
+
+	 		pinCodeVCView.issuerTextField.text = ""
+			pinCodeVCView.secretTextField.text = ""
+		}
 	}
 
 }

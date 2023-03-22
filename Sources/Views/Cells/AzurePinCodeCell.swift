@@ -9,22 +9,22 @@ protocol AzurePinCodeCellDelegate: AnyObject {
 
 final class AzurePinCodeCell: UITableViewCell {
 
- 	private var issuersStackView: UIStackView!
-	private var copyPinButton: UIButton!
-	private var infoButton: UIButton!
-	private var buttonsStackView: UIStackView!
-	private var generator: TOTPGenerator?
+	static let identifier = "AzurePinCodeCell"
+
+	private var issuer: Issuer?
+	private var copyPinButton, infoButton: UIButton!
+	private var issuersStackView, buttonsStackView: UIStackView!
 	private var circleProgressView: UIView!
 	private var duration = 30
 
 	private let π = Double.pi
 
-	var issuer = ""
-	var hashString = ""
+	private(set) var name = ""
+	private(set) var secret = ""
 
 	weak var delegate: AzurePinCodeCellDelegate?
 
- 	lazy var issuerImageView: UIImageView = {
+	lazy var issuerImageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.contentMode = .scaleAspectFit
 		imageView.clipsToBounds = true
@@ -39,7 +39,7 @@ final class AzurePinCodeCell: UITableViewCell {
 		return label
 	}()
 
- 	private lazy var circleLayer: CAShapeLayer = {
+	private lazy var circleLayer: CAShapeLayer = {
 		let layer = CAShapeLayer()
 		layer.path = UIBezierPath(arcCenter: CGPoint(x: 10, y: 10), radius: 10, startAngle: -0.5 * π, endAngle: 1.5 * π, clockwise: true).cgPath
 		layer.lineCap = .round
@@ -56,14 +56,14 @@ final class AzurePinCodeCell: UITableViewCell {
 
 	// ! Lifecycle
 
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
 	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 		setupUI()
 		initializeTimers()
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
 	}
 
 	override func layoutSubviews() {
@@ -81,7 +81,9 @@ final class AzurePinCodeCell: UITableViewCell {
 		circleLayer.shadowColor = UIColor.kAzureMintTintColor.cgColor
 	}
 
- 	private func initializeTimers() {
+	// ! Private
+
+	private func initializeTimers() {
 		let delay = TimeInterval(30 - Int(Date().timeIntervalSince1970) % 30)
 		DispatchQueue.main.async() {
 			self.perform(#selector(self.startTimer), with: self, afterDelay: delay)
@@ -90,8 +92,7 @@ final class AzurePinCodeCell: UITableViewCell {
 	}
 
 	private func setupUI() {
-		let pinCode = generator?.generateOTP(for: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
-		pinLabel.text = pinCode
+		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
 
 		issuersStackView = setupStackView()
 		issuersStackView.addArrangedSubview(issuerImageView)
@@ -99,7 +100,7 @@ final class AzurePinCodeCell: UITableViewCell {
 		buttonsStackView = setupStackView()
 
 		copyPinButton = setupButton(
- 			withImage: UIImage(systemName: "paperclip") ?? UIImage(),
+			withImage: UIImage(systemName: "paperclip") ?? UIImage(),
 			forSelector: #selector(didTapCopyPinButton)
 		)
 		infoButton = setupButton(
@@ -113,7 +114,7 @@ final class AzurePinCodeCell: UITableViewCell {
 		setupCircularProgressView()
 	}
 
- 	private func setupCircularProgressView() {
+	private func setupCircularProgressView() {
 		circleProgressView = UIView()
 		circleProgressView.translatesAutoresizingMaskIntoConstraints = false
 		buttonsStackView.addArrangedSubview(circleProgressView)
@@ -144,7 +145,7 @@ final class AzurePinCodeCell: UITableViewCell {
 	@objc private func didTapCell() { delegate?.azurePinCodeCellDidTapCell(self) }
 
 	@objc private func didTapCopyPinButton() {
- 		let pasteboard = UIPasteboard.general
+		let pasteboard = UIPasteboard.general
 		pasteboard.string = pinLabel.text
 		delegate?.azurePinCodeCellShouldFadeInOutToastView()
 	}
@@ -153,7 +154,7 @@ final class AzurePinCodeCell: UITableViewCell {
 
 	// ! Timer
 
- 	@objc private func startTimer() {
+	@objc private func startTimer() {
 		Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(regeneratePIN), userInfo: nil, repeats: true)
 	}
 
@@ -163,10 +164,10 @@ final class AzurePinCodeCell: UITableViewCell {
 		let transition = CATransition()
 		transition.type = .fade
 		transition.duration = 0.8
-		transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+		transition.timingFunction = .init(name: .easeInEaseOut)
 		pinLabel.layer.add(transition, forKey: nil)
 
-		pinLabel.text = generator?.generateOTP(for: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
+		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
 	}
 
 	private func getLastUNIXTimestamp() -> Int {
@@ -174,9 +175,9 @@ final class AzurePinCodeCell: UITableViewCell {
 		return timestamp - timestamp % 30
 	} 
 
- 	private func regeneratePINWithoutTransitions() {
+	private func regeneratePINWithoutTransitions() {
 		pinLabel.text = ""
-		pinLabel.text = generator?.generateOTP(for: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
+		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
 	}
 
 	// ! Reusable
@@ -207,9 +208,7 @@ final class AzurePinCodeCell: UITableViewCell {
 
 	private func setupStackView() -> UIStackView {
 		let stackView = UIStackView()
-		stackView.axis = .horizontal
 		stackView.spacing = 10
-		stackView.distribution = .fill
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		contentView.addSubview(stackView)
 		return stackView
@@ -221,9 +220,11 @@ extension AzurePinCodeCell {
 
 	// ! Public
 
-	func setSecret(_ secret: String, withAlgorithm algorithm: String, withTransition transition: Bool) {
- 		let secretData = Data(NSData(base32String: secret))
-		generator = TOTPGenerator(secret: secretData, algorithm: algorithm, digits: 6, period: 30)
+	func setIssuer(withName name: String, secret: Data, algorithm: Issuer.Algorithm, withTransition transition: Bool) {
+		self.name = name
+		self.secret = .base32EncodedString(secret)
+		issuer = Issuer(name: name, secret: secret, algorithm: algorithm)
+
 		if(transition) { regeneratePIN() }
 		else { regeneratePINWithoutTransitions() }
 	}

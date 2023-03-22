@@ -232,8 +232,8 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 			dismissVC()
 			return
 		}
-		results.first?.itemProvider.loadObject(ofClass: UIImage.self, completionHandler: { object, error in
-			guard let image = object as? UIImage, error == nil else { return }
+		results.first?.itemProvider.loadObject(ofClass: UIImage.self) { imageObject, error in
+			guard let image = imageObject as? UIImage, error == nil else { return }
 			DispatchQueue.main.async {
 				let ciImage = CIImage(image: image)
 				let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
@@ -241,14 +241,22 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 
 				let features = detector?.features(in: ciImage ?? CIImage()) as? [CIQRCodeFeature] ?? []
 				guard let otPauthString = features.first?.messageString else {
-					self.azToastView.fadeInOutToastView(withMessage: "No QR Code was detected on this image.", finalDelay: 1.5)
+					self.azToastView.fadeInOutToastView(withMessage: "No QR code was detected on this image.", finalDelay: 1.5)
 					return
 				}
-				TOTPManager.sharedInstance.makeURL(outOfOtPauthString: otPauthString)
-				self.delegate?.modalSheetVCShouldReloadData()
-				self.dismissVC()
+				TOTPManager.sharedInstance.createIssuer(outOfOtPauthString: otPauthString) { isDuplicateItem, issuer in
+					guard !isDuplicateItem else {
+						self.azToastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+						return
+					}
+
+					TOTPManager.sharedInstance.issuers.append(issuer)
+
+					self.delegate?.modalSheetVCShouldReloadData()
+					self.dismissVC()
+				}
 			}
-		})
+		}
 	}
 
 }

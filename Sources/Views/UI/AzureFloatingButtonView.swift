@@ -19,18 +19,17 @@ final class AzureFloatingButtonView: UIView {
 		button.layer.shadowOffset = CGSize(width: 0, height: 1)
 		button.layer.shadowOpacity = 0.5
 		button.setImage(UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20)), for: .normal)
-		button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 		addSubview(button)
 		return button
 	}()
 
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		setupFloatingButton()
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
 	}
 
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -38,12 +37,21 @@ final class AzureFloatingButtonView: UIView {
 		floatingButton.layer.shadowColor = UIColor.label.cgColor
 	}
 
+	// ! Private
+
 	private func setupFloatingButton() {
 		translatesAutoresizingMaskIntoConstraints = false
 		pinViewToAllEdges(floatingButton)
 
 		if #available(iOS 15.0, *) { floatingButton.configuration = .plain() }
 		else { floatingButton.adjustsImageWhenHighlighted = false }
+
+		floatingButton.addAction(
+			UIAction { [weak self] _ in
+				self?.didTapButton()
+			},
+			for: .touchUpInside
+		)
 	}
 
 	@objc private func didTapButton() {
@@ -64,10 +72,10 @@ extension AzureFloatingButtonView {
 	// ! Public
 
 	func animateView(withAlpha alpha: CGFloat, translateX tx: CGFloat, translateY ty: CGFloat) {
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .transitionCrossDissolve, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .transitionCrossDissolve) {
 			self.alpha = alpha
 			self.transform = .init(translationX: tx, y: ty)
-		})
+		}
 	}
 
 }

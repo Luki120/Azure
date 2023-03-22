@@ -12,6 +12,10 @@ final class AzureTableVCView: UIView {
 	private lazy var noIssuersLabel = UILabel()
 	private lazy var noResultsLabel = UILabel()
 
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
 	init(
 		dataSource: UITableViewDataSource,
 		tableViewDelegate: UITableViewDelegate,
@@ -24,11 +28,7 @@ final class AzureTableVCView: UIView {
 		azureTableView.delegate = tableViewDelegate
 		azureFloatingButtonView.delegate = floatingButtonViewDelegate
 
-		azureTableView.register(AzurePinCodeCell.self, forCellReuseIdentifier: .kIdentifier)
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
+		azureTableView.register(AzurePinCodeCell.self, forCellReuseIdentifier: AzurePinCodeCell.identifier)
 	}
 
 	override func layoutSubviews() {
@@ -40,6 +40,8 @@ final class AzureTableVCView: UIView {
 		super.traitCollectionDidChange(previousTraitCollection)
 		azureTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
 	}
+
+	// ! Private
 
 	private func setupViews() {
 		azureTableView.separatorStyle = .none
@@ -66,10 +68,10 @@ final class AzureTableVCView: UIView {
 		azureFloatingButtonView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25).isActive = true
 		setupSizeConstraints(forView: azureFloatingButtonView, width: 60, height: 60)
 
-		centerViewOnBothAxes(noIssuersLabel)
-		centerViewOnBothAxes(noResultsLabel)
-		setupHorizontalConstraints(forView: noIssuersLabel, leadingPadding: 10, trailingPadding: -10)
-		setupHorizontalConstraints(forView: noResultsLabel, leadingPadding: 10, trailingPadding: -10)
+		[noIssuersLabel, noResultsLabel].forEach {
+			centerViewOnBothAxes($0)
+			setupHorizontalConstraints(forView: $0, leadingConstant: 10, trailingConstant: -10)
+		}
 	}
 
 	// ! Reusable
@@ -93,7 +95,7 @@ extension AzureTableVCView {
 
 	func animateNoIssuersLabel() {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut) {
-			if TOTPManager.sharedInstance.entriesArray.count == 0 {
+			if TOTPManager.sharedInstance.issuers.count == 0 {
 				self.azureTableView.alpha = 0
 				self.noIssuersLabel.alpha = 1
 				self.noIssuersLabel.transform = .init(scaleX: 1, y: 1)
@@ -106,9 +108,9 @@ extension AzureTableVCView {
 		}
 	}
 
-	func animateNoSearchResultsLabel(forArray array: [[String:String]], isFiltering: Bool) {
+	func animateNoSearchResultsLabel(forArray array: [Issuer], isFiltering: Bool) {
 		UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {	
-			if array.count == 0 && TOTPManager.sharedInstance.entriesArray.count > 0 && isFiltering {
+			if array.count == 0 && TOTPManager.sharedInstance.issuers.count > 0 && isFiltering {
 				self.noResultsLabel.alpha = 1
 			}
 			else { self.noResultsLabel.alpha = 0 }
