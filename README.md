@@ -7,6 +7,7 @@
 * App logos for most common issuers.
 * Backup/import feature.
 * Biometrics.
+* Data gets securely stored in the Keychain.
 * Manually input QR code hashes, import a QR image & scan QR codes.
 * **NO** account system required.
 * **NO** email required.
@@ -20,11 +21,7 @@
 * [ ] Add docs 💀
 * [ ] Create a social cell to show & tap GitHub/Twitter links + update credits.
 * [ ] Explain what a user should do to get an issuer’s icon for the respective app.
-* [ ] Fix CoreAnimation bug.
-* [ ] Group issuers into different sections.
-* [x] Refactor model logic to create a Codable object rather than having to (de)serialize the JSON dict directly.
-* [x] Replace UserDefaults with Keychain 💀
-* [x] Rewrite lib code using native CryptoKit framework so Google can go ✈️
+* [ ] New UI refactor 💀
 
 ## Socials
 
