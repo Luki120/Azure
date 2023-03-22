@@ -1,7 +1,7 @@
 import UIKit
 
 
-final class AzureToastView: UIView {
+final class ToastView: UIView {
 
 	private var isAnimating = false
 	private var bottomAnchorConstraint: NSLayoutConstraint?
@@ -80,7 +80,7 @@ final class AzureToastView: UIView {
 
 }
 
-extension AzureToastView {
+extension ToastView {
 
 	// ! Public
 

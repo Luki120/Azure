@@ -2,14 +2,14 @@ import UIKit
 import UniformTypeIdentifiers
 
 
-final class AzureTableVC: UIViewController {
+final class IssuersVC: UIViewController {
 
 	private let authManager = AuthManager()
 	private let backupManager = BackupManager()
 
 	private var isFiltered = false
 	private var filteredIssuers = [Issuer]()
-	private var azureTableVCView: AzureTableVCView!
+	private var issuersVCView: IssuersVCView!
 	private var modalSheetVC: ModalSheetVC!
 
 	init() {
@@ -26,7 +26,7 @@ final class AzureTableVC: UIViewController {
 	deinit { NotificationCenter.default.removeObserver(self) }
 
 	private func setupMainView() {
-		azureTableVCView = AzureTableVCView(dataSource: self, tableViewDelegate: self, floatingButtonViewDelegate: self)
+		issuersVCView = IssuersVCView(dataSource: self, tableViewDelegate: self, floatingButtonViewDelegate: self)
 	}
 
 	private func setupObservers() {
@@ -42,7 +42,7 @@ final class AzureTableVC: UIViewController {
 		navigationItem.searchController = searchC
 	}
 
-	override func loadView() { view = azureTableVCView }
+	override func loadView() { view = issuersVCView }
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -60,28 +60,28 @@ final class AzureTableVC: UIViewController {
 	}
 
 	@objc private func didTapSortButton() {
-		if azureTableVCView.azureTableView.isEditing {
-			azureTableVCView.azureTableView.setEditing(false, animated: true)
+		if issuersVCView.issuersTableView.isEditing {
+			issuersVCView.issuersTableView.setEditing(false, animated: true)
 		}
-		else { azureTableVCView.azureTableView.setEditing(true, animated: true) }
+		else { issuersVCView.issuersTableView.setEditing(true, animated: true) }
 	}
 
 	private func updateSortButtonState() {
-		navigationItem.rightBarButtonItem?.isEnabled = TOTPManager.sharedInstance.issuers.count > 0
+		navigationItem.rightBarButtonItem?.isEnabled = IssuerManager.sharedInstance.issuers.count > 0
 	}
 
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
 		if scrollView.contentOffset.y >= view.safeAreaInsets.bottom + 60 {
-			azureTableVCView.azureFloatingButtonView.animateView(withAlpha: 0, translateX: 1, translateY: 100)
+			issuersVCView.floatingButtonView.animateView(withAlpha: 0, translateX: 1, translateY: 100)
 		}
-		else { azureTableVCView.azureFloatingButtonView.animateView(withAlpha: 1, translateX: 1, translateY: 1) }
+		else { issuersVCView.floatingButtonView.animateView(withAlpha: 1, translateX: 1, translateY: 1) }
 	}
 
 	// ! NSNotificationCenter
 
 	@objc private func purgeData() {
-		TOTPManager.sharedInstance.removeAllIssuers()
-		azureTableVCView.azureTableView.reloadData()
+		IssuerManager.sharedInstance.removeAllIssuers()
+		issuersVCView.issuersTableView.reloadData()
 		updateSortButtonState()
 	}
 
@@ -123,7 +123,7 @@ final class AzureTableVC: UIViewController {
 		if isJailbroken() {
 			backupManager.makeDataOutOfJSON()
 			UIView.transition(with: view, duration: 0.5, animations: {
-				self.azureTableVCView.azureTableView.reloadData()
+				self.issuersVCView.issuersTableView.reloadData()
 			}, completion: { _ in
 				self.modalSheetVC.shouldDismissVC()
 			})
@@ -195,21 +195,21 @@ final class AzureTableVC: UIViewController {
 }
 
 
-extension AzureTableVC: UISearchControllerDelegate, UISearchResultsUpdating {
+extension IssuersVC: UISearchControllerDelegate, UISearchResultsUpdating {
 
 	// ! UISearchResultsUpdating
 
 	func updateSearchResults(for searchController: UISearchController) {
 		let searchedString = searchController.searchBar.text
 		updateWithFilteredContent(forString: searchedString ?? "")
-		azureTableVCView.azureTableView.reloadData()
+		issuersVCView.issuersTableView.reloadData()
 	}
 
 	func updateWithFilteredContent(forString string: String) {
 		let textToSearch = string.trimmingCharacters(in: .whitespacesAndNewlines)
 		isFiltered = !textToSearch.isEmpty ? true : false
 
-		filteredIssuers = TOTPManager.sharedInstance.issuers.filter {
+		filteredIssuers = IssuerManager.sharedInstance.issuers.filter {
 			let issuerName = $0.name
 			return issuerName.range(of: textToSearch, options: .caseInsensitive) != nil
 		}
@@ -218,17 +218,17 @@ extension AzureTableVC: UISearchControllerDelegate, UISearchResultsUpdating {
 }
 
 
-extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITableViewDelegate {
+extension IssuersVC: IssuerCellDelegate, UITableViewDataSource, UITableViewDelegate {
 
-	// ! AzurePinCodeCellDelegate
+	// ! IssuerCellDelegate
 
-	private func fadeInOutToast(forCell cell: AzurePinCodeCell) {
+	private func fadeInOutToast(forCell cell: IssuerCell) {
 		let pasteboard = UIPasteboard.general
 		pasteboard.string = cell.secret
-		azureTableVCView.azureToastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2)
+		issuersVCView.toastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2)
 	}
 
-	func azurePinCodeCellDidTapCell(_ cell: AzurePinCodeCell) {
+	func issuerCellDidTapCell(_ cell: IssuerCell) {
 		guard authManager.shouldUseBiometrics() else {
 			fadeInOutToast(forCell: cell)
 			return
@@ -240,13 +240,13 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 			}
 		})
 	}
-	func azurePinCodeCellDidTapInfoButton(_ cell: AzurePinCodeCell) {
+	func issuerCellDidTapInfoButton(_ cell: IssuerCell) {
 		let message = "Issuer: \(cell.name)"
-		azureTableVCView.azureToastView.fadeInOutToastView(withMessage: message, finalDelay: 0.2)
+		issuersVCView.toastView.fadeInOutToastView(withMessage: message, finalDelay: 0.2)
 	}
 
-	func azurePinCodeCellShouldFadeInOutToastView() {
-		azureTableVCView.azureToastView.fadeInOutToastView(withMessage: "Copied code!", finalDelay: 0.2)
+	func issuerCellShouldFadeInOutToastView() {
+		issuersVCView.toastView.fadeInOutToastView(withMessage: "Copied code!", finalDelay: 0.2)
 	}
 
 	// ! UITableViewDataSource
@@ -254,7 +254,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	private func setupDataSource(
 		forArray array: [Issuer],
 		at indexPath: IndexPath,
-		forCell cell: AzurePinCodeCell
+		forCell cell: IssuerCell
 	) {
 		cell.setIssuer(
 			withName: array[indexPath.row].name,
@@ -269,25 +269,25 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	}
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		azureTableVCView.animateNoIssuersLabel()
-		azureTableVCView.animateNoSearchResultsLabel(forArray: filteredIssuers, isFiltering: isFiltered)
-		return isFiltered ? filteredIssuers.count : TOTPManager.sharedInstance.issuers.count
+		issuersVCView.animateNoIssuersLabel()
+		issuersVCView.animateNoSearchResultsLabel(forArray: filteredIssuers, isFiltering: isFiltered)
+		return isFiltered ? filteredIssuers.count : IssuerManager.sharedInstance.issuers.count
 	}
 
 	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		guard let cell = tableView.dequeueReusableCell(
-			withIdentifier: AzurePinCodeCell.identifier,
+			withIdentifier: IssuerCell.identifier,
 			for: indexPath
-		) as? AzurePinCodeCell else {
+		) as? IssuerCell else {
 			return UITableViewCell()
 		}
 		cell.delegate = self
 		cell.backgroundColor = .clear
 
 		if isFiltered { setupDataSource(forArray: filteredIssuers, at: indexPath, forCell: cell) }
-		else { setupDataSource(forArray: TOTPManager.sharedInstance.issuers, at: indexPath, forCell: cell) }
+		else { setupDataSource(forArray: IssuerManager.sharedInstance.issuers, at: indexPath, forCell: cell) }
 
-		let image = TOTPManager.sharedInstance.imagesDict[cell.name.lowercased()]
+		let image = IssuerManager.sharedInstance.imagesDict[cell.name.lowercased()]
 		let resizedImage = image?.resizeImage(image ?? UIImage(), withSize: CGSize(width: 30, height: 30))
 		let placeholderImage = UIImage(named: "lock")?.withRenderingMode(.alwaysTemplate)
 
@@ -311,13 +311,13 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
 		let action = UIContextualAction(style: .destructive, title: "Delete") { _, _, completion in
-			let issuerName = TOTPManager.sharedInstance.issuers[indexPath.row].name
+			let issuerName = IssuerManager.sharedInstance.issuers[indexPath.row].name
 			let message = "You're about to delete the code for the issuer named \(issuerName) ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to."
 			let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
 
 			let confirmAction = UIAlertAction(title: "Yes", style: .destructive) { _ in
-				TOTPManager.sharedInstance.removeIssuer(at: indexPath)
-				self.azureTableVCView.azureTableView.deleteRows(at: [indexPath], with: .fade)
+				IssuerManager.sharedInstance.removeIssuer(at: indexPath)
+				self.issuersVCView.issuersTableView.deleteRows(at: [indexPath], with: .fade)
 
 				self.updateSortButtonState()
 
@@ -339,18 +339,18 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	}
 
 	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-		let issuer = TOTPManager.sharedInstance.issuers[sourceIndexPath.row]
+		let issuer = IssuerManager.sharedInstance.issuers[sourceIndexPath.row]
 
 		// Leptos giga chad code, only that I translated it to Swift :tm:
 		// ⇝ https://github.com/leptos-null/OneTime/blob/88395900c67852bb9e7597c2bdae5a2a150b1844/onetime/ViewControllers/OTPassTableViewController.m#L299
 		let start = min(sourceIndexPath.row, destinationIndexPath.row)
 		let stop = max(destinationIndexPath.row, sourceIndexPath.row)
 
-		TOTPManager.sharedInstance.issuers.remove(at: sourceIndexPath.row)
-		TOTPManager.sharedInstance.issuers.insert(issuer, at: destinationIndexPath.row)
+		IssuerManager.sharedInstance.issuers.remove(at: sourceIndexPath.row)
+		IssuerManager.sharedInstance.issuers.insert(issuer, at: destinationIndexPath.row)
 
 		for i in start...stop {
-			var issuer = TOTPManager.sharedInstance.issuers[i]
+			var issuer = IssuerManager.sharedInstance.issuers[i]
 			issuer.index = i
 
 			KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
@@ -359,11 +359,11 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 
 }
 
-extension AzureTableVC: AzureFloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumentPickerDelegate, UIPopoverPresentationControllerDelegate {
+extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumentPickerDelegate, UIPopoverPresentationControllerDelegate {
 
-	// ! AzureFloatingButtonViewDelegate
+	// ! FloatingButtonViewDelegate
 
-	func azureFloatingButtonViewDidTapFloatingButton() {
+	func floatingButtonViewDidTapFloatingButton() {
 		modalSheetVC = ModalSheetVC()
 		modalSheetVC.delegate = self
 		modalSheetVC.setupChildWithTitle("Add issuer",
@@ -390,14 +390,14 @@ extension AzureTableVC: AzureFloatingButtonViewDelegate, ModalSheetVCDelegate, U
 
 	// ! ModalSheetVCDelegate
 
-	func modalSheetVCShouldReloadData() { azureTableVCView.azureTableView.reloadData() }
+	func modalSheetVCShouldReloadData() { issuersVCView.issuersTableView.reloadData() }
 
 	// ! UIDocumentPickerDelegate
 
 	func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
 		backupManager.makeDataOutOfJSON()
 		UIView.transition(with: view, duration: 0.5, animations: {
-			self.azureTableVCView.azureTableView.reloadData()
+			self.issuersVCView.issuersTableView.reloadData()
 		})
 	}
 

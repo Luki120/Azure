@@ -1,7 +1,7 @@
 import UIKit
 
 
-final class PinCodeVCView: UIView {
+final class NewIssuerVCView: UIView {
 
 	var issuerStackView: UIStackView!
 	var secretHashStackView: UIStackView!
@@ -10,7 +10,7 @@ final class PinCodeVCView: UIView {
 	var issuerTextField: UITextField!
 	var secretTextField: UITextField!
 	var pinCodesTableView: UITableView!
-	var azToastView: AzureToastView!
+	var toastView: ToastView!
 
 	private var issuerLabel: UILabel!
 	private var secretLabel: UILabel!
@@ -56,8 +56,8 @@ final class PinCodeVCView: UIView {
 		secretHashStackView.addArrangedSubview(secretLabel)
 		secretHashStackView.addArrangedSubview(secretTextField)
 
-		azToastView = AzureToastView()
-		addSubview(azToastView)
+		toastView = ToastView()
+		addSubview(toastView)
 
 		algorithmLabel = createLabel(textColor: .placeholderText)
 		algorithmLabel.textAlignment = .center
@@ -67,7 +67,7 @@ final class PinCodeVCView: UIView {
 
 	private func layoutUI() {
 		pinViewToAllEdges(pinCodesTableView)
-		pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -5)
+		pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
 	// MARK: Reusable
@@ -100,7 +100,7 @@ final class PinCodeVCView: UIView {
 
 }
 
-extension PinCodeVCView {
+extension NewIssuerVCView {
 	// MARK: Public
 	func configureConstraints(
 		forStackView stackView: UIStackView,
@@ -118,7 +118,7 @@ extension PinCodeVCView {
 	}
 }
 
-extension PinCodeVCView: UITextFieldDelegate {
+extension NewIssuerVCView: UITextFieldDelegate {
 
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
 		if textField == issuerTextField {

@@ -1,11 +1,11 @@
 import UIKit
 
 /// Singleton manager to handle the creation, deletion & saving of issuers
-final class TOTPManager {
+final class IssuerManager {
 
 	private let kIssuersPath = "/Applications/Azure.app/Issuers/"
 
-	static let sharedInstance = TOTPManager()
+	static let sharedInstance = IssuerManager()
 
 	var issuers = [Issuer]()
 
@@ -44,7 +44,7 @@ final class TOTPManager {
 
 }
 
-extension TOTPManager {
+extension IssuerManager {
 
 	// ! Public
 

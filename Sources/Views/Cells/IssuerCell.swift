@@ -1,15 +1,15 @@
 import UIKit
 
 
-protocol AzurePinCodeCellDelegate: AnyObject {
-	func azurePinCodeCellDidTapCell(_ cell: AzurePinCodeCell)
-	func azurePinCodeCellDidTapInfoButton(_ cell: AzurePinCodeCell)
-	func azurePinCodeCellShouldFadeInOutToastView()
+protocol IssuerCellDelegate: AnyObject {
+	func issuerCellDidTapCell(_ cell: IssuerCell)
+	func issuerCellDidTapInfoButton(_ cell: IssuerCell)
+	func issuerCellShouldFadeInOutToastView()
 }
 
-final class AzurePinCodeCell: UITableViewCell {
+final class IssuerCell: UITableViewCell {
 
-	static let identifier = "AzurePinCodeCell"
+	static let identifier = "IssuerCell"
 
 	private var issuer: Issuer?
 	private var copyPinButton, infoButton: UIButton!
@@ -22,7 +22,7 @@ final class AzurePinCodeCell: UITableViewCell {
 	private(set) var name = ""
 	private(set) var secret = ""
 
-	weak var delegate: AzurePinCodeCellDelegate?
+	weak var delegate: IssuerCellDelegate?
 
 	lazy var issuerImageView: UIImageView = {
 		let imageView = UIImageView()
@@ -142,15 +142,15 @@ final class AzurePinCodeCell: UITableViewCell {
 		circleProgressView.heightAnchor.constraint(equalToConstant: 20).isActive = true
 	}
 
-	@objc private func didTapCell() { delegate?.azurePinCodeCellDidTapCell(self) }
+	@objc private func didTapCell() { delegate?.issuerCellDidTapCell(self) }
 
 	@objc private func didTapCopyPinButton() {
 		let pasteboard = UIPasteboard.general
 		pasteboard.string = pinLabel.text
-		delegate?.azurePinCodeCellShouldFadeInOutToastView()
+		delegate?.issuerCellShouldFadeInOutToastView()
 	}
 
-	@objc private func didTapInfoButton() { delegate?.azurePinCodeCellDidTapInfoButton(self) }
+	@objc private func didTapInfoButton() { delegate?.issuerCellDidTapInfoButton(self) }
 
 	// ! Timer
 
@@ -216,7 +216,7 @@ final class AzurePinCodeCell: UITableViewCell {
 
 }
 
-extension AzurePinCodeCell {
+extension IssuerCell {
 
 	// ! Public
 
@@ -231,7 +231,7 @@ extension AzurePinCodeCell {
 
 }
 
-extension AzurePinCodeCell: CAAnimationDelegate {
+extension IssuerCell: CAAnimationDelegate {
 
 	func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
 		guard flag else { return }

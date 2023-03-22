@@ -1,11 +1,11 @@
 import UIKit
 
 
-final class AzureTableVCView: UIView {
+final class IssuersVCView: UIView {
 
-	var azureFloatingButtonView = AzureFloatingButtonView()
-	var azureTableView = UITableView()
-	var azureToastView = AzureToastView()
+	var floatingButtonView = FloatingButtonView()
+	var issuersTableView = UITableView()
+	var toastView = ToastView()
 
 	private var kUserInterfaceStyle: Bool { return traitCollection.userInterfaceStyle == .dark }
 
@@ -19,16 +19,16 @@ final class AzureTableVCView: UIView {
 	init(
 		dataSource: UITableViewDataSource,
 		tableViewDelegate: UITableViewDelegate,
-		floatingButtonViewDelegate: AzureFloatingButtonViewDelegate
+		floatingButtonViewDelegate: FloatingButtonViewDelegate
 	) {
 		super.init(frame: .zero)
 
 		setupViews()
-		azureTableView.dataSource = dataSource
-		azureTableView.delegate = tableViewDelegate
-		azureFloatingButtonView.delegate = floatingButtonViewDelegate
+		issuersTableView.dataSource = dataSource
+		issuersTableView.delegate = tableViewDelegate
+		floatingButtonView.delegate = floatingButtonViewDelegate
 
-		azureTableView.register(AzurePinCodeCell.self, forCellReuseIdentifier: AzurePinCodeCell.identifier)
+		issuersTableView.register(IssuerCell.self, forCellReuseIdentifier: IssuerCell.identifier)
 	}
 
 	override func layoutSubviews() {
@@ -38,35 +38,35 @@ final class AzureTableVCView: UIView {
 
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
-		azureTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
+		issuersTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
 	}
 
 	// ! Private
 
 	private func setupViews() {
-		azureTableView.separatorStyle = .none
-		azureTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
+		issuersTableView.separatorStyle = .none
+		issuersTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
 
 		noIssuersLabel = createLabel(withText: "No issuers were added yet. Tap the + button in order to add one.")
 		noResultsLabel = createLabel(withText: "No results were found for this query.")
 		noResultsLabel.alpha = 0
 
-		addSubview(azureTableView)
-		addSubview(azureFloatingButtonView)
-		addSubview(azureToastView)
+		addSubview(issuersTableView)
+		addSubview(floatingButtonView)
+		addSubview(toastView)
 		addSubview(noIssuersLabel)
 		addSubview(noResultsLabel)
 	}
 
 	private func layoutViews() {
-		pinViewToAllEdgesIncludingSafeAreas(azureTableView)
-		pinAzureToastToTheBottomCenteredOnTheXAxis(azureToastView, bottomConstant: -5)
+		pinViewToAllEdgesIncludingSafeAreas(issuersTableView)
+		pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 
 		let guide = safeAreaLayoutGuide
 
-		azureFloatingButtonView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -25).isActive = true
-		azureFloatingButtonView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25).isActive = true
-		setupSizeConstraints(forView: azureFloatingButtonView, width: 60, height: 60)
+		floatingButtonView.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -25).isActive = true
+		floatingButtonView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25).isActive = true
+		setupSizeConstraints(forView: floatingButtonView, width: 60, height: 60)
 
 		[noIssuersLabel, noResultsLabel].forEach {
 			centerViewOnBothAxes($0)
@@ -89,19 +89,19 @@ final class AzureTableVCView: UIView {
 
 }
 
-extension AzureTableVCView {
+extension IssuersVCView {
 
 	// ! Public
 
 	func animateNoIssuersLabel() {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut) {
-			if TOTPManager.sharedInstance.issuers.count == 0 {
-				self.azureTableView.alpha = 0
+			if IssuerManager.sharedInstance.issuers.count == 0 {
+				self.issuersTableView.alpha = 0
 				self.noIssuersLabel.alpha = 1
 				self.noIssuersLabel.transform = .init(scaleX: 1, y: 1)
 			}
 			else {
-				self.azureTableView.alpha = 1
+				self.issuersTableView.alpha = 1
 				self.noIssuersLabel.alpha = 0
 				self.noIssuersLabel.transform = .init(scaleX: 0.1, y: 0.1)
 			}
@@ -110,7 +110,7 @@ extension AzureTableVCView {
 
 	func animateNoSearchResultsLabel(forArray array: [Issuer], isFiltering: Bool) {
 		UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {	
-			if array.count == 0 && TOTPManager.sharedInstance.issuers.count > 0 && isFiltering {
+			if array.count == 0 && IssuerManager.sharedInstance.issuers.count > 0 && isFiltering {
 				self.noResultsLabel.alpha = 1
 			}
 			else { self.noResultsLabel.alpha = 0 }

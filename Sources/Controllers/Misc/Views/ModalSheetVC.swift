@@ -8,10 +8,10 @@ protocol ModalSheetVCDelegate: AnyObject {
 
 final class ModalSheetVC: UIViewController {
 
-	private let azToastView = AzureToastView()
+	private let toastView = ToastView()
 	private let modalChildView = ModalChildView()
 	private var navVC: UINavigationController!
-	private let pinCodeVC = PinCodeVC()
+	private let newIssuerVC = NewIssuerVC()
 
 	weak var delegate: ModalSheetVCDelegate?
 
@@ -31,7 +31,7 @@ final class ModalSheetVC: UIViewController {
 
 	private func setupViews() {
 		modalChildView.delegate = self
-		pinCodeVC.delegate = self
+		newIssuerVC.delegate = self
 
 		view.backgroundColor = .clear
 		view.addSubview(modalChildView)
@@ -123,7 +123,7 @@ final class ModalSheetVC: UIViewController {
 
 }
 
-extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDelegate {
+extension ModalSheetVC: ModalChildViewDelegate, NewIssuerVCDelegate, QRCodeVCDelegate {
 
 	@objc func modalChildViewDidTapScanQRCodeButton() {
 		let qrCodeVC = QRCodeVC()
@@ -149,19 +149,19 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 
 		let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.filter { $0.activationState == .foregroundActive }
 		let window = scenes.first?.windows.last
-		window?.addSubview(azToastView)
-		window?.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -5)
+		window?.addSubview(toastView)
+		window?.pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
 	@objc func modalChildViewDidTapEnterManuallyButton() {
 		configureVC(
-			pinCodeVC,
+			newIssuerVC,
 			withTitle: "Enter QR Code",
 			withItemImage: UIImage(systemName: "checkmark.circle.fill") ?? UIImage(),
 			forSelector: #selector(didTapComposeButton),
 			isLeftBarButtonItem: false
 		)
-		pinCodeVC.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItem(
+		newIssuerVC.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItem(
 			withImage: UIImage(systemName: "xmark.circle.fill") ?? UIImage(),
 			forTarget: self,
 			forSelector: #selector(didTapDismissButton)
@@ -201,12 +201,12 @@ extension ModalSheetVC: ModalChildViewDelegate, PinCodeVCDelegate, QRCodeVCDeleg
 		}
 	}
 
-	func pinCodeVCShouldDismissVC() {
+	func newIssuerVCShouldDismissVC() {
 		delegate?.modalSheetVCShouldReloadData()
 		dismissVC()
 	}
 
-	func pinCodeVCShouldPushAlgorithmVC() {
+	func newIssuerVCShouldPushAlgorithmVC() {
 		let algorithmVC = AlgorithmVC()
 		algorithmVC.title = "Algorithm"
 		navVC.pushViewController(algorithmVC, animated: true)
@@ -241,16 +241,16 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 
 				let features = detector?.features(in: ciImage ?? CIImage()) as? [CIQRCodeFeature] ?? []
 				guard let otPauthString = features.first?.messageString else {
-					self.azToastView.fadeInOutToastView(withMessage: "No QR code was detected on this image.", finalDelay: 1.5)
+					self.toastView.fadeInOutToastView(withMessage: "No QR code was detected on this image.", finalDelay: 1.5)
 					return
 				}
-				TOTPManager.sharedInstance.createIssuer(outOfOtPauthString: otPauthString) { isDuplicateItem, issuer in
+				IssuerManager.sharedInstance.createIssuer(outOfOtPauthString: otPauthString) { isDuplicateItem, issuer in
 					guard !isDuplicateItem else {
-						self.azToastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+						self.toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
 						return
 					}
 
-					TOTPManager.sharedInstance.issuers.append(issuer)
+					IssuerManager.sharedInstance.issuers.append(issuer)
 
 					self.delegate?.modalSheetVCShouldReloadData()
 					self.dismissVC()

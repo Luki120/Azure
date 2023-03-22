@@ -33,7 +33,7 @@ final class AlgorithmVC: UITableViewController {
 
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "VanillaCell", for: indexPath)
-		selectedRow = TOTPManager.sharedInstance.selectedRow
+		selectedRow = IssuerManager.sharedInstance.selectedRow
 		delegate?.algorithmVCDidUpdateAlgorithmLabel(withSelectedRow: selectedRow)
 		cell.accessoryType = indexPath.row == selectedRow ? .checkmark : .none
 		cell.backgroundColor = .clear
@@ -44,7 +44,7 @@ final class AlgorithmVC: UITableViewController {
 
 	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
-		TOTPManager.sharedInstance.feedSelectedRow(withRow: indexPath.row)
+		IssuerManager.sharedInstance.feedSelectedRow(withRow: indexPath.row)
 		tableView.reloadData()
 	}
 

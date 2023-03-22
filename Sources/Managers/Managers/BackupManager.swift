@@ -19,12 +19,12 @@ final class BackupManager {
 		guard let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL) else { return }
 		let issuers = try! JSONDecoder().decode([Issuer].self, from: data)
 
-		TOTPManager.sharedInstance.issuers = issuers
-		TOTPManager.sharedInstance.saveIssuers()
+		IssuerManager.sharedInstance.issuers = issuers
+		IssuerManager.sharedInstance.saveIssuers()
 	}
 
 	func makeJSONOutOfData() {
-		guard TOTPManager.sharedInstance.issuers.count > 0 else { return }
+		guard IssuerManager.sharedInstance.issuers.count > 0 else { return }
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
 				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)
@@ -38,7 +38,7 @@ final class BackupManager {
 
 		let encoder = JSONEncoder()
 		encoder.outputFormatting = .prettyPrinted
-		guard let encodedData = try? encoder.encode(TOTPManager.sharedInstance.issuers) else { return }
+		guard let encodedData = try? encoder.encode(IssuerManager.sharedInstance.issuers) else { return }
 
 		fileHandle?.write(encodedData)
 		fileHandle?.closeFile()

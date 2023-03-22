@@ -30,7 +30,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
 		let usesBiometrics = UserDefaults.standard.bool(forKey: "useBiometrics")
 		if usesBiometrics && authManager.shouldUseBiometrics() { unsafePortalDispatch() }
-		else { window?.rootViewController = AzureRootVC() }
+		else { window?.rootViewController = TabBarVC() }
 
 		return true
 	}
@@ -43,7 +43,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 					self?.strongWindow.rootViewController = self?.NotAuthenticatedVC
 					return
 				}
-				self?.strongWindow.rootViewController = AzureRootVC()
+				self?.strongWindow.rootViewController = TabBarVC()
 			}
 		})
 	}

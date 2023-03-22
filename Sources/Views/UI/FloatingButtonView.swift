@@ -1,13 +1,13 @@
 import UIKit
 
 
-protocol AzureFloatingButtonViewDelegate: AnyObject {
-	func azureFloatingButtonViewDidTapFloatingButton()
+protocol FloatingButtonViewDelegate: AnyObject {
+	func floatingButtonViewDidTapFloatingButton()
 }
 
-final class AzureFloatingButtonView: UIView {
+final class FloatingButtonView: UIView {
 
-	weak var delegate: AzureFloatingButtonViewDelegate?
+	weak var delegate: FloatingButtonViewDelegate?
 
 	private lazy var floatingButton: UIButton = {
 		let button = UIButton()
@@ -63,11 +63,11 @@ final class AzureFloatingButtonView: UIView {
 				}
 			}
 		}
-		delegate?.azureFloatingButtonViewDidTapFloatingButton()
+		delegate?.floatingButtonViewDidTapFloatingButton()
 	}
 }
 
-extension AzureFloatingButtonView {
+extension FloatingButtonView {
 
 	// ! Public
 

@@ -62,7 +62,7 @@ private final class DimmedView: UIView {
 
 final class QRCodeVC: UIViewController {
 
-	private let azToastView = AzureToastView()
+	private let toastView = ToastView()
 	private let dimmedView = DimmedView()
 	private let captureSession = AVCaptureSession()
 	private var captureVideoPreviewLayer: AVCaptureVideoPreviewLayer!
@@ -81,7 +81,7 @@ final class QRCodeVC: UIViewController {
 			.filter { $0.activationState == .foregroundActive }
 
 		window = scenes.first?.windows.last
-		window.addSubview(azToastView)
+		window.addSubview(toastView)
 
 		checkAuthorizationStatus()
 	}
@@ -98,19 +98,19 @@ final class QRCodeVC: UIViewController {
 
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
-		window.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -15)
+		window.pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -15)
 		view.pinViewToAllEdges(dimmedView)
 	}
 
 	private func checkAuthorizationStatus() {
 		switch AVCaptureDevice.authorizationStatus(for: .video) {
 			case .authorized: setupScanner()
-			case .denied: azToastView.fadeInOutToastView(withMessage: "Camera access denied.", finalDelay: 1.5)
+			case .denied: toastView.fadeInOutToastView(withMessage: "Camera access denied.", finalDelay: 1.5)
 			case .notDetermined:
 				AVCaptureDevice.requestAccess(for: .video) { granted in
 					DispatchQueue.main.async {
 						guard granted else {
-							self.azToastView.fadeInOutToastView(withMessage: "Camera access denied.", finalDelay: 1.5)
+							self.toastView.fadeInOutToastView(withMessage: "Camera access denied.", finalDelay: 1.5)
 							return
 						}
 						self.setupScanner()
@@ -153,13 +153,13 @@ extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 		guard let metadataObject = metadataObjects[0] as? AVMetadataMachineReadableCodeObject else { return }
 		guard let outputString = metadataObject.stringValue else { return }
 
-		TOTPManager.sharedInstance.createIssuer(outOfOtPauthString: outputString) { isDuplicateItem, issuer in
+		IssuerManager.sharedInstance.createIssuer(outOfOtPauthString: outputString) { isDuplicateItem, issuer in
 			guard !isDuplicateItem else {
-				azToastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+				toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
 				return
 			}
 
-			TOTPManager.sharedInstance.issuers.append(issuer)
+			IssuerManager.sharedInstance.issuers.append(issuer)
 
 			captureSession.stopRunning()
 			captureVideoPreviewLayer.removeFromSuperlayer()

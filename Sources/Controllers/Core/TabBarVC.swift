@@ -1,14 +1,14 @@
 import UIKit
 
 
-final class AzureRootVC: UITabBarController {
+final class TabBarVC: UITabBarController {
 
 	private var isSelected = false
 
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nil, bundle: nil)
 
-		let firstVC = AzureTableVC()
+		let firstVC = IssuersVC()
 		let secondVC = SettingsVC().makeSettingsViewUI()
 		firstVC.title = "Home"
 		secondVC.title = "Settings"
@@ -49,7 +49,7 @@ final class AzureRootVC: UITabBarController {
 
 }
 
-extension AzureRootVC: UITabBarControllerDelegate {
+extension TabBarVC: UITabBarControllerDelegate {
 
 	func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
 		UserDefaults.standard.set(selectedIndex, forKey: "selectedIndex")
