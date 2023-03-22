@@ -13,11 +13,12 @@ final class BackupManager {
 	}
 
 	func makeDataOutOfJSON() {
-		if !fileM.fileExists(atPath: .kAzurePath) || !fileM.fileExists(atPath: kAzureJailedPathURL.path) { return }
+		if !fileM.fileExists(atPath: .kAzurePath) && !fileM.fileExists(atPath: kAzureJailedPathURL.path) { return }
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
 		guard let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL) else { return }
 		let issuers = try! JSONDecoder().decode([Issuer].self, from: data)
+
 		TOTPManager.sharedInstance.issuers = issuers
 		TOTPManager.sharedInstance.saveIssuers()
 	}
@@ -32,7 +33,7 @@ final class BackupManager {
 		}
 		else { createFile(atPath: kAzureJailedPathURL.path) }
 
- 		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.path)
+		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.path)
 		fileHandle?.seekToEndOfFile()
 
 		let encoder = JSONEncoder()
@@ -45,7 +46,7 @@ final class BackupManager {
 
 	private func createFile(atPath path: String) {
 		if !fileM.fileExists(atPath: path) { fileM.createFile(atPath: path, contents: nil) }
- 		else {
+		else {
 			try? fileM.removeItem(atPath: path)
 			fileM.createFile(atPath: path, contents: nil)
 		}
