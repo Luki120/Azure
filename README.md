@@ -23,7 +23,7 @@
 * [ ] Fix CoreAnimation bug.
 * [ ] Group issuers into different sections.
 * [x] Refactor model logic to create a Codable object rather than having to (de)serialize the JSON dict directly.
-* [ ] Replace UserDefaults with Keychain 💀
+* [x] Replace UserDefaults with Keychain 💀
 * [x] Rewrite lib code using native CryptoKit framework so Google can go ✈️
 
 ## Socials
