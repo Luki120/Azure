@@ -69,11 +69,19 @@ final class QRCodeVC: UIViewController {
 
 	weak var delegate: QRCodeVCDelegate?
 
+	private var window: UIWindow!
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
-		view.addSubview(azToastView)
 		view.addSubview(dimmedView)
+
+		let scenes = UIApplication.shared.connectedScenes
+			.compactMap { $0 as? UIWindowScene }
+			.filter { $0.activationState == .foregroundActive }
+
+		window = scenes.first?.windows.last
+		window.addSubview(azToastView)
 
 		checkAuthorizationStatus()
 	}
@@ -90,7 +98,7 @@ final class QRCodeVC: UIViewController {
 
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
-		view.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -15)
+		window.pinAzureToastToTheBottomCenteredOnTheXAxis(azToastView, bottomConstant: -15)
 		view.pinViewToAllEdges(dimmedView)
 	}
 
@@ -136,6 +144,7 @@ final class QRCodeVC: UIViewController {
 
 		captureSession.startRunning()
 	}
+
 }
 
 extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
@@ -144,12 +153,20 @@ extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 		guard let metadataObject = metadataObjects[0] as? AVMetadataMachineReadableCodeObject else { return }
 		guard let outputString = metadataObject.stringValue else { return }
 
-		captureSession.stopRunning()
-		captureVideoPreviewLayer.removeFromSuperlayer()
-		dimmedView.layer.removeAllAnimations()
+		TOTPManager.sharedInstance.createIssuer(outOfOtPauthString: outputString) { isDuplicateItem, issuer in
+			guard !isDuplicateItem else {
+				azToastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+				return
+			}
 
-		TOTPManager.sharedInstance.createIssuer(outOfOtPauthString: outputString)
-		delegate?.qrCodeVCDidCreateIssuerOutOfQRCode()
+			TOTPManager.sharedInstance.issuers.append(issuer)
+
+			captureSession.stopRunning()
+			captureVideoPreviewLayer.removeFromSuperlayer()
+			dimmedView.layer.removeAllAnimations()
+
+			delegate?.qrCodeVCDidCreateIssuerOutOfQRCode()
+		}
 	}
 }
 

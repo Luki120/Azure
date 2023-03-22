@@ -262,6 +262,10 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 			algorithm: array[indexPath.row].algorithm,
 			withTransition: false
 		)
+
+		var issuer = array[indexPath.row]
+		issuer.index = indexPath.row
+		KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
 	}
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -306,7 +310,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	}
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-		let action = UIContextualAction(style: .destructive, title: "Delete", handler: { _, _, completion in
+		let action = UIContextualAction(style: .destructive, title: "Delete") { _, _, completion in
 			let issuerName = TOTPManager.sharedInstance.issuers[indexPath.row].name
 			let message = "You're about to delete the code for the issuer named \(issuerName) ❗❗. Are you sure you want to proceed? You'll have to set the code again if you wished to."
 			let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
@@ -326,7 +330,7 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 			alertController.addAction(confirmAction)
 			alertController.addAction(dismissAction)
 			self.present(alertController, animated: true)
-		})
+		}
 
 		action.backgroundColor = .kAzureMintTintColor
 
@@ -335,10 +339,22 @@ extension AzureTableVC: AzurePinCodeCellDelegate, UITableViewDataSource, UITable
 	}
 
 	func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-		let issuersArray = TOTPManager.sharedInstance.issuers[sourceIndexPath.row]
+		let issuer = TOTPManager.sharedInstance.issuers[sourceIndexPath.row]
+
+		// Leptos giga chad code, only that I translated it to Swift :tm:
+		// ⇝ https://github.com/leptos-null/OneTime/blob/88395900c67852bb9e7597c2bdae5a2a150b1844/onetime/ViewControllers/OTPassTableViewController.m#L299
+		let start = min(sourceIndexPath.row, destinationIndexPath.row)
+		let stop = max(destinationIndexPath.row, sourceIndexPath.row)
+
 		TOTPManager.sharedInstance.issuers.remove(at: sourceIndexPath.row)
-		TOTPManager.sharedInstance.issuers.insert(issuersArray, at: destinationIndexPath.row)
-		TOTPManager.sharedInstance.saveIssuers()
+		TOTPManager.sharedInstance.issuers.insert(issuer, at: destinationIndexPath.row)
+
+		for i in start...stop {
+			var issuer = TOTPManager.sharedInstance.issuers[i]
+			issuer.index = i
+
+			KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
+		}
 	}
 
 }

@@ -222,7 +222,7 @@ extension AzurePinCodeCell {
 
 	func setIssuer(withName name: String, secret: Data, algorithm: Issuer.Algorithm, withTransition transition: Bool) {
 		self.name = name
-		self.secret = String(decoding: secret, as: UTF8.self)
+		self.secret = .base32EncodedString(secret)
 		issuer = Issuer(name: name, secret: secret, algorithm: algorithm)
 
 		if(transition) { regeneratePIN() }

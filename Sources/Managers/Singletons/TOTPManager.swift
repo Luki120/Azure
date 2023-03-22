@@ -16,18 +16,8 @@ final class TOTPManager {
 	private init() {
 		selectedRow = defaults.integer(forKey: "selectedRow")
 
-		retrieveIssuers()
+		issuers = KeychainManager.sharedInstance.retrieveIssuers()
 		setupImagesDict()
-	}
-
-	private func retrieveIssuers() {
-		guard let data = defaults.data(forKey: "issuersData") else {
-			issuers = []
-			return
-		}
-
-		let decodedIssuers = try? JSONDecoder().decode([Issuer].self, from: data)
-		issuers = decodedIssuers ?? []
 	}
 
 	private func setupImagesDict() {
@@ -40,21 +30,30 @@ final class TOTPManager {
 		}
 	}
 
-	private func appendIssuer(withName name: String, secret: Data, algorithm: Issuer.Algorithm) {
-		issuers.append(.init(name: name, secret: secret, algorithm: algorithm))
-		saveIssuers()
+	private func createIssuer(
+		withName name: String,
+		secret: Data,
+		algorithm: Issuer.Algorithm,
+		completion: (Bool, Issuer) -> ()
+	) {
+		let issuer: Issuer = .init(name: name, secret: secret, algorithm: algorithm)
+		KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
+
+		completion(KeychainManager.sharedInstance.isDuplicateItem, issuer)
 	}
 
 }
 
 extension TOTPManager {
 
-	// Public
+	// ! Public
 
 	/// Function to create an issuer from the given url
-	/// Parameters:
+	/// - Parameters:
 	///		- outOfOtPauthString: The ot pauth url string
-	func createIssuer(outOfOtPauthString string: String) {
+	///		- completion: Closure that takes a Bool & Issuer as argument and returns nothing, used to check
+	///		if the issuer being created already exists in the keychain or not
+	func createIssuer(outOfOtPauthString string: String, completion: (Bool, Issuer) -> ()) {
 		guard let safeUrl = URL(string: string) else { return }
 
 		let urlComponents = URLComponents(url: safeUrl, resolvingAgainstBaseURL: false)
@@ -84,10 +83,11 @@ extension TOTPManager {
 				scanner.scanString("/totp/") != nil,
 				let scannedName = scanner.scanUpToString("?") else { return }
 
-			appendIssuer(withName: scannedName, secret: .base32DecodedString(secret), algorithm: algorithm)
+			createIssuer(withName: scannedName, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
 			return
 		}
-		appendIssuer(withName: name, secret: .base32DecodedString(secret), algorithm: algorithm)
+
+		createIssuer(withName: name, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
 	}
 
 	/// Function to pass an index path's row to configure the encryption algorithm
@@ -102,7 +102,7 @@ extension TOTPManager {
 	/// - Parameters:
 	///		- withName: A string to represent the issuer's name
 	///		- secret: The secret hash data
-	func feedIssuer(withName name: String, secret: Data) {
+	func feedIssuer(withName name: String, secret: Data, completion: (Bool, Issuer) -> ()) {
 		var algorithm: Issuer.Algorithm = .sha1
 
 		switch selectedRow {
@@ -112,27 +112,29 @@ extension TOTPManager {
 			default: break
 		}
 
-		appendIssuer(withName: name, secret: secret, algorithm: algorithm)
+		createIssuer(withName: name, secret: secret, algorithm: algorithm, completion: completion)
 	}
 
-	/// Function to encode the issuers as data and save them to disk
+	/// Function to save all issuers to the keychain
 	func saveIssuers() {
-		guard let encodedIssuers = try? JSONEncoder().encode(issuers) else { return }
-		defaults.set(encodedIssuers, forKey: "issuersData")
+		issuers.forEach {
+			KeychainManager.sharedInstance.save(issuer: $0, forService: $0.name)
+		}
 	}
 
 	/// Function to remove an issuer from the issuers array
 	/// - Parameters:
 	///     - at: The given index path
 	func removeIssuer(at indexPath: IndexPath) {
+		let issuer = issuers[indexPath.row]
 		issuers.remove(at: indexPath.row)
-		saveIssuers()
+		KeychainManager.sharedInstance.deleteIssuer(forService: issuer.name)
 	}
 
 	/// Function to remove all issuers from the issuers array
 	func removeAllIssuers() {
 		issuers.removeAll()
-		saveIssuers()
+		KeychainManager.sharedInstance.batchDeleteIssuers()
 	}
 
 }

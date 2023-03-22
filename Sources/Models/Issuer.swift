@@ -8,6 +8,8 @@ struct Issuer: Codable {
 	let secret: Data
 	let algorithm: Algorithm
 
+	var index = 0
+
 	/// Enum to represent the encryption algorithm
 	enum Algorithm: String, Codable {
 		case sha1
