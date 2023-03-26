@@ -6,92 +6,46 @@ protocol ModalSheetVCDelegate: AnyObject {
 	func modalSheetVCShouldReloadData()
 }
 
+/// Controller that'll show the modal sheet view
 final class ModalSheetVC: UIViewController {
 
-	private let toastView = ToastView()
-	private let modalChildView = ModalChildView()
-	private var navVC: UINavigationController!
+	let dataSource = ModalSheetDataSource()
+
+	var headerView: NewIssuerOptionsHeaderView { return modalChildView.headerView }
+	var childTableView: UITableView { return modalChildView.tableView }
+
 	private let newIssuerVC = NewIssuerVC()
+	private let toastView = ToastView()
+
+	private var modalChildView: ModalChildView!
+	private var navVC: UINavigationController!
 
 	weak var delegate: ModalSheetVCDelegate?
 
-	init() {
+	// ! Lifecycle
+
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nil, bundle: nil)
-		setupViews()
-	}
 
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-	}
-
-	override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-		modalChildView.animateViews()
-	}
-
-	private func setupViews() {
+		modalChildView = .init(dataSource: dataSource)
 		modalChildView.delegate = self
 		newIssuerVC.delegate = self
 
 		view.backgroundColor = .clear
-		view.addSubview(modalChildView)
-
-		layoutUI()
 	}
 
-	private func layoutUI() { view.pinViewToAllEdges(modalChildView) }
+	override func loadView() { view = modalChildView }
 
-	// MARK: Designated initializer
-
-	func setupChildWithTitle(
-		_ title: String,
-		subtitle: String,
-		buttonTitle: String,
-		forTarget target: Any?,
-		forSelector selector: Selector,
-		secondButtonTitle: String,
-		forTarget secondTarget: Any?,
-		forSelector secondSelector: Selector,
-		thirdStackView usesThirdSV: Bool = false,
-		thirdButtonTitle: String? = nil,
-		forTarget thirdTarget: Any? = nil,
-		forSelector thirdSelector: Selector? = nil,
-		accessoryImage: UIImage,
-		secondAccessoryImage: UIImage,
-		thirdAccessoryImage: UIImage? = nil,
-		prepareForReuse reuse: Bool,
-		scaleAnimation scaleAnim: Bool
-
-	) {
-		modalChildView.setupModalChildWithTitle(
-			title,
-			subtitle: subtitle,
-			buttonTitle: buttonTitle,
-			forTarget: target,
-			forSelector: selector,
-			secondButtonTitle: secondButtonTitle,
-			forTarget: secondTarget,
-			forSelector: secondSelector,
-			thirdStackView: usesThirdSV,
-			thirdButtonTitle: thirdButtonTitle,
-			forTarget: thirdTarget,
-			forSelector: thirdSelector,
-			accessoryImage: accessoryImage,
-			secondAccessoryImage: secondAccessoryImage,
-			thirdAccessoryImage: thirdAccessoryImage,
-			prepareForReuse: reuse,
-			scaleAnimation: scaleAnim
-		)
+	override func viewWillAppear(_ animated: Bool) {
+		super.viewWillAppear(animated)
+		modalChildView.animateViews()
 	}
 
-	func shouldCrossDissolveChildSubviews() { modalChildView.shouldCrossDissolveSubviews() }
-	func shouldDismissVC() {
-		modalChildView.animateDismiss { _ in
-			self.dismiss(animated: true)
-		}
-	}
-
-	// MARK: Reusable funcs
+	// ! Reusable funcs
 
 	private func configureVC(
 		_ vc: UIViewController,
@@ -103,10 +57,10 @@ final class ModalSheetVC: UIViewController {
 		navVC = UINavigationController(rootViewController: vc)
 		vc.title = title
 		if isLeftBarButtonItem {
-			vc.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItem(withImage: image, forTarget: self, forSelector: selector)
+			vc.navigationItem.leftBarButtonItem = .getBarButtomItem(withImage: image, target: self, selector: selector)
 		}
 		else {
-			vc.navigationItem.rightBarButtonItem = UIBarButtonItem.getBarButtomItem(withImage: image, forTarget: self, forSelector: selector)
+			vc.navigationItem.rightBarButtonItem = .getBarButtomItem(withImage: image, target: self, selector: selector)
 		}
 		navVC.modalTransitionStyle = .crossDissolve
 		navVC.modalPresentationStyle = .fullScreen
@@ -121,9 +75,41 @@ final class ModalSheetVC: UIViewController {
 		}
 	}
 
+	// ! Public
+
+	/// Function to reload the child table view's data
+	func reloadData() {
+		modalChildView.reloadData()
+	}
+
+	/// Function to dismiss the current view controller being presented
+	func shouldDismissVC() {
+		modalChildView.animateDismiss { _ in
+			self.dismiss(animated: true)
+		}
+	}
+
+	/// Function to setup the backup options data source
+	/// - Parameters:
+	///		- buttonTarget: The button's target
+	///		- selectors: An array of selectors for the buttons
+	func setupBackupOptionsDataSource(buttonTarget target: Any?, selectors: [Selector]) {
+		dataSource.setupBackupOptionsDataSource(buttonTarget: target, selectors: selectors)
+	}
+
+	/// Function to setup the make backup options data source
+	/// - Parameters:
+	///		- buttonTarget: The button's target
+	///		- selectors: An array of selectors for the buttons
+	func setupMakeBackupOptionsDataSource(buttonTarget target: Any?, selectors: [Selector]) {
+		dataSource.setupMakeBackupOptionsDataSource(buttonTarget: target, selectors: selectors)
+	}
+
 }
 
-extension ModalSheetVC: ModalChildViewDelegate, NewIssuerVCDelegate, QRCodeVCDelegate {
+// ! ModalChildViewDelegate
+
+extension ModalSheetVC: ModalChildViewDelegate {
 
 	@objc func modalChildViewDidTapScanQRCodeButton() {
 		let qrCodeVC = QRCodeVC()
@@ -147,10 +133,8 @@ extension ModalSheetVC: ModalChildViewDelegate, NewIssuerVCDelegate, QRCodeVCDel
 		phPickerVC.delegate = self
 		present(phPickerVC, animated: true)
 
-		let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.filter { $0.activationState == .foregroundActive }
-		let window = scenes.first?.windows.last
-		window?.addSubview(toastView)
-		window?.pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
+		keyWindow.addSubview(toastView)
+		keyWindow.pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
 	@objc func modalChildViewDidTapEnterManuallyButton() {
@@ -161,10 +145,10 @@ extension ModalSheetVC: ModalChildViewDelegate, NewIssuerVCDelegate, QRCodeVCDel
 			forSelector: #selector(didTapComposeButton),
 			isLeftBarButtonItem: false
 		)
-		newIssuerVC.navigationItem.leftBarButtonItem = UIBarButtonItem.getBarButtomItem(
+		newIssuerVC.navigationItem.leftBarButtonItem = .getBarButtomItem(
 			withImage: UIImage(systemName: "xmark.circle.fill") ?? UIImage(),
-			forTarget: self,
-			forSelector: #selector(didTapDismissButton)
+			target: self,
+			selector: #selector(didTapDismissButton)
 		)
 		present(navVC, animated: true)
 	}
@@ -201,6 +185,18 @@ extension ModalSheetVC: ModalChildViewDelegate, NewIssuerVCDelegate, QRCodeVCDel
 		}
 	}
 
+	@objc private func didTapComposeButton() {
+		NotificationCenter.default.post(name: .shouldSaveDataNotification, object: nil)
+	}
+
+	@objc private func didTapDismissButton() { dismissVC() }
+
+}
+
+// ! NewIssuerVCDelegate
+
+extension ModalSheetVC: NewIssuerVCDelegate {
+
 	func newIssuerVCShouldDismissVC() {
 		delegate?.modalSheetVCShouldReloadData()
 		dismissVC()
@@ -212,18 +208,20 @@ extension ModalSheetVC: ModalChildViewDelegate, NewIssuerVCDelegate, QRCodeVCDel
 		navVC.pushViewController(algorithmVC, animated: true)
 	}
 
+}
+
+// ! QRCodeVCDelegate
+
+extension ModalSheetVC: QRCodeVCDelegate {
+
 	func qrCodeVCDidCreateIssuerOutOfQRCode() {
 		delegate?.modalSheetVCShouldReloadData()
 		dismissVC()
 	}
 
-	@objc private func didTapComposeButton() {
-		NotificationCenter.default.post(name: Notification.Name("checkIfDataShouldBeSaved"), object: nil)
-	}
-
-	@objc private func didTapDismissButton() { dismissVC() }
-
 }
+
+// ! PHPickerViewControllerDelegate
 
 extension ModalSheetVC: PHPickerViewControllerDelegate {
 
@@ -234,12 +232,13 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 		}
 		results.first?.itemProvider.loadObject(ofClass: UIImage.self) { imageObject, error in
 			guard let image = imageObject as? UIImage, error == nil else { return }
-			DispatchQueue.main.async {
-				let ciImage = CIImage(image: image)
-				let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
-				let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options)
 
-				let features = detector?.features(in: ciImage ?? CIImage()) as? [CIQRCodeFeature] ?? []
+			let ciImage = CIImage(image: image) ?? CIImage()
+			let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+			let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options)
+			let features = detector?.features(in: ciImage) as? [CIQRCodeFeature] ?? []
+
+			DispatchQueue.main.async {
 				guard let otPauthString = features.first?.messageString else {
 					self.toastView.fadeInOutToastView(withMessage: "No QR code was detected on this image.", finalDelay: 1.5)
 					return
