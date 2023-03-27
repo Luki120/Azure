@@ -3,32 +3,44 @@ import UIKit
 
 final class IssuersVCView: UIView {
 
-	var floatingButtonView = FloatingButtonView()
-	var issuersTableView = UITableView()
-	var toastView = ToastView()
-
 	private var kUserInterfaceStyle: Bool { return traitCollection.userInterfaceStyle == .dark }
+
+	private(set) lazy var issuersTableView: UITableView = {
+		let tableView = UITableView()
+		tableView.separatorStyle = .none
+		tableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
+		tableView.register(IssuerCell.self, forCellReuseIdentifier: IssuerCell.identifier)
+		return tableView
+	}()
+
+	private(set) var floatingButtonView = FloatingButtonView()
+	private(set) var toastView = ToastView()
 
 	private lazy var noIssuersLabel = UILabel()
 	private lazy var noResultsLabel = UILabel()
+
+	// ! Lifecycle
 
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
 	}
 
+	/// Designated initializer
+	/// - Parameters:
+	///     - dataSource: The object that will conform to the table view's data source
+	///		- delegate: The object that will conform to the table view's data delegate
+	///		- floatingButtonViewDelegate: The object that will conform to the floating button view's delegate
 	init(
 		dataSource: UITableViewDataSource,
-		tableViewDelegate: UITableViewDelegate,
+		delegate: UITableViewDelegate,
 		floatingButtonViewDelegate: FloatingButtonViewDelegate
 	) {
 		super.init(frame: .zero)
-
 		setupViews()
-		issuersTableView.dataSource = dataSource
-		issuersTableView.delegate = tableViewDelegate
-		floatingButtonView.delegate = floatingButtonViewDelegate
 
-		issuersTableView.register(IssuerCell.self, forCellReuseIdentifier: IssuerCell.identifier)
+		issuersTableView.dataSource = dataSource
+		issuersTableView.delegate = delegate
+		floatingButtonView.delegate = floatingButtonViewDelegate
 	}
 
 	override func layoutSubviews() {
@@ -44,23 +56,15 @@ final class IssuersVCView: UIView {
 	// ! Private
 
 	private func setupViews() {
-		issuersTableView.separatorStyle = .none
-		issuersTableView.backgroundColor = kUserInterfaceStyle ? .systemBackground : .secondarySystemBackground
-
 		noIssuersLabel = createLabel(withText: "No issuers were added yet. Tap the + button in order to add one.")
-		noResultsLabel = createLabel(withText: "No results were found for this query.")
-		noResultsLabel.alpha = 0
+		noResultsLabel = createLabel(withText: "No results were found for this query.", initialAlpha: 0)
 
-		addSubview(issuersTableView)
-		addSubview(floatingButtonView)
-		addSubview(toastView)
-		addSubview(noIssuersLabel)
-		addSubview(noResultsLabel)
+		addSubviews(issuersTableView, floatingButtonView, toastView, noIssuersLabel, noResultsLabel)
 	}
 
 	private func layoutViews() {
 		pinViewToAllEdgesIncludingSafeAreas(issuersTableView)
-		pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
+		pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 
 		let guide = safeAreaLayoutGuide
 
@@ -76,10 +80,11 @@ final class IssuersVCView: UIView {
 
 	// ! Reusable
 
-	private func createLabel(withText text: String) -> UILabel {
+	private func createLabel(withText text: String, initialAlpha alpha: CGFloat = 1) -> UILabel {
 		let label = UILabel()
 		label.font = .systemFont(ofSize: 16)
 		label.text = text
+		label.alpha = alpha
 		label.textColor = .placeholderText
 		label.numberOfLines = 0
 		label.textAlignment = .center
@@ -93,6 +98,7 @@ extension IssuersVCView {
 
 	// ! Public
 
+	/// Function to animate the no issuers label when the data source is empty
 	func animateNoIssuersLabel() {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.1, options: .curveEaseInOut) {
 			if IssuerManager.sharedInstance.issuers.count == 0 {
@@ -108,6 +114,10 @@ extension IssuersVCView {
 		}
 	}
 
+	/// Function to animate the no search results label when the conditions are met
+	/// - Parameters:
+	///     - forArray: The filtered array object
+	///		- isFiltering: A boolean to check if we're currently filtering
 	func animateNoSearchResultsLabel(forArray array: [Issuer], isFiltering: Bool) {
 		UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {	
 			if array.count == 0 && IssuerManager.sharedInstance.issuers.count > 0 && isFiltering {

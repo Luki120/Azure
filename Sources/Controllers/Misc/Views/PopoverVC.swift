@@ -1,6 +1,6 @@
 import UIKit
 
-
+/// Controller that'll show a view as a popover
 final class PopoverVC: UIViewController {
 
 	private lazy var gradientLayer: CAGradientLayer = {
@@ -19,7 +19,7 @@ final class PopoverVC: UIViewController {
 		let label = UILabel()
 		label.font = .systemFont(ofSize: 12)
 		label.alpha = 0
-		label.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+		label.transform = .init(scaleX: 0.1, y: 0.1)
 		label.numberOfLines = 0
 		label.textAlignment = .center
 		label.adjustsFontSizeToFitWidth = true
@@ -28,13 +28,7 @@ final class PopoverVC: UIViewController {
 		return label
 	}()
 
-	init() {
-		super.init(nibName: nil, bundle: nil)
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-	}
+	// ! Lifecycle
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -49,26 +43,36 @@ final class PopoverVC: UIViewController {
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		popoverPresentationController?.containerView?.alpha = 0
-		popoverPresentationController?.containerView?.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
 
-		DispatchQueue.main.asyncAfter(deadline: .now() + 2.5, execute: {
+		popoverPresentationController?.containerView?.alpha = 0
+		popoverPresentationController?.containerView?.transform = .init(scaleX: 0.1, y: 0.1)
+
+		DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
 			UIView.animate(withDuration: 0.5, animations: {
 				self.popoverPresentationController?.containerView?.alpha = 1
-				self.popoverPresentationController?.containerView?.transform = CGAffineTransform(scaleX: 1, y: 1)
-			}, completion: { _ in
+				self.popoverPresentationController?.containerView?.transform = .init(scaleX: 1, y: 1)
+			}) { _ in
 				UIView.animate(withDuration: 0.5, delay: 0.5, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.2, animations: {
 					self.infoLabel.alpha = 1
-					self.infoLabel.transform = CGAffineTransform(scaleX: 1, y: 1)
-				}, completion: { _ in
-					DispatchQueue.main.asyncAfter(deadline: .now() + 3.5, execute: {
+					self.infoLabel.transform = .init(scaleX: 1, y: 1)
+				}) { _ in
+					DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
 						self.dismiss(animated: true)
-					})
-				})
-			})
-		})
+					}
+				}
+			}
+		}
 	}
 
+}
+
+extension PopoverVC {
+
+	// ! Public
+
+	/// Function to show fade in a popover with a given message
+	/// - Parameters:
+	///		- withMessage: A string representing the message
 	func fadeInPopover(withMessage message: String) { infoLabel.text = message }
 
 }

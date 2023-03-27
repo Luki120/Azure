@@ -95,7 +95,7 @@ extension IssuerManager {
 	///		- row: The given row
 	func feedSelectedRow(withRow row: Int) {
 		selectedRow = row
-		defaults.set(row, forKey: "selectedRow")
+		defaults.set(selectedRow, forKey: "selectedRow")
 	}
 
 	/// Function to create an issuer with the data passed from the input fields

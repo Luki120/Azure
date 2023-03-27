@@ -10,6 +10,7 @@ extension NewIssuerVCDelegate {
 	func newIssuerVCShouldPushAlgorithmVC() {}
 }
 
+/// Controller that'll show the new issuer view
 final class NewIssuerVC: UIViewController {
 
 	private let algorithmVC = AlgorithmVC()
@@ -17,21 +18,22 @@ final class NewIssuerVC: UIViewController {
 
 	weak var delegate: NewIssuerVCDelegate?
 
-	init() {
+	// ! Lifecycle
+
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nil, bundle: nil)
 		algorithmVC.delegate = self
-		setupMainView()
 
-		NotificationCenter.default.addObserver(self, selector: #selector(shouldSaveData), name: Notification.Name("checkIfDataShouldBeSaved"), object: nil)
+		newIssuerVCView = .init(dataSource: self, delegate: self)
+
+		NotificationCenter.default.addObserver(self, selector: #selector(shouldSaveData), name: .shouldSaveDataNotification, object: nil)
 	}
 
 	deinit { NotificationCenter.default.removeObserver(self) }
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
-	}
-
-	private func setupMainView() { newIssuerVCView = NewIssuerVCView(dataSource: self, tableViewDelegate: self) }
 
 	override func loadView() { view = newIssuerVCView }
 
@@ -47,8 +49,10 @@ final class NewIssuerVC: UIViewController {
 
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
-		newIssuerVCView.resignFirstResponderIfNeeded()
+		newIssuerVCView.resignFirstResponders()
 	}
+
+	// ! Private
 
 	private func configureAlgorithmLabel(withSelectedRow row: Int) {
 		switch row {
@@ -65,7 +69,7 @@ final class NewIssuerVC: UIViewController {
 		if newIssuerVCView.issuerTextField.text?.count ?? 0 == 0
 			|| newIssuerVCView.secretTextField.text?.count ?? 0 == 0 {
 			newIssuerVCView.toastView.fadeInOutToastView(withMessage: "Fill out both forms.", finalDelay: 1.5)
-			newIssuerVCView.resignFirstResponderIfNeeded()
+			newIssuerVCView.resignFirstResponders()
 			return
 		}
 
@@ -76,27 +80,34 @@ final class NewIssuerVC: UIViewController {
 
 			guard !isDuplicateItem else {
 				newIssuerVCView.toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
-				newIssuerVCView.resignFirstResponderIfNeeded()
+				newIssuerVCView.resignFirstResponders()
 				return
 			}
 
 			IssuerManager.sharedInstance.issuers.append(issuer)
 			delegate?.newIssuerVCShouldDismissVC()
 
-	 		newIssuerVCView.issuerTextField.text = ""
+			newIssuerVCView.issuerTextField.text = ""
 			newIssuerVCView.secretTextField.text = ""
 		}
 	}
 
 }
 
+// ! AlgorithmVCDelegate
+
 extension NewIssuerVC: AlgorithmVCDelegate {
+
 	func algorithmVCDidUpdateAlgorithmLabel(withSelectedRow row: Int) {
 		configureAlgorithmLabel(withSelectedRow: row)
 	}
+
 }
 
+// ! TableView
+
 extension NewIssuerVC: UITableViewDataSource, UITableViewDelegate {
+
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return 3
 	}
@@ -107,20 +118,10 @@ extension NewIssuerVC: UITableViewDataSource, UITableViewDelegate {
 
 		switch indexPath.row {
 			case 0:
-				cell.contentView.addSubview(newIssuerVCView.issuerStackView)
-				newIssuerVCView.configureConstraints(forStackView: newIssuerVCView.issuerStackView, forTextField: newIssuerVCView.issuerTextField, forCell: cell)
+				newIssuerVCView.setupSubviews(newIssuerVCView.issuerStackView, newIssuerVCView.issuerTextField, forCell: cell)
 			case 1:
-				cell.contentView.addSubview(newIssuerVCView.secretHashStackView)
-				newIssuerVCView.configureConstraints(forStackView: newIssuerVCView.secretHashStackView, forTextField: newIssuerVCView.secretTextField, forCell: cell)
-			case 2:
-				cell.accessoryType = .disclosureIndicator
-
-				cell.contentView.addSubview(newIssuerVCView.algorithmTitleLabel)
-				cell.contentView.addSubview(newIssuerVCView.algorithmLabel)
-				newIssuerVCView.algorithmTitleLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 15).isActive = true
-				newIssuerVCView.algorithmTitleLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
-				newIssuerVCView.algorithmLabel.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -20).isActive = true
-				newIssuerVCView.algorithmLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+				newIssuerVCView.setupSubviews(newIssuerVCView.secretHashStackView, newIssuerVCView.secretTextField, forCell: cell)
+			case 2: newIssuerVCView.setupAlgorithmLabels(forCell: cell)
 			default: break
 		}
 
@@ -132,4 +133,5 @@ extension NewIssuerVC: UITableViewDataSource, UITableViewDelegate {
 		guard indexPath.row == 2 else { return }
 		delegate?.newIssuerVCShouldPushAlgorithmVC()
 	}
+
 }

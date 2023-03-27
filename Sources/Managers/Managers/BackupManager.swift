@@ -1,6 +1,6 @@
 import Foundation
 
-
+/// Manager to handle importing & exporting backups
 final class BackupManager {
 
 	private let fileM = FileManager.default
@@ -12,7 +12,21 @@ final class BackupManager {
 		kAzureJailedPathURL = kDocumentsPathURL.appendingPathComponent("AzureBackup.json")
 	}
 
-	func makeDataOutOfJSON() {
+	private func createFile(atPath path: String) {
+		if !fileM.fileExists(atPath: path) { fileM.createFile(atPath: path, contents: nil) }
+		else {
+			try? fileM.removeItem(atPath: path)
+			fileM.createFile(atPath: path, contents: nil)
+		}
+	}
+}
+
+extension BackupManager {
+
+	// ! Public
+
+	/// Function to decode the data from a backup & import it
+	func decodeData() {
 		if !fileM.fileExists(atPath: .kAzurePath) && !fileM.fileExists(atPath: kAzureJailedPathURL.path) { return }
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
@@ -23,7 +37,8 @@ final class BackupManager {
 		IssuerManager.sharedInstance.saveIssuers()
 	}
 
-	func makeJSONOutOfData() {
+	/// Function to encode the data & export it
+	func encodeData() {
 		guard IssuerManager.sharedInstance.issuers.count > 0 else { return }
 		if isJailbroken() {
 			if !fileM.fileExists(atPath: .kAzureDir) {
@@ -44,11 +59,4 @@ final class BackupManager {
 		fileHandle?.closeFile()
 	}
 
-	private func createFile(atPath path: String) {
-		if !fileM.fileExists(atPath: path) { fileM.createFile(atPath: path, contents: nil) }
-		else {
-			try? fileM.removeItem(atPath: path)
-			fileM.createFile(atPath: path, contents: nil)
-		}
-	}
 }

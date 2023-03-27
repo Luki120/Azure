@@ -5,21 +5,28 @@ protocol AlgorithmVCDelegate: AnyObject {
 	func algorithmVCDidUpdateAlgorithmLabel(withSelectedRow row: Int)
 }
 
+/// Controller that'll show all supported algorithms
 final class AlgorithmVC: UITableViewController {
 
-	private let algorithmTableArray = ["SHA1", "SHA256", "SHA512"]
+	private let algorithms = ["SHA1", "SHA256", "SHA512"]
 	private var selectedRow = 0
 
 	weak var delegate: AlgorithmVCDelegate?
 
-	init() {
+	// ! Lifecycle
+
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
+	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+		super.init(nibName: nil, bundle: nil)
+	}
+
+	override init(style: UITableView.Style) {
 		super.init(style: .grouped)
 		tableView.isScrollEnabled = false
 		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "VanillaCell")
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
 	}
 
 	override func viewDidLoad() {
@@ -28,7 +35,7 @@ final class AlgorithmVC: UITableViewController {
 	}
 
 	override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-		return algorithmTableArray.count
+		return algorithms.count
 	}
 
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -38,7 +45,7 @@ final class AlgorithmVC: UITableViewController {
 		cell.accessoryType = indexPath.row == selectedRow ? .checkmark : .none
 		cell.backgroundColor = .clear
 		cell.textLabel?.font = .systemFont(ofSize: 14)
-		cell.textLabel?.text = algorithmTableArray[indexPath.row]
+		cell.textLabel?.text = algorithms[indexPath.row]
 		return cell
 	}
 

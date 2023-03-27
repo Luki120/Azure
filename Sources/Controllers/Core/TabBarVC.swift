@@ -1,15 +1,22 @@
+import class SwiftUI.UIHostingController
 import UIKit
 
-
+/// Root view controller, which will show our tabs
 final class TabBarVC: UITabBarController {
 
 	private var isSelected = false
+
+	// ! Lifecycle
+
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
 
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nil, bundle: nil)
 
 		let firstVC = IssuersVC()
-		let secondVC = SettingsVC().makeSettingsViewUI()
+		let secondVC = UIHostingController(rootView: SettingsView())
 		firstVC.title = "Home"
 		secondVC.title = "Settings"
 
@@ -22,12 +29,7 @@ final class TabBarVC: UITabBarController {
 		firstNav.tabBarItem = UITabBarItem(title: "Home", image: lockImage, tag: 0)
 		secondNav.tabBarItem = UITabBarItem(title: "Settings", image: gearImage, tag: 1)
 
-		let tabBarControllers = [firstNav, secondNav]
-		viewControllers = tabBarControllers
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
+		viewControllers = [firstNav, secondNav]
 	}
 
 	override func viewDidLoad() {
@@ -49,43 +51,45 @@ final class TabBarVC: UITabBarController {
 
 }
 
+// ! UITabBarControllerDelegate
+
 extension TabBarVC: UITabBarControllerDelegate {
 
 	func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
 		UserDefaults.standard.set(selectedIndex, forKey: "selectedIndex")
 	}
 
- 	func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+	func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
 		let tabViewControllers = tabBarController.viewControllers
-		let vcIndex = tabViewControllers?.firstIndex(of: viewController)
+		let vcIndex = tabViewControllers?.firstIndex(of: viewController) ?? 0
 
-		let fromView = tabBarController.selectedViewController?.view
-		let toView = tabViewControllers?[vcIndex ?? 0].view
+		let fromView = tabBarController.selectedViewController?.view ?? UIView()
+		let toView = tabViewControllers?[vcIndex].view ?? UIView()
 
 		if fromView == toView || isSelected { return false }
 
-		let viewSize = fromView?.frame
-		let scrollRight = vcIndex ?? 0 > tabBarController.selectedIndex
+		let viewSize = fromView.frame
+		let scrollRight = vcIndex > tabBarController.selectedIndex
 
-		fromView?.superview?.addSubview(toView ?? UIView())
-		toView?.frame = CGRect(x: scrollRight ? 320 : -320, y: viewSize?.origin.y ?? 0, width: viewSize?.width ?? 0, height: viewSize?.height ?? 0)
+		fromView.superview?.addSubview(toView)
+		toView.frame = CGRect(x: scrollRight ? 320 : -320, y: viewSize.origin.y, width: viewSize.width, height: viewSize.height)
 
 		isSelected = true
 
 		UIView.animate(withDuration: 0.3, delay: 0, options: .transitionCrossDissolve, animations: {
-			fromView?.alpha = 0
-			toView?.alpha = 1
+			fromView.alpha = 0
+			toView.alpha = 1
 
-			fromView?.frame = CGRect(x: scrollRight ? -320 : 320, y: viewSize?.origin.y ?? 0, width: viewSize?.width ?? 0, height: viewSize?.height ?? 0)
-			toView?.frame = CGRect(x: 0, y: viewSize?.origin.y ?? 0, width: viewSize?.width ?? 0, height: viewSize?.height ?? 0)
+			fromView.frame = CGRect(x: scrollRight ? -320 : 320, y: viewSize.origin.y, width: viewSize.width, height: viewSize.height)
+			toView.frame = CGRect(x: 0, y: viewSize.origin.y, width: viewSize.width, height: viewSize.height)
 
-		}, completion: { finished in 
+		}) { finished in 
 			guard finished else { return }
-			fromView?.removeFromSuperview()
-			tabBarController.selectedIndex = vcIndex ?? 0
+			fromView.removeFromSuperview()
+			tabBarController.selectedIndex = vcIndex
 
 			self.isSelected = false
-		})
+		}
 
 		return true
 	}

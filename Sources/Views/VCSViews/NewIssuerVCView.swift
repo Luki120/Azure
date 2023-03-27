@@ -3,28 +3,36 @@ import UIKit
 
 final class NewIssuerVCView: UIView {
 
-	var issuerStackView: UIStackView!
-	var secretHashStackView: UIStackView!
-	var algorithmTitleLabel: UILabel!
-	var algorithmLabel: UILabel!
-	var issuerTextField: UITextField!
-	var secretTextField: UITextField!
-	var pinCodesTableView: UITableView!
-	var toastView: ToastView!
+	private var issuerLabel, secretLabel: UILabel!
 
-	private var issuerLabel: UILabel!
-	private var secretLabel: UILabel!
+	private(set) lazy var newIssuerTableView: UITableView = {
+		let tableView = UITableView(frame: .zero, style: .grouped)
+		tableView.isScrollEnabled = false
+		tableView.backgroundColor = .systemBackground
+		tableView.register(UITableViewCell.self, forCellReuseIdentifier: "VanillaCell")
+		return tableView
+	}()
 
-	init(dataSource: UITableViewDataSource, tableViewDelegate: UITableViewDelegate) {
-		super.init(frame: .zero)
-		setupUI()
-		pinCodesTableView.dataSource = dataSource
-		pinCodesTableView.delegate = tableViewDelegate
-		pinCodesTableView.register(UITableViewCell.self, forCellReuseIdentifier: "VanillaCell")
+	private(set) var issuerStackView, secretHashStackView: UIStackView!
+	private(set) var algorithmTitleLabel, algorithmLabel: UILabel!
+	private(set) var issuerTextField, secretTextField: UITextField!
+	private(set) var toastView = ToastView()
+
+	// ! Lifecycle
+
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
 	}
 
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
+	/// Designated initializer
+	/// - Parameters:
+	///     - dataSource: The object that will conform to the table view's data source
+	///		- delegate: The object that will conform to the table view's data delegate
+	init(dataSource: UITableViewDataSource, delegate: UITableViewDelegate) {
+		super.init(frame: .zero)
+		setupUI()
+		newIssuerTableView.dataSource = dataSource
+		newIssuerTableView.delegate = delegate
 	}
 
 	override func layoutSubviews() {
@@ -32,51 +40,47 @@ final class NewIssuerVCView: UIView {
 		layoutUI()
 	}
 
+	// ! Private
+
 	private func setupUI() {
-		pinCodesTableView = UITableView(frame: .zero, style: .grouped)
-		pinCodesTableView.isScrollEnabled = false
-		pinCodesTableView.backgroundColor = .systemBackground
-		addSubview(pinCodesTableView)
+		addSubviews(newIssuerTableView, toastView)
 
 		issuerStackView = setupStackView()
 		secretHashStackView = setupStackView()
 
-		issuerLabel = createLabel(withText: "Issuer:", textColor: .label)
-		secretLabel = createLabel(withText: "Secret hash:", textColor: .label)
-		algorithmTitleLabel = createLabel(withText: "Algorithm", textColor: .label)
-		algorithmTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+		issuerLabel = createLabel(withText: "Issuer:")
+		secretLabel = createLabel(withText: "Secret hash:")
+		algorithmTitleLabel = createLabel(withText: "Algorithm", usesAutoLayout: true)
 
 		issuerTextField = createTextField(withPlaceholder: "For example: GitHub", keyType: .next)
-		secretTextField = createTextField(withPlaceholder: "Enter secret", keyType: .default)
-
 		issuerTextField.becomeFirstResponder()
 
-		issuerStackView.addArrangedSubview(issuerLabel)
-		issuerStackView.addArrangedSubview(issuerTextField)
-		secretHashStackView.addArrangedSubview(secretLabel)
-		secretHashStackView.addArrangedSubview(secretTextField)
+		secretTextField = createTextField(withPlaceholder: "Enter secret", keyType: .default)
 
-		toastView = ToastView()
-		addSubview(toastView)
+		issuerStackView.addArrangedSubviews(issuerLabel, issuerTextField)
+		secretHashStackView.addArrangedSubviews(secretLabel, secretTextField)
 
-		algorithmLabel = createLabel(textColor: .placeholderText)
+		algorithmLabel = createLabel(textColor: .placeholderText, usesAutoLayout: true)
 		algorithmLabel.textAlignment = .center
-		algorithmLabel.translatesAutoresizingMaskIntoConstraints = false
-
 	}
 
 	private func layoutUI() {
-		pinViewToAllEdges(pinCodesTableView)
-		pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
+		pinViewToAllEdges(newIssuerTableView)
+		pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
-	// MARK: Reusable
+	// ! Reusable
 
-	private func createLabel(withText text: String? = nil, textColor: UIColor) -> UILabel {
+	private func createLabel(
+		withText text: String? = nil,
+		textColor: UIColor = .label,
+		usesAutoLayout: Bool = false
+	) -> UILabel {
 		let label = UILabel()
 		label.font = .systemFont(ofSize: 14)
 		label.text = text ?? ""
 		label.textColor = textColor
+		label.translatesAutoresizingMaskIntoConstraints = !usesAutoLayout
 		return label
 	}
 
@@ -91,9 +95,7 @@ final class NewIssuerVCView: UIView {
 
 	private func setupStackView() -> UIStackView {
 		let stackView = UIStackView()
-		stackView.axis = .horizontal
 		stackView.spacing = 10
-		stackView.distribution = .fill
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		return stackView
 	}
@@ -101,22 +103,50 @@ final class NewIssuerVCView: UIView {
 }
 
 extension NewIssuerVCView {
-	// MARK: Public
-	func configureConstraints(
-		forStackView stackView: UIStackView,
-		forTextField textField: UITextField,
+
+	// ! Public
+
+	/// Function to setup the cell's subviews & lay them out
+	/// - Parameters:
+	///     - stackView: The stack view that'll be configured
+	///		- textField: The text field that'll be configured
+	///		- forCell: The cell object
+	func setupSubviews(
+		_ stackView: UIStackView,
+		_ textField: UITextField,
 		forCell cell: UITableViewCell
 	) {
-		stackView.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 15).isActive = true
+		cell.contentView.addSubview(stackView)
+
+		stackView.leadingAnchor.constraint(equalTo: cell.leadingAnchor, constant: 20).isActive = true
 		stackView.centerYAnchor.constraint(equalTo: cell.centerYAnchor).isActive = true
+
 		setupSizeConstraints(forView: textField, width: cell.frame.width - 43, height: 44)
 	}
 
-	func resignFirstResponderIfNeeded() {
+	/// Function to setup the algorithm labels
+	/// - Parameters:
+	///		- forCell: The cell object
+	func setupAlgorithmLabels(forCell cell: UITableViewCell) {
+		cell.accessoryType = .disclosureIndicator
+		cell.contentView.addSubviews(algorithmTitleLabel, algorithmLabel)
+
+		algorithmTitleLabel.leadingAnchor.constraint(equalTo: cell.contentView.leadingAnchor, constant: 20).isActive = true
+		algorithmTitleLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+
+		algorithmLabel.trailingAnchor.constraint(equalTo: cell.contentView.trailingAnchor, constant: -15).isActive = true
+		algorithmLabel.centerYAnchor.constraint(equalTo: cell.contentView.centerYAnchor).isActive = true
+	}
+
+	/// Function to resign the text fields' first responder
+	func resignFirstResponders() {
 		issuerTextField.resignFirstResponder()
 		secretTextField.resignFirstResponder()
 	}
+
 }
+
+// ! UITextFieldDelegate
 
 extension NewIssuerVCView: UITextFieldDelegate {
 

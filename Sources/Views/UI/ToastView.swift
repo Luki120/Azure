@@ -1,6 +1,6 @@
 import UIKit
 
-
+/// Class to show a reusable toast view across the app whenever is neeeded
 final class ToastView: UIView {
 
 	private var isAnimating = false
@@ -26,6 +26,8 @@ final class ToastView: UIView {
 		toastView.addSubview(label)
 		return label
 	}()
+
+	// ! Lifecycle
 
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
@@ -84,6 +86,10 @@ extension ToastView {
 
 	// ! Public
 
+	/// Function to fade in a toast view
+	/// - Parameters:
+	///		- withMessage: A string that represents the message
+	///		- finalDelay: A TimeInterval that represents how much time the toast will remain on screen
 	func fadeInOutToastView(withMessage message: String, finalDelay delay: TimeInterval) {
 		toastViewLabel.text = message
 		fadeInOutToastView(withFinalDelay: delay)

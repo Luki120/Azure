@@ -1,6 +1,12 @@
 import UIKit
 
 
+extension Notification.Name {
+	static let didPurgeDataNotification = Notification.Name("didPurgeDataNotification")
+	static let shouldMakeBackupNotification = Notification.Name("shouldMakeBackupNotification")
+	static let shouldSaveDataNotification = Notification.Name("shouldSaveDataNotification")
+}
+
 extension String {
 	static let kCheckra1n = "/var/checkra1n.dmg"
 	static let kTaurine = "/taurine"
@@ -10,9 +16,8 @@ extension String {
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 }
 
-
 extension UIBarButtonItem {
-	static func getBarButtomItem(withImage image: UIImage, forTarget target: Any?, forSelector selector: Selector) -> UIBarButtonItem {
+	static func getBarButtomItem(withImage image: UIImage, target: Any?, selector: Selector) -> UIBarButtonItem {
 		return UIBarButtonItem(image: image, style: .done, target: target, action: selector)
 	}
 }
@@ -45,8 +50,18 @@ extension UIImage {
 	}
 }
 
+extension UIStackView {
+	func addArrangedSubviews(_ views: UIView ...) {
+		views.forEach { addArrangedSubview($0) }
+	}
+}
+
 extension UIView {
-	func animateView(withDelay delay: TimeInterval = 0, animations: @escaping () -> (), completion: ((Bool) -> ())?) {
+	func addSubviews(_ views: UIView ...) {
+		views.forEach { addSubview($0) }
+	}
+
+	func animateView(withDelay delay: TimeInterval = 0, animations: @escaping () -> Void, completion: ((Bool) -> ())?) {
 		UIView.animate(
 			withDuration: 0.5,
 			delay: delay,
@@ -85,7 +100,7 @@ extension UIView {
 		])
 	}
 
-	func pinAzureToastToTheBottomCenteredOnTheXAxis(_ toastView: UIView, bottomConstant: CGFloat) {
+	func pinToastToTheBottomCenteredOnTheXAxis(_ toastView: UIView, bottomConstant: CGFloat) {
 		toastView.translatesAutoresizingMaskIntoConstraints = false
 		toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: bottomConstant).isActive = true
 		toastView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
@@ -97,16 +112,23 @@ extension UIView {
 		view.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
 	}
 
-	func setupHorizontalConstraints(forView view: UIView, leadingConstant: CGFloat, trailingConstant: CGFloat) {
+	func setupHorizontalConstraints(forView view: UIView, leadingConstant: CGFloat = 0, trailingConstant: CGFloat = 0) {
 		view.translatesAutoresizingMaskIntoConstraints = false
 		view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: leadingConstant).isActive = true
 		view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: trailingConstant).isActive = true
 	}
 
 	func setupSizeConstraints(forView view: UIView, width: CGFloat, height: CGFloat) {
-		view.translatesAutoresizingMaskIntoConstraints = false
 		view.widthAnchor.constraint(equalToConstant: width).isActive = true
 		view.heightAnchor.constraint(equalToConstant: height).isActive = true
+	}
+}
+
+extension UIViewController {
+	var keyWindow: UIWindow! {
+		return UIApplication.shared.connectedScenes
+			.compactMap { $0 as? UIWindowScene }
+			.filter { $0.activationState == .foregroundActive }.first?.windows.last
 	}
 }
 

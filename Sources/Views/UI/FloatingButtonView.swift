@@ -5,9 +5,8 @@ protocol FloatingButtonViewDelegate: AnyObject {
 	func floatingButtonViewDidTapFloatingButton()
 }
 
+/// Class that'll show a floating button view on top of the issuers view
 final class FloatingButtonView: UIView {
-
-	weak var delegate: FloatingButtonViewDelegate?
 
 	private lazy var floatingButton: UIButton = {
 		let button = UIButton()
@@ -16,12 +15,16 @@ final class FloatingButtonView: UIView {
 		button.layer.shadowColor = UIColor.label.cgColor
 		button.layer.cornerRadius = 30
 		button.layer.shadowRadius = 8
-		button.layer.shadowOffset = CGSize(width: 0, height: 1)
+		button.layer.shadowOffset = .init(width: 0, height: 1)
 		button.layer.shadowOpacity = 0.5
-		button.setImage(UIImage(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20)), for: .normal)
+		button.setImage(.init(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20)), for: .normal)
 		addSubview(button)
 		return button
 	}()
+
+	weak var delegate: FloatingButtonViewDelegate?
+
+	// ! Lifecycle
 
 	required init?(coder: NSCoder) {
 		super.init(coder: coder)
@@ -71,10 +74,14 @@ extension FloatingButtonView {
 
 	// ! Public
 
-	func animateView(withAlpha alpha: CGFloat, translateX tx: CGFloat, translateY ty: CGFloat) {
+	/// Function to animate the button's alpha & transform properties
+	/// - Parameters:
+	///		- withAlpha: A CGFloat that represents the button's alpha
+	///		- translateY: A CGFloat that represents the button's translation Y value
+	func animateView(withAlpha alpha: CGFloat, translateY ty: CGFloat) {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .transitionCrossDissolve) {
 			self.alpha = alpha
-			self.transform = .init(translationX: tx, y: ty)
+			self.transform = .init(translationX: 0, y: ty)
 		}
 	}
 

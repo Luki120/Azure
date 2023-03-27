@@ -1,7 +1,7 @@
 import SwiftUI
-import SafariServices
+import class SafariServices.SFSafariViewController
 
-
+/// Struct to represent the settings view
 struct SettingsView: View {
 
 	@AppStorage("useBiometrics") private var shouldUseBiometricsToggle = false
@@ -15,17 +15,14 @@ struct SettingsView: View {
 	private let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
 
 	var body: some View {
-
 		VStack {
-
 			List {
-
 				Section(header: Text("Settings")) {
 					Toggle("Use biometrics", isOn: $shouldUseBiometricsToggle)
 						.toggleStyle(SwitchToggleStyle(tint: kAzureMintTintColor))
 
 					Button("Backup options") {
-						NotificationCenter.default.post(name: Notification.Name("makeBackup"), object: nil)
+						NotificationCenter.default.post(name: .shouldMakeBackupNotification, object: nil)
 					}
 					.foregroundColor(.primary)
 
@@ -38,11 +35,10 @@ struct SettingsView: View {
 							title: Text("Azure"),
 							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗Don’t be a dumbass, you’ll regret it later, I warned you. Besides, keep in mind that this won't remove 2FA from your accounts, so make sure you also disable it from the issuers' settings in order to prevent being locked out."),
 							primaryButton: .destructive(Text("I'm sure")) {
-								NotificationCenter.default.post(name: Notification.Name("purgeDataDone"), object: nil)
+								NotificationCenter.default.post(name: .didPurgeDataNotification, object: nil)
 							},
 							secondaryButton: .cancel()
 						)
-
 					}
 				}
 
@@ -52,9 +48,7 @@ struct SettingsView: View {
 							.foregroundColor(.primary)
 							.openSafariSheet(shouldShow: $shouldShowAuroraSheet, urlString: .kAuroraDepictionURL)
 
-						Text("Vanilla password manager")
-							.foregroundColor(.gray)
-							.font(.system(size: 10))
+						ReusableText("Vanilla password manager")
 					}
 
 					VStack(alignment: .leading) {
@@ -62,23 +56,18 @@ struct SettingsView: View {
 							.foregroundColor(.primary)
 							.openSafariSheet(shouldShow: $shouldShowCoraSheet, urlString: .kCoraDepictionURL)
 
-						Text("See your device's uptime in less clicks")
-							.foregroundColor(.gray)
-							.font(.system(size: 10))
+						ReusableText("See your device's uptime in less clicks")
 					}
 				}
 
 				Section(header: Text("Misc")) {
 					Button("Credits") { shouldShowCreditsSheet.toggle() }
 						.foregroundColor(.primary)
-						.sheet(isPresented: $shouldShowCreditsSheet) { creditsView }
+						.sheet(isPresented: $shouldShowCreditsSheet) { CreditsView() }
 				}
-
 			}
-			.listStyle(InsetGroupedListStyle())
-
+			.listStyle(.insetGrouped)
 		}
-
 	}
 
 	@State private var shouldShowLicenseSheet = false
@@ -86,10 +75,9 @@ struct SettingsView: View {
 	@State private var shouldShowGoogleAuthenticatorSheet = false
 	@State private var shouldShowFlatIconSheet = false
 
-	private var creditsView: some View {
-
+	@ViewBuilder
+	private func CreditsView() -> some View {
 		List {
-
 			Section(header: Text("Azure")) {
 				Group {
 					Button("LICENSE") { shouldShowLicenseSheet.toggle() }
@@ -99,28 +87,25 @@ struct SettingsView: View {
 						.openSafariSheet(shouldShow: $shouldShowSourceCodeSheet, urlString: .kSourceCodeURL)
 				}
 				.foregroundColor(.primary)
-
 			}
 
 			Section(header: Text("Credits")) {
-
-				Group {
-					Button("Google Authenticator") { shouldShowGoogleAuthenticatorSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowGoogleAuthenticatorSheet, urlString: .kGoogleAuthenticatorURL)
-
-					Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
-				}
-				.foregroundColor(.primary)
-
+				Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
+					.foregroundColor(.primary)
+					.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
 			}
 
-			Section(footer: Text("Azure uses open source components from Google Authenticator, which are licensed under the Apache-2.0 License.\n\nLock icon created by Freepik - Flat icon.\n\n2022 © Luki120 ")) {}
-
+			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n© 2022-2023 Luki120")) {}
 		}
 		.padding(.top, 25)
-		.listStyle(InsetGroupedListStyle())
+		.listStyle(.insetGrouped)
+	}
 
+	@ViewBuilder
+	private func ReusableText(_ text: String) -> some View {
+		Text(text)
+			.foregroundColor(.gray)
+			.font(.system(size: 10))		
 	}
 
 }
@@ -131,8 +116,8 @@ private struct SafariView: UIViewControllerRepresentable {
 
 	func makeUIViewController(context: Context) -> SFSafariViewController {
 		let fallbackURL = URL(string: "https://github.com/Luki120")! // this 100% exists so it's safe
-		guard let url = url else { return SFSafariViewController(url: fallbackURL) }
-		return SFSafariViewController(url: url)
+		guard let url else { return .init(url: fallbackURL) }
+		return .init(url: url)
 	}
 
 	func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
@@ -144,7 +129,6 @@ private extension String {
 	static let kCoraDepictionURL = "https://luki120.github.io/depictions/web/?p=me.luki.cora"
 	static let kSourceCodeURL = "https://github.com/Luki120/Azure"
 	static let kFlatIconURL = "https://www.flaticon.com/free-icons/caps-lock"
-	static let kGoogleAuthenticatorURL = "https://github.com/google/google-authenticator"
 	static let kLicenseURL = "https://github.com/Luki120/Azure/blob/main/LICENSE"
 }
 

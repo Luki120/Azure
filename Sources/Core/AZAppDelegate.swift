@@ -36,7 +36,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 	}
 
 	private func unsafePortalDispatch() {
-		authManager.setupAuth(withReason: .unlockApp, reply: { [weak self] success, error in
+		authManager.setupAuth(withReason: .unlockApp) { [weak self] success, error in
 			DispatchQueue.main.async {
 				let laError = error as? LAError
 				guard success && laError?.code != .passcodeNotSet else {
@@ -45,7 +45,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 				}
 				self?.strongWindow.rootViewController = TabBarVC()
 			}
-		})
+		}
 	}
 
 	private func setupNotAuthenticatedVC() {
@@ -74,7 +74,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 		}
 	}
 
-	private func allocateClass(imp: @escaping @convention(block) (_ self: UIViewController) -> ()) {
+	private func allocateClass(imp: @escaping @convention(block) (UIViewController) -> ()) {
 		AZAppDelegate.NotAuthenticatedVClass = objc_allocateClassPair(UIViewController.self, "NotAuthenticatedVC", 0)!
 
 		let method = class_getInstanceMethod(UIViewController.self, #selector(UIViewController.viewDidLoad))!
@@ -96,7 +96,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 		superCall(NotAuthenticatedVClass, selector)
 	}
 
-	private static func didTapRetryButton(imp: @escaping @convention(block) () -> ()) {
+	private static func didTapRetryButton(imp: @escaping @convention(block) () -> Void) {
 		class_addMethod(
 			NotAuthenticatedVClass,
 			NSSelectorFromString("didTapRetryButton"),

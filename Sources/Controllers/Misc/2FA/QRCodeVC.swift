@@ -6,19 +6,20 @@ protocol QRCodeVCDelegate: AnyObject {
 	func qrCodeVCDidCreateIssuerOutOfQRCode()
 }
 
-// Slightly modified from -> https://github.com/mattrubin/Authenticator/blob/develop/Authenticator/Source/ScannerOverlayView.swift
+// Slightly modified from ⇝ https://github.com/mattrubin/Authenticator/blob/develop/Authenticator/Source/ScannerOverlayView.swift
 
+/// View that'll show a dimmed view for the qr code scanning view
 private final class DimmedView: UIView {
 
 	private var gradientFrame: CGRect!
 
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
+
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		isOpaque = false
-	}
-
-	required init?(coder aDecoder: NSCoder) {
-		super.init(coder: aDecoder)
 	}
 
 	override func draw(_ rect: CGRect) {
@@ -37,7 +38,6 @@ private final class DimmedView: UIView {
 		context.fill(rect)
 		context.clear(windowWithCoordinates(fromRect: rect))
 		context.stroke(windowWithCoordinates(fromRect: rect), width: 2)
-
 	}
 
 	private func setupGradientLayer() {
@@ -58,8 +58,10 @@ private final class DimmedView: UIView {
 		animation.autoreverses = true
 		gradientLayer.add(animation, forKey: nil)
 	}
+
 }
 
+/// Controller that'll show the qr code scanner view
 final class QRCodeVC: UIViewController {
 
 	private let toastView = ToastView()
@@ -69,19 +71,13 @@ final class QRCodeVC: UIViewController {
 
 	weak var delegate: QRCodeVCDelegate?
 
-	private var window: UIWindow!
+	// ! Lifecycle
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
 		view.addSubview(dimmedView)
-
-		let scenes = UIApplication.shared.connectedScenes
-			.compactMap { $0 as? UIWindowScene }
-			.filter { $0.activationState == .foregroundActive }
-
-		window = scenes.first?.windows.last
-		window.addSubview(toastView)
+		keyWindow.addSubview(toastView)
 
 		checkAuthorizationStatus()
 	}
@@ -98,9 +94,11 @@ final class QRCodeVC: UIViewController {
 
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
-		window.pinAzureToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -15)
 		view.pinViewToAllEdges(dimmedView)
+		keyWindow.pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -15)
 	}
+
+	// ! Private
 
 	private func checkAuthorizationStatus() {
 		switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -122,8 +120,8 @@ final class QRCodeVC: UIViewController {
 	}
 
 	private func setupScanner() {
-		guard let captureDevice = AVCaptureDevice.default(for: .video) else { return }
-		guard let input = try? AVCaptureDeviceInput(device: captureDevice) else { return }
+		guard let captureDevice = AVCaptureDevice.default(for: .video),
+			let input = try? AVCaptureDeviceInput(device: captureDevice) else { return }
 
 		captureSession.addInput(input)
 
@@ -147,11 +145,14 @@ final class QRCodeVC: UIViewController {
 
 }
 
+// ! AVCaptureMetadataOutputObjectsDelegate
+
 extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
+
 	func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
-		guard metadataObjects.count != 0 else { return }
-		guard let metadataObject = metadataObjects[0] as? AVMetadataMachineReadableCodeObject else { return }
-		guard let outputString = metadataObject.stringValue else { return }
+		guard metadataObjects.count != 0,
+			let metadataObject = metadataObjects[0] as? AVMetadataMachineReadableCodeObject,
+			let outputString = metadataObject.stringValue else { return }
 
 		IssuerManager.sharedInstance.createIssuer(outOfOtPauthString: outputString) { isDuplicateItem, issuer in
 			guard !isDuplicateItem else {
@@ -168,9 +169,11 @@ extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 			delegate?.qrCodeVCDidCreateIssuerOutOfQRCode()
 		}
 	}
+
 }
 
 private extension UIView {
+
 	func windowWithCoordinates(fromRect rect: CGRect) -> CGRect {
 		let smallestDimension = min(bounds.width, bounds.height)
 		let windowSize = 0.5 * smallestDimension
@@ -182,4 +185,5 @@ private extension UIView {
 		)
 		return window
 	}
+
 }

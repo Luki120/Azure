@@ -7,6 +7,7 @@ protocol IssuerCellDelegate: AnyObject {
 	func issuerCellShouldFadeInOutToastView()
 }
 
+/// Class to represent the issuer cell
 final class IssuerCell: UITableViewCell {
 
 	static let identifier = "IssuerCell"
@@ -24,7 +25,7 @@ final class IssuerCell: UITableViewCell {
 
 	weak var delegate: IssuerCellDelegate?
 
-	lazy var issuerImageView: UIImageView = {
+	let issuerImageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.contentMode = .scaleAspectFit
 		imageView.clipsToBounds = true
@@ -41,14 +42,14 @@ final class IssuerCell: UITableViewCell {
 
 	private lazy var circleLayer: CAShapeLayer = {
 		let layer = CAShapeLayer()
-		layer.path = UIBezierPath(arcCenter: CGPoint(x: 10, y: 10), radius: 10, startAngle: -0.5 * π, endAngle: 1.5 * π, clockwise: true).cgPath
+		layer.path = UIBezierPath(arcCenter: .init(x: 10, y: 10), radius: 10, startAngle: -0.5 * π, endAngle: 1.5 * π, clockwise: true).cgPath
 		layer.lineCap = .round
 		layer.lineWidth = 5
 		layer.fillColor = UIColor.clear.cgColor
 		layer.strokeColor = UIColor.kAzureMintTintColor.cgColor
 		layer.shadowColor = UIColor.kAzureMintTintColor.cgColor
 		layer.shadowRadius = 5
-		layer.shadowOffset = CGSize(width: 1, height: 1)
+		layer.shadowOffset = .init(width: 1, height: 1)
 		layer.shadowOpacity = 0.8
 		circleProgressView.layer.addSublayer(layer)
 		return layer
@@ -85,18 +86,18 @@ final class IssuerCell: UITableViewCell {
 
 	private func initializeTimers() {
 		let delay = TimeInterval(30 - Int(Date().timeIntervalSince1970) % 30)
-		DispatchQueue.main.async() {
+		DispatchQueue.main.async {
 			self.perform(#selector(self.startTimer), with: self, afterDelay: delay)
 			Timer.scheduledTimer(timeInterval: delay, target: self, selector: #selector(self.regeneratePIN), userInfo: nil, repeats: false)
 		}
 	}
 
 	private func setupUI() {
-		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
+		pinLabel.text = issuer?.generateOTP(forDate: .init(timeIntervalSince1970: getLastUNIXTimestamp()))
 
 		issuersStackView = setupStackView()
-		issuersStackView.addArrangedSubview(issuerImageView)
-		issuersStackView.addArrangedSubview(pinLabel)
+		issuersStackView.addArrangedSubviews(issuerImageView, pinLabel)
+
 		buttonsStackView = setupStackView()
 
 		copyPinButton = setupButton(
@@ -131,22 +132,27 @@ final class IssuerCell: UITableViewCell {
 	private func layoutUI() {
 		issuersStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15).isActive = true
 		issuersStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
-
-		issuerImageView.widthAnchor.constraint(equalToConstant: 30).isActive = true
-		issuerImageView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-
 		buttonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15).isActive = true
 		buttonsStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
 
-		circleProgressView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-		circleProgressView.heightAnchor.constraint(equalToConstant: 20).isActive = true
+		setupSizeConstraints(forView: issuerImageView, width: 30, height: 30)
+		setupSizeConstraints(forView: circleProgressView, width: 20, height: 20)
+	}
+
+	private func getLastUNIXTimestamp() -> Double {
+		let timestamp = Int(Date().timeIntervalSince1970)
+		return Double(timestamp - timestamp % 30)
+	} 
+
+	private func regeneratePINWithoutTransition() {
+		pinLabel.text = ""
+		pinLabel.text = issuer?.generateOTP(forDate: .init(timeIntervalSince1970: getLastUNIXTimestamp()))
 	}
 
 	@objc private func didTapCell() { delegate?.issuerCellDidTapCell(self) }
 
 	@objc private func didTapCopyPinButton() {
-		let pasteboard = UIPasteboard.general
-		pasteboard.string = pinLabel.text
+		UIPasteboard.general.string = pinLabel.text
 		delegate?.issuerCellShouldFadeInOutToastView()
 	}
 
@@ -167,17 +173,7 @@ final class IssuerCell: UITableViewCell {
 		transition.timingFunction = .init(name: .easeInEaseOut)
 		pinLabel.layer.add(transition, forKey: nil)
 
-		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
-	}
-
-	private func getLastUNIXTimestamp() -> Int {
-		let timestamp = Int(Date().timeIntervalSince1970)
-		return timestamp - timestamp % 30
-	} 
-
-	private func regeneratePINWithoutTransitions() {
-		pinLabel.text = ""
-		pinLabel.text = issuer?.generateOTP(forDate: Date(timeIntervalSince1970: Double(getLastUNIXTimestamp())))
+		pinLabel.text = issuer?.generateOTP(forDate: .init(timeIntervalSince1970: getLastUNIXTimestamp()))
 	}
 
 	// ! Reusable
@@ -192,7 +188,7 @@ final class IssuerCell: UITableViewCell {
 		animation.fromValue = value
 		animation.toValue = 1
 		animation.repeatCount = repeatCount
-		animation.timingFunction = CAMediaTimingFunction(name: .linear)
+		animation.timingFunction = .init(name: .linear)
 		animation.isRemovedOnCompletion = false
 		return animation
 	}
@@ -220,16 +216,22 @@ extension IssuerCell {
 
 	// ! Public
 
-	func setIssuer(withName name: String, secret: Data, algorithm: Issuer.Algorithm, withTransition transition: Bool) {
+	/// Function to set the issuer for the cell
+	/// - Parameters:
+	///		- withName: A string representing the issuer's name
+	///		- secret: The secret hash
+	///		- algorithm: The algorithm type
+	func setIssuer(withName name: String, secret: Data, algorithm: Issuer.Algorithm) {
 		self.name = name
 		self.secret = .base32EncodedString(secret)
-		issuer = Issuer(name: name, secret: secret, algorithm: algorithm)
+		issuer = .init(name: name, secret: secret, algorithm: algorithm)
 
-		if(transition) { regeneratePIN() }
-		else { regeneratePINWithoutTransitions() }
+		regeneratePINWithoutTransition()
 	}
 
 }
+
+// ! CAAnimationDelegate
 
 extension IssuerCell: CAAnimationDelegate {
 
