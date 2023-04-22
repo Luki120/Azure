@@ -4,13 +4,13 @@ import ObjectiveC.runtime
 
 
 @UIApplicationMain
-final class AZAppDelegate: UIResponder, UIApplicationDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
 	private var strongWindow: UIWindow!
 
 	private static var NotAuthenticatedVClass: AnyClass!
-	private lazy var NotAuthenticatedVC = AZAppDelegate.NotAuthenticatedVClass.alloc() as? UIViewController
+	private lazy var NotAuthenticatedVC = AppDelegate.NotAuthenticatedVClass.alloc() as? UIViewController
 
 	private let authManager = AuthManager()
 
@@ -50,7 +50,7 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 
 	private func setupNotAuthenticatedVC() {
 		allocateClass { notAuthenticatedVC in
-			AZAppDelegate.sendSuper()
+			AppDelegate.sendSuper()
 
 			let quitButton = UIButton()
 			quitButton.alpha = 0
@@ -70,19 +70,19 @@ final class AZAppDelegate: UIResponder, UIApplicationDelegate {
 				quitButton.transform = .init(scaleX: 1, y: 1)
 			}
 
-			AZAppDelegate.didTapRetryButton { self.unsafePortalDispatch() }
+			AppDelegate.didTapRetryButton { self.unsafePortalDispatch() }
 		}
 	}
 
 	private func allocateClass(imp: @escaping @convention(block) (UIViewController) -> ()) {
-		AZAppDelegate.NotAuthenticatedVClass = objc_allocateClassPair(UIViewController.self, "NotAuthenticatedVC", 0)!
+		AppDelegate.NotAuthenticatedVClass = objc_allocateClassPair(UIViewController.self, "NotAuthenticatedVC", 0)!
 
 		let method = class_getInstanceMethod(UIViewController.self, #selector(UIViewController.viewDidLoad))!
 		let azure_viewDidLoad = imp_implementationWithBlock(unsafeBitCast(imp, to: AnyObject.self))
 		let typeEncoding = method_getTypeEncoding(method)!
-		class_addMethod(AZAppDelegate.NotAuthenticatedVClass, #selector(UIViewController.viewDidLoad), azure_viewDidLoad, typeEncoding)
+		class_addMethod(AppDelegate.NotAuthenticatedVClass, #selector(UIViewController.viewDidLoad), azure_viewDidLoad, typeEncoding)
 
-		objc_registerClassPair(AZAppDelegate.NotAuthenticatedVClass)
+		objc_registerClassPair(AppDelegate.NotAuthenticatedVClass)
 	}
 
 	private static func sendSuper() {
