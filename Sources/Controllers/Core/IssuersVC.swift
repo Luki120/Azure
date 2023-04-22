@@ -231,25 +231,25 @@ extension IssuersVC: IssuerCellDelegate {
 		issuersVCView.toastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2)
 	}
 
-	func issuerCellDidTapCell(_ cell: IssuerCell) {
+	func didTapCell(in issuerCell: IssuerCell) {
 		guard authManager.shouldUseBiometrics() else {
-			fadeInOutToast(forCell: cell)
+			fadeInOutToast(forCell: issuerCell)
 			return
 		}
 		authManager.setupAuth(withReason: .sensitiveOperation) { success, _ in
 			DispatchQueue.main.async {
 				guard success else { return }
-				self.fadeInOutToast(forCell: cell)  
+				self.fadeInOutToast(forCell: issuerCell)  
 			}
 		}
 	}
 
-	func issuerCellDidTapInfoButton(_ cell: IssuerCell) {
-		let message = "Issuer: \(cell.name)"
+	func didTapInfoButton(in issuerCell: IssuerCell) {
+		let message = "Issuer: \(issuerCell.name)"
 		issuersVCView.toastView.fadeInOutToastView(withMessage: message, finalDelay: 0.2)
 	}
 
-	func issuerCellShouldFadeInOutToastView() {
+	func shouldFadeInOutToastView(in issuerCell: IssuerCell) {
 		issuersVCView.toastView.fadeInOutToastView(withMessage: "Copied code!", finalDelay: 0.2)
 	}
 
@@ -259,7 +259,7 @@ extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumen
 
 	// ! FloatingButtonViewDelegate
 
-	func floatingButtonViewDidTapFloatingButton() {
+	func didTapFloatingButton(in floatingButtonView: FloatingButtonView) {
 		modalSheetVC = ModalSheetVC()
 		modalSheetVC.delegate = self
 		modalSheetVC.headerView.configure()
@@ -272,7 +272,7 @@ extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumen
 
 	// ! ModalSheetVCDelegate
 
-	func modalSheetVCShouldReloadData() { issuersVCView.issuersTableView.reloadData() }
+	func shouldReloadData(in modalSheetVC: ModalSheetVC) { issuersVCView.issuersTableView.reloadData() }
 
 	// ! UIDocumentPickerDelegate
 

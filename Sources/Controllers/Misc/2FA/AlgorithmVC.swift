@@ -2,7 +2,7 @@ import UIKit
 
 
 protocol AlgorithmVCDelegate: AnyObject {
-	func algorithmVCDidUpdateAlgorithmLabel(withSelectedRow row: Int)
+	func algorithmVC(_ algorithmVC: AlgorithmVC, didUpdateAlgorithmLabelWithSelectedRow row: Int)
 }
 
 /// Controller that'll show all supported algorithms
@@ -41,7 +41,7 @@ final class AlgorithmVC: UITableViewController {
 	override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		let cell = tableView.dequeueReusableCell(withIdentifier: "VanillaCell", for: indexPath)
 		selectedRow = IssuerManager.sharedInstance.selectedRow
-		delegate?.algorithmVCDidUpdateAlgorithmLabel(withSelectedRow: selectedRow)
+		delegate?.algorithmVC(self, didUpdateAlgorithmLabelWithSelectedRow: selectedRow)
 		cell.accessoryType = indexPath.row == selectedRow ? .checkmark : .none
 		cell.backgroundColor = .clear
 		cell.textLabel?.font = .systemFont(ofSize: 14)

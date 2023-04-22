@@ -3,7 +3,7 @@ import UIKit
 
 
 protocol QRCodeVCDelegate: AnyObject {
-	func qrCodeVCDidCreateIssuerOutOfQRCode()
+	func didCreateIssuerOutOfQRCode(in qrCodeVC: QRCodeVC)
 }
 
 // Slightly modified from ⇝ https://github.com/mattrubin/Authenticator/blob/develop/Authenticator/Source/ScannerOverlayView.swift
@@ -166,7 +166,7 @@ extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 			captureVideoPreviewLayer.removeFromSuperlayer()
 			dimmedView.layer.removeAllAnimations()
 
-			delegate?.qrCodeVCDidCreateIssuerOutOfQRCode()
+			delegate?.didCreateIssuerOutOfQRCode(in: self)
 		}
 	}
 

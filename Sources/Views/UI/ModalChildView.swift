@@ -2,11 +2,16 @@ import UIKit
 
 
 protocol ModalChildViewDelegate: AnyObject {
-	func modalChildViewDidTapScanQRCodeButton()
-	func modalChildViewDidTapImportQRImageButton()
-	func modalChildViewDidTapEnterManuallyButton()
-	func modalChildViewDidTapDimmedView()
-	func modalChildViewDidPan(withGesture gesture: UIPanGestureRecognizer, modifyingConstraint constraint: NSLayoutConstraint)
+	func didTapScanQRCodeButton(in modalChildView: ModalChildView)
+	func didTapImportQRImageButton(in modalChildView: ModalChildView)
+	func didTapEnterManuallyButton(in modalChildView: ModalChildView)
+	func didTapDimmedView(in modalChildView: ModalChildView)
+	func modalChildView(
+		_ modalChildView: ModalChildView,
+		didPanWithGesture gesture: UIPanGestureRecognizer,
+		modifyingConstraint constraint: NSLayoutConstraint
+	)
+
 }
 
 /// Class that'll show a modal sheet view
@@ -144,23 +149,23 @@ final class ModalChildView: UIView {
 	// ! Selectors
 
 	@objc func didTapScanQRCodeButton() {
-		delegate?.modalChildViewDidTapScanQRCodeButton()
+		delegate?.didTapScanQRCodeButton(in: self)
 	}
 
 	@objc func didTapImportQRImageButton() {
-		delegate?.modalChildViewDidTapImportQRImageButton()
+		delegate?.didTapImportQRImageButton(in: self)
 	}
 
 	@objc func didTapEnterManuallyButton() {
-		delegate?.modalChildViewDidTapEnterManuallyButton()
+		delegate?.didTapEnterManuallyButton(in: self)
 	}
 
 	@objc private func didTapView() {
-		delegate?.modalChildViewDidTapDimmedView()
+		delegate?.didTapDimmedView(in: self)
 	}
 
 	@objc private func didPan(_ gesture: UIPanGestureRecognizer) {
-		delegate?.modalChildViewDidPan(withGesture: gesture, modifyingConstraint: containerViewHeightConstraint)
+		delegate?.modalChildView(self, didPanWithGesture: gesture, modifyingConstraint: containerViewHeightConstraint)
 	}
 
 }

@@ -2,7 +2,7 @@ import UIKit
 
 
 protocol FloatingButtonViewDelegate: AnyObject {
-	func floatingButtonViewDidTapFloatingButton()
+	func didTapFloatingButton(in floatingButtonView: FloatingButtonView)
 }
 
 /// Class that'll show a floating button view on top of the issuers view
@@ -66,7 +66,7 @@ final class FloatingButtonView: UIView {
 				}
 			}
 		}
-		delegate?.floatingButtonViewDidTapFloatingButton()
+		delegate?.didTapFloatingButton(in: self)
 	}
 }
 

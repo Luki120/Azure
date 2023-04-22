@@ -2,12 +2,12 @@ import UIKit
 
 
 protocol NewIssuerVCDelegate: AnyObject {
-	func newIssuerVCShouldDismissVC()
-	func newIssuerVCShouldPushAlgorithmVC()
+	func shouldDismissVC(in newIssuerVC: NewIssuerVC)
+	func shouldPushAlgorithmVC(in newIssuerVC: NewIssuerVC)
 }
 
 extension NewIssuerVCDelegate {
-	func newIssuerVCShouldPushAlgorithmVC() {}
+	func shouldPushAlgorithmVC(in newIssuerVC: NewIssuerVC) {}
 }
 
 /// Controller that'll show the new issuer view
@@ -85,7 +85,7 @@ final class NewIssuerVC: UIViewController {
 			}
 
 			IssuerManager.sharedInstance.issuers.append(issuer)
-			delegate?.newIssuerVCShouldDismissVC()
+			delegate?.shouldDismissVC(in: self)
 
 			newIssuerVCView.issuerTextField.text = ""
 			newIssuerVCView.secretTextField.text = ""
@@ -98,7 +98,7 @@ final class NewIssuerVC: UIViewController {
 
 extension NewIssuerVC: AlgorithmVCDelegate {
 
-	func algorithmVCDidUpdateAlgorithmLabel(withSelectedRow row: Int) {
+	func algorithmVC(_ algorithmVC: AlgorithmVC, didUpdateAlgorithmLabelWithSelectedRow row: Int) {
 		configureAlgorithmLabel(withSelectedRow: row)
 	}
 
@@ -131,7 +131,7 @@ extension NewIssuerVC: UITableViewDataSource, UITableViewDelegate {
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
 		guard indexPath.row == 2 else { return }
-		delegate?.newIssuerVCShouldPushAlgorithmVC()
+		delegate?.shouldPushAlgorithmVC(in: self)
 	}
 
 }

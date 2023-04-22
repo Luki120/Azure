@@ -2,9 +2,9 @@ import UIKit
 
 
 protocol IssuerCellDelegate: AnyObject {
-	func issuerCellDidTapCell(_ cell: IssuerCell)
-	func issuerCellDidTapInfoButton(_ cell: IssuerCell)
-	func issuerCellShouldFadeInOutToastView()
+	func didTapCell(in issuerCell: IssuerCell)
+	func didTapInfoButton(in issuerCell: IssuerCell)
+	func shouldFadeInOutToastView(in issuerCell: IssuerCell)
 }
 
 /// Class to represent the issuer cell
@@ -149,14 +149,14 @@ final class IssuerCell: UITableViewCell {
 		pinLabel.text = issuer?.generateOTP(forDate: .init(timeIntervalSince1970: getLastUNIXTimestamp()))
 	}
 
-	@objc private func didTapCell() { delegate?.issuerCellDidTapCell(self) }
+	@objc private func didTapCell() { delegate?.didTapCell(in: self) }
 
 	@objc private func didTapCopyPinButton() {
 		UIPasteboard.general.string = pinLabel.text
-		delegate?.issuerCellShouldFadeInOutToastView()
+		delegate?.shouldFadeInOutToastView(in: self)
 	}
 
-	@objc private func didTapInfoButton() { delegate?.issuerCellDidTapInfoButton(self) }
+	@objc private func didTapInfoButton() { delegate?.didTapInfoButton(in: self) }
 
 	// ! Timer
 

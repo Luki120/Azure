@@ -3,7 +3,7 @@ import UIKit
 
 
 protocol ModalSheetVCDelegate: AnyObject {
-	func modalSheetVCShouldReloadData()
+	func shouldReloadData(in modalSheetVC: ModalSheetVC)
 }
 
 /// Controller that'll show the modal sheet view
@@ -69,8 +69,8 @@ final class ModalSheetVC: UIViewController {
 	private func dismissVC() {
 		dismiss(animated: true, completion: nil)
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-			self.modalChildView.animateDismiss { _ in
-				self.dismiss(animated: true)
+			self.modalChildView.animateDismiss { [weak self] _ in
+				self?.dismiss(animated: true)
 			}
 		}
 	}
@@ -84,8 +84,8 @@ final class ModalSheetVC: UIViewController {
 
 	/// Function to dismiss the current view controller being presented
 	func shouldDismissVC() {
-		modalChildView.animateDismiss { _ in
-			self.dismiss(animated: true)
+		modalChildView.animateDismiss { [weak self] _ in
+			self?.dismiss(animated: true)
 		}
 	}
 
@@ -111,7 +111,7 @@ final class ModalSheetVC: UIViewController {
 
 extension ModalSheetVC: ModalChildViewDelegate {
 
-	@objc func modalChildViewDidTapScanQRCodeButton() {
+	@objc func didTapScanQRCodeButton(in modalChildView: ModalChildView) {
 		let qrCodeVC = QRCodeVC()
 		qrCodeVC.delegate = self
 
@@ -125,7 +125,7 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		present(navVC, animated: true)
 	}
 
-	@objc func modalChildViewDidTapImportQRImageButton() {
+	@objc func didTapImportQRImageButton(in modalChildView: ModalChildView) {
 		var configuration = PHPickerConfiguration()
 		configuration.filter = PHPickerFilter.images
 
@@ -137,7 +137,7 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		keyWindow.pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
-	@objc func modalChildViewDidTapEnterManuallyButton() {
+	@objc func didTapEnterManuallyButton(in modalChildView: ModalChildView) {
 		configureVC(
 			newIssuerVC,
 			withTitle: "Enter QR Code",
@@ -153,13 +153,17 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		present(navVC, animated: true)
 	}
 
-	func modalChildViewDidTapDimmedView() {
-		modalChildView.animateDismiss { _ in
-			self.dismiss(animated: true)
+	func didTapDimmedView(in modalChildView: ModalChildView) {
+		modalChildView.animateDismiss { [weak self] _ in
+			self?.dismiss(animated: true)
 		}
 	}
 
-	func modalChildViewDidPan(withGesture gesture: UIPanGestureRecognizer, modifyingConstraint constraint: NSLayoutConstraint) {
+	func modalChildView(
+		_ modalChildView: ModalChildView,
+		didPanWithGesture gesture: UIPanGestureRecognizer,
+		modifyingConstraint constraint: NSLayoutConstraint
+	) {
 		let translation = gesture.translation(in: view)
 		let newHeight = modalChildView.currentSheetHeight - translation.y
 
@@ -174,8 +178,8 @@ extension ModalSheetVC: ModalChildViewDelegate {
 				}
 			case .ended:
 				if newHeight < modalChildView.kDismissableHeight {
-					modalChildView.animateDismiss { _ in
-						self.dismissVC()
+					modalChildView.animateDismiss { [weak self] _ in
+						self?.dismissVC()
 					}
 				}
 				else if newHeight < modalChildView.kDefaultHeight {
@@ -197,12 +201,12 @@ extension ModalSheetVC: ModalChildViewDelegate {
 
 extension ModalSheetVC: NewIssuerVCDelegate {
 
-	func newIssuerVCShouldDismissVC() {
-		delegate?.modalSheetVCShouldReloadData()
+	func shouldDismissVC(in newIssuerVC: NewIssuerVC) {
+		delegate?.shouldReloadData(in: self)
 		dismissVC()
 	}
 
-	func newIssuerVCShouldPushAlgorithmVC() {
+	func shouldPushAlgorithmVC(in newIssuerVC: NewIssuerVC) {
 		let algorithmVC = AlgorithmVC()
 		algorithmVC.title = "Algorithm"
 		navVC.pushViewController(algorithmVC, animated: true)
@@ -214,8 +218,8 @@ extension ModalSheetVC: NewIssuerVCDelegate {
 
 extension ModalSheetVC: QRCodeVCDelegate {
 
-	func qrCodeVCDidCreateIssuerOutOfQRCode() {
-		delegate?.modalSheetVCShouldReloadData()
+	func didCreateIssuerOutOfQRCode(in qrCodeVC: QRCodeVC) {
+		delegate?.shouldReloadData(in: self)
 		dismissVC()
 	}
 
@@ -251,7 +255,7 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 
 					IssuerManager.sharedInstance.issuers.append(issuer)
 
-					self.delegate?.modalSheetVCShouldReloadData()
+					self.delegate?.shouldReloadData(in: self)
 					self.dismissVC()
 				}
 			}
