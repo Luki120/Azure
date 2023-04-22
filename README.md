@@ -18,7 +18,7 @@
 
 ## To do
 
-* [ ] Add docs 💀
+* [x] Add docs 💀
 * [ ] Create a social cell to show & tap GitHub/Twitter links + update credits.
 * [ ] Explain what a user should do to get an issuer’s icon for the respective app.
 * [ ] New UI refactor 💀
