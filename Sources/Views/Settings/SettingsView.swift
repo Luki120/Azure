@@ -14,6 +14,13 @@ struct SettingsView: View {
 
 	private let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
 
+	private let credits = """
+	Credits:
+	@6007135: App icon & significant contributions
+	@RuntimeOverflow: Significant contributions
+	@leptos-null, @L1ghtmann: Valuable contributions
+	"""
+
 	var body: some View {
 		VStack {
 			List {
@@ -95,7 +102,7 @@ struct SettingsView: View {
 					.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
 			}
 
-			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n© 2022-2023 Luki120")) {}
+			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n© 2022-2023 Luki120\n\n\(credits)")) {}
 		}
 		.padding(.top, 25)
 		.listStyle(.insetGrouped)
@@ -105,7 +112,7 @@ struct SettingsView: View {
 	private func ReusableText(_ text: String) -> some View {
 		Text(text)
 			.foregroundColor(.gray)
-			.font(.system(size: 10))		
+			.font(.system(size: 10))
 	}
 
 }
