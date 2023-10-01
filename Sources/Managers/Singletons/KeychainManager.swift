@@ -17,23 +17,23 @@ final class KeychainManager {
 	func save(issuer: Issuer, forService service: String) {
 		guard let encodedIssuer = try? JSONEncoder().encode(issuer) else { return }
 
-		let query = [
+		let query: [CFString : Any] = [
 			kSecValueData: encodedIssuer,
 			kSecAttrService: service,
 			kSecClass: kSecClassGenericPassword
-		] as CFDictionary
+		]
 
-		status = SecItemAdd(query, nil)
+		status = SecItemAdd(query as CFDictionary, nil)
 
 		guard !isDuplicateItem else {
-			let query = [
+			let query: [CFString : Any] = [
 				kSecAttrService: service,
 				kSecClass: kSecClassGenericPassword,
-			] as CFDictionary
+			]
 
 			let attributes = [kSecValueData: encodedIssuer] as CFDictionary
 
-			SecItemUpdate(query, attributes)
+			SecItemUpdate(query as CFDictionary, attributes)
 			return
 		}
 	}
@@ -41,14 +41,14 @@ final class KeychainManager {
 	/// Function to decode & retrieve an array of issuers form the keychain
 	/// - Returns: An array of issuers
 	func retrieveIssuers() -> [Issuer] {
-		let query = [
+		let query: [CFString : Any] = [
 			kSecClass: kSecClassGenericPassword,
 			kSecMatchLimit: kSecMatchLimitAll,
 			kSecReturnData: true,
-		] as CFDictionary
+		]
 
 		var result: AnyObject?
-		SecItemCopyMatching(query, &result)
+		SecItemCopyMatching(query as CFDictionary, &result)
 
 		guard let results = result as? [Data] else { return [] }
 
@@ -62,12 +62,12 @@ final class KeychainManager {
 	/// Parameters:
 	///		- forService: A string representing the service for the given issuer
 	func deleteIssuer(forService service: String) {
-		let query = [
+		let query: [CFString : Any] = [
 			kSecAttrService: service,
 			kSecClass: kSecClassGenericPassword,
-		] as CFDictionary
+		]
 
-		SecItemDelete(query)
+		SecItemDelete(query as CFDictionary)
 	}
 
 	/// Function to delete all issuers from the keychain
