@@ -6,4 +6,3 @@ Description: FOSS TOTP 2FA app with a clean, straightforward UI
 Maintainer: Luki
 Author: Luki
 Section: Utilities
-Dependencies: ${LIBSWIFT}
