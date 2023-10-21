@@ -3,7 +3,7 @@ import Foundation
 /// Enum to represent each developer for the GitHub cell
 @frozen enum Developer: String {
 	case luki = "Luki120"
-	case cookies = "Cookies"
+	case cookies = "Cookie"
 
 	static let lukiIcon = "https://avatars.githubusercontent.com/u/74214115?v=4"
 	static let cookiesIcon = "https://avatars.githubusercontent.com/u/98801093?v=4"
