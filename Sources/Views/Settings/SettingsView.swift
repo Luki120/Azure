@@ -99,7 +99,7 @@ struct SettingsView: View {
 					.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
 			}
 
-			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n© 2022-2023 Luki120\n\n\(credits)")) {}
+			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n© 2022-2024 Luki120\n\n\(credits)")) {}
 		}
 		.padding(.top, 25)
 		.listStyle(.insetGrouped)
