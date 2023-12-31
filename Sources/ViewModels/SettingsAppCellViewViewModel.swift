@@ -3,8 +3,7 @@ import Foundation
 /// View model struct to construct the app cell for SettingsView
 struct SettingsAppCellViewViewModel: Identifiable {
 
-	private(set) var id = UUID()
-
+	let id = UUID()
 	let app: App
 	let onTap: (App) -> ()
 

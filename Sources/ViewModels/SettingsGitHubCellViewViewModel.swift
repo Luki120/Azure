@@ -3,15 +3,15 @@ import UIKit
 /// View model class for SettingsGitHubCellView
 final class SettingsGitHubCellViewViewModel: Identifiable, ObservableObject {
 
-	private(set) var id = UUID()
-	@Published private(set) var image = UIImage()
-
+	let id = UUID()
 	let developer: Developer
 	let onTap: (Developer) -> ()
 	private let imageURLString: String?
 
 	var devName: String { return developer.devName }
 	var targetURL: URL? { return developer.targetURL }
+
+	@Published private(set) var image = UIImage()
 
 	private let imageCache = NSCache<NSString, UIImage>()
 
