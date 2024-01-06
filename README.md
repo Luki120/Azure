@@ -1,6 +1,6 @@
 # Azure
 
-<img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Azure/AzureHome.jpeg" width="300"> &nbsp; <img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Azure/AzureSettings.jpeg" width="300">
+<img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureHome.jpeg" width="300"> &nbsp; <img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureSettings.jpeg" width="300">
 
 ## Features
 
