@@ -55,7 +55,7 @@ extension Issuer {
 	/// Function to generate a TOTP code for the given date
 	/// - Parameters:
 	///		- forDate: The given date
-	///		- Returns: A string
+	///	- Returns: A string
 	func generateOTP(forDate date: Date) -> String {
 		let counter = UInt64(date.timeIntervalSince1970 / TimeInterval(30))
 		return generateOTP(forCounter: counter)
