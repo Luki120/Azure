@@ -1,10 +1,32 @@
 import UIKit
 
 
+extension CGColor {
+	static let darkBackgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.10, alpha: 1.0).cgColor
+	static let lightBackgroundColor = UIColor(red: 0.89, green: 0.90, blue: 0.92, alpha: 1.0).cgColor
+	static let darkShadowColor = UIColor(red: 0.23, green: 0.23, blue: 0.23, alpha: 1.0).cgColor
+	static let lightShadowColor = UIColor(red: 0.82, green: 0.85, blue: 0.90, alpha: 1.0).cgColor
+}
+
 extension Notification.Name {
 	static let didPurgeDataNotification = Notification.Name("didPurgeDataNotification")
 	static let shouldMakeBackupNotification = Notification.Name("shouldMakeBackupNotification")
 	static let shouldSaveDataNotification = Notification.Name("shouldSaveDataNotification")
+}
+
+extension NSMutableAttributedString {
+	convenience init(fullString: String, subString: String) {
+		let rangeOfSubString = (fullString as NSString).range(of: subString)
+		let rangeOfFullString = NSRange(location: 0, length: fullString.count)
+		let attributedString = NSMutableAttributedString(string: fullString)
+
+		attributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: rangeOfFullString)
+		attributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.systemGray, range: rangeOfSubString)
+		attributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16), range: rangeOfFullString)
+		attributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14), range: rangeOfSubString)
+
+		self.init(attributedString: attributedString)
+	}
 }
 
 extension String {
@@ -24,6 +46,8 @@ extension UIBarButtonItem {
 }
 
 extension UIColor {
+	static let darkColor = UIColor(red: 0.11, green: 0.11, blue: 0.12, alpha: 1.0)
+	static let lightColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
 	static let kAzureLilacTintColor = UIColor(red: 0.70, green: 0.56, blue: 1.0, alpha: 1.0)
 	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
 }
