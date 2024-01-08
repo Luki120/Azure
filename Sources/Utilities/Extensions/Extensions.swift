@@ -52,29 +52,6 @@ extension UIColor {
 	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
 }
 
-extension UIImage {
-	func resizeImage(_ image: UIImage, withSize size: CGSize) -> UIImage {
-		let newSize = size
-
-		let scale = max(newSize.width / image.size.width, newSize.height / image.size.height)
-		let width = image.size.width * scale
-		let height = image.size.height * scale
-		let imageRect = CGRect(
-			x: (newSize.width - width) / 2.0,
-			y: (newSize.height - height) / 2.0,
-			width: width,
-			height: height
-		)
-		UIGraphicsBeginImageContextWithOptions(newSize, false, 0.0)
-		image.draw(in: imageRect)
-
-		let newImage = UIGraphicsGetImageFromCurrentImageContext() ?? UIImage()
-		UIGraphicsEndImageContext()
-
-		return newImage
-	}
-}
-
 extension UIStackView {
 	func addArrangedSubviews(_ views: UIView ...) {
 		views.forEach { addArrangedSubview($0) }
