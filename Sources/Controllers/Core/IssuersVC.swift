@@ -8,7 +8,7 @@ final class IssuersVC: UIViewController {
 	private let backupManager = BackupManager()
 
 	private var modalSheetVC: ModalSheetVC!
-	private var issuersVCView: IssuersVCView!
+	private var issuersView: IssuersView!
 
 	// ! Lifecycle
 
@@ -19,20 +19,20 @@ final class IssuersVC: UIViewController {
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nil, bundle: nil)
 
-		issuersVCView = .init(floatingButtonViewDelegate: self)
-		issuersVCView.setupSearchController(for: self)
+		issuersView = .init(floatingButtonViewDelegate: self)
+		issuersView.setupSearchController(for: self)
 
 		setupObservers()
 	}
 
 	deinit { NotificationCenter.default.removeObserver(self) }
 
-	override func loadView() { view = issuersVCView }
+	override func loadView() { view = issuersView }
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		issuersVCView.delegate = self
-		issuersVCView.backgroundColor = .systemBackground
+		issuersView.delegate = self
+		issuersView.backgroundColor = .systemBackground
 	}
 
 	// ! Private
@@ -46,7 +46,7 @@ final class IssuersVC: UIViewController {
 
 	@objc private func didPurgeData() {
 		IssuerManager.sharedInstance.removeAllIssuers()
-		issuersVCView.reloadData
+		issuersView.reloadData
 	}
 
 	@objc private func shouldMakeBackup() {
@@ -83,7 +83,7 @@ final class IssuersVC: UIViewController {
 		if isJailbroken() {
 			backupManager.decodeData()
 			UIView.transition(with: view, duration: 0.5, animations: {
-				self.issuersVCView.reloadData
+				self.issuersView.reloadData
 			}) { _ in
 				self.modalSheetVC.shouldDismissVC()
 			}
@@ -133,15 +133,15 @@ final class IssuersVC: UIViewController {
 
 }
 
-// ! IssuersVCViewDelegate
+// ! IssuersViewDelegate
 
-extension IssuersVC: IssuersVCViewDelegate {
+extension IssuersVC: IssuersViewDelegate {
 
-	func didTapCopyPinCode(in issuersView: IssuersVCView) {
+	func didTapCopyPinCode(in issuersView: IssuersView) {
 		issuersView.toastView.fadeInOutToastView(withMessage: "Copied code!", finalDelay: 0.2)
 	}
 
-	func didTapCopySecret(in issuersView: IssuersVCView) {
+	func didTapCopySecret(in issuersView: IssuersView) {
 		guard authManager.shouldUseBiometrics() else {
 			issuersView.toastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2)
 			return
@@ -154,7 +154,7 @@ extension IssuersVC: IssuersVCViewDelegate {
 		}
 	}
 
-	func issuersView(_ issuersView: IssuersVCView, didTapDeleteAndPresent alertController: UIAlertController) {
+	func issuersView(_ issuersView: IssuersView, didTapDeleteAndPresent alertController: UIAlertController) {
 		present(alertController, animated: true)
 	}
 
@@ -177,7 +177,7 @@ extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumen
 
 	// ! ModalSheetVCDelegate
 
-	func shouldReloadData(in modalSheetVC: ModalSheetVC) { issuersVCView.reloadData }
+	func shouldReloadData(in modalSheetVC: ModalSheetVC) { issuersView.reloadData }
 
 	// ! UIDocumentPickerDelegate
 
@@ -185,7 +185,7 @@ extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumen
 		backupManager.decodeData()
 
 		UIView.transition(with: view, duration: 0.5) {
-			self.issuersVCView.reloadData
+			self.issuersView.reloadData
 		}
 	}
 

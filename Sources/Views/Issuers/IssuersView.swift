@@ -1,14 +1,14 @@
 import UIKit
 
 
-protocol IssuersVCViewDelegate: AnyObject {
-	func didTapCopyPinCode(in issuersView: IssuersVCView)
-	func didTapCopySecret(in issuersView: IssuersVCView)
-	func issuersView(_ issuersView: IssuersVCView, didTapDeleteAndPresent alertController: UIAlertController)
+protocol IssuersViewDelegate: AnyObject {
+	func didTapCopyPinCode(in issuersView: IssuersView)
+	func didTapCopySecret(in issuersView: IssuersView)
+	func issuersView(_ issuersView: IssuersView, didTapDeleteAndPresent alertController: UIAlertController)
 }
 
 /// Class to represent the issuers view
-final class IssuersVCView: UIView {
+final class IssuersView: UIView {
 
 	let toastView = ToastView()
 	private let floatingButtonView = FloatingButtonView()
@@ -41,7 +41,7 @@ final class IssuersVCView: UIView {
 
 	private var issuersDataSource: IssuersDataSource!
 
-	weak var delegate: IssuersVCViewDelegate?
+	weak var delegate: IssuersViewDelegate?
 
 	var reloadData: Void {
 		return issuersCollectionView.reloadData()
@@ -146,7 +146,7 @@ final class IssuersVCView: UIView {
 
 }
 
-extension IssuersVCView {
+extension IssuersView {
 
 	// ! Public
 
@@ -165,7 +165,7 @@ extension IssuersVCView {
 
 // ! IssuersDataSourceDelegate
 
-extension IssuersVCView: IssuersDataSourceDelegate {
+extension IssuersView: IssuersDataSourceDelegate {
 
 	func didTapCopyPinCode() {
 		delegate?.didTapCopyPinCode(in: self)

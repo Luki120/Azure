@@ -1,7 +1,7 @@
 import UIKit
 
 
-final class NewIssuerVCView: UIView {
+final class NewIssuerView: UIView {
 
 	private var issuerLabel, secretLabel: UILabel!
 
@@ -102,7 +102,7 @@ final class NewIssuerVCView: UIView {
 
 }
 
-extension NewIssuerVCView {
+extension NewIssuerView {
 
 	// ! Public
 
@@ -148,7 +148,7 @@ extension NewIssuerVCView {
 
 // ! UITextFieldDelegate
 
-extension NewIssuerVCView: UITextFieldDelegate {
+extension NewIssuerView: UITextFieldDelegate {
 
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
 		if textField == issuerTextField {

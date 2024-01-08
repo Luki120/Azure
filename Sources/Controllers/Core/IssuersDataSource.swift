@@ -10,7 +10,7 @@ protocol IssuersDataSourceDelegate: AnyObject {
 	func shouldAnimateNoSearchResultsLabel(forIssuers issuers: [Issuer], isFiltering: Bool)
 }
 
-extension IssuersVCView {
+extension IssuersView {
 
 	/// Class to handle the data source & delegate for the issuers collection view
 	final class IssuersDataSource: NSObject {
@@ -44,7 +44,7 @@ extension IssuersVCView {
 
 // ! UICollectionViewDataSource
 
-extension IssuersVCView.IssuersDataSource: UICollectionViewDataSource {
+extension IssuersView.IssuersDataSource: UICollectionViewDataSource {
 
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		delegate?.shouldAnimateNoIssuersLabel()
@@ -74,7 +74,7 @@ extension IssuersVCView.IssuersDataSource: UICollectionViewDataSource {
 
 // ! UICollectionViewDelegate
 
-extension IssuersVCView.IssuersDataSource: UICollectionViewDelegate {
+extension IssuersView.IssuersDataSource: UICollectionViewDelegate {
 
 	func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
@@ -116,7 +116,7 @@ extension IssuersVCView.IssuersDataSource: UICollectionViewDelegate {
 
 // ! UICollectionViewDragDelegate
 
-extension IssuersVCView.IssuersDataSource: UICollectionViewDragDelegate {
+extension IssuersView.IssuersDataSource: UICollectionViewDragDelegate {
 
 	func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
 		let issuer = IssuerManager.sharedInstance.issuers[indexPath.item]
@@ -140,7 +140,7 @@ extension IssuersVCView.IssuersDataSource: UICollectionViewDragDelegate {
 
 // ! UICollectionViewDropDelegate
 
-extension IssuersVCView.IssuersDataSource: UICollectionViewDropDelegate {
+extension IssuersView.IssuersDataSource: UICollectionViewDropDelegate {
 
 	func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
 		if collectionView.hasActiveDrag {
@@ -197,7 +197,7 @@ extension IssuersVCView.IssuersDataSource: UICollectionViewDropDelegate {
 
 // ! UISearchResultsUpdating
 
-extension IssuersVCView.IssuersDataSource: UISearchResultsUpdating {
+extension IssuersView.IssuersDataSource: UISearchResultsUpdating {
 
 	func updateSearchResults(for searchController: UISearchController) {
 		guard let searchedString = searchController.searchBar.text else { return }

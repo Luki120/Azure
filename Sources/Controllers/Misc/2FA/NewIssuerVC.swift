@@ -14,7 +14,7 @@ extension NewIssuerVCDelegate {
 final class NewIssuerVC: UIViewController {
 
 	private let algorithmVC = AlgorithmVC()
-	private var newIssuerVCView: NewIssuerVCView!
+	private var newIssuerView: NewIssuerView!
 
 	weak var delegate: NewIssuerVCDelegate?
 
@@ -28,14 +28,14 @@ final class NewIssuerVC: UIViewController {
 		super.init(nibName: nil, bundle: nil)
 		algorithmVC.delegate = self
 
-		newIssuerVCView = .init(dataSource: self, delegate: self)
+		newIssuerView = .init(dataSource: self, delegate: self)
 
 		NotificationCenter.default.addObserver(self, selector: #selector(shouldSaveData), name: .shouldSaveDataNotification, object: nil)
 	}
 
 	deinit { NotificationCenter.default.removeObserver(self) }
 
-	override func loadView() { view = newIssuerVCView }
+	override func loadView() { view = newIssuerView }
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -49,16 +49,16 @@ final class NewIssuerVC: UIViewController {
 
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
-		newIssuerVCView.resignFirstResponders()
+		newIssuerView.resignFirstResponders()
 	}
 
 	// ! Private
 
 	private func configureAlgorithmLabel(withSelectedRow row: Int) {
 		switch row {
-			case 0: newIssuerVCView.algorithmLabel.text = "SHA1"
-			case 1: newIssuerVCView.algorithmLabel.text = "SHA256"
-			case 2: newIssuerVCView.algorithmLabel.text = "SHA512"
+			case 0: newIssuerView.algorithmLabel.text = "SHA1"
+			case 1: newIssuerView.algorithmLabel.text = "SHA256"
+			case 2: newIssuerView.algorithmLabel.text = "SHA512"
 			default: break
 		}
 	}
@@ -66,29 +66,29 @@ final class NewIssuerVC: UIViewController {
 	// ! NSNotificationCenter
 
 	@objc private func shouldSaveData() {
-		if newIssuerVCView.issuerTextField.text?.count ?? 0 == 0
-			|| newIssuerVCView.secretTextField.text?.count ?? 0 == 0 {
-			newIssuerVCView.toastView.fadeInOutToastView(withMessage: "Fill out both forms.", finalDelay: 1.5)
-			newIssuerVCView.resignFirstResponders()
+		if newIssuerView.issuerTextField.text?.count ?? 0 == 0
+			|| newIssuerView.secretTextField.text?.count ?? 0 == 0 {
+			newIssuerView.toastView.fadeInOutToastView(withMessage: "Fill out both forms.", finalDelay: 1.5)
+			newIssuerView.resignFirstResponders()
 			return
 		}
 
 		IssuerManager.sharedInstance.feedIssuer(
-			withName: newIssuerVCView.issuerTextField.text ?? "",
-			secret: .base32DecodedString(newIssuerVCView.secretTextField.text ?? "")
+			withName: newIssuerView.issuerTextField.text ?? "",
+			secret: .base32DecodedString(newIssuerView.secretTextField.text ?? "")
 		) { isDuplicateItem, issuer in
 
 			guard !isDuplicateItem else {
-				newIssuerVCView.toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
-				newIssuerVCView.resignFirstResponders()
+				newIssuerView.toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+				newIssuerView.resignFirstResponders()
 				return
 			}
 
 			IssuerManager.sharedInstance.issuers.append(issuer)
 			delegate?.shouldDismissVC(in: self)
 
-			newIssuerVCView.issuerTextField.text = ""
-			newIssuerVCView.secretTextField.text = ""
+			newIssuerView.issuerTextField.text = ""
+			newIssuerView.secretTextField.text = ""
 		}
 	}
 
@@ -118,10 +118,10 @@ extension NewIssuerVC: UITableViewDataSource, UITableViewDelegate {
 
 		switch indexPath.row {
 			case 0:
-				newIssuerVCView.setupSubviews(newIssuerVCView.issuerStackView, newIssuerVCView.issuerTextField, forCell: cell)
+				newIssuerView.setupSubviews(newIssuerView.issuerStackView, newIssuerView.issuerTextField, forCell: cell)
 			case 1:
-				newIssuerVCView.setupSubviews(newIssuerVCView.secretHashStackView, newIssuerVCView.secretTextField, forCell: cell)
-			case 2: newIssuerVCView.setupAlgorithmLabels(forCell: cell)
+				newIssuerView.setupSubviews(newIssuerView.secretHashStackView, newIssuerView.secretTextField, forCell: cell)
+			case 2: newIssuerView.setupAlgorithmLabels(forCell: cell)
 			default: break
 		}
 
