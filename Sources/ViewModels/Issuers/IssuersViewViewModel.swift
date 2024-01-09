@@ -1,24 +1,27 @@
+import Combine
 import UIKit
 
 
-protocol IssuersDataSourceDelegate: AnyObject {
+protocol IssuersViewViewModelDelegate: AnyObject {
 	func didTapCopyPinCode()
 	func didTapCopySecret()
 	func didTapDeleteAndPresent(alertController: UIAlertController)
 	func didAnimateFloatingButton(in scrollView: UIScrollView)
 	func shouldAnimateNoIssuersLabel()
-	func shouldAnimateNoSearchResultsLabel(forIssuers issuers: [Issuer], isFiltering: Bool)
+	func shouldAnimateNoSearchResultsLabel(forViewModels viewModels: [IssuerCellViewModel], isFiltering: Bool)
 }
 
 extension IssuersView {
 
-	/// Class to handle the data source & delegate for the issuers collection view
-	final class IssuersDataSource: NSObject {
+	/// View model class for IssuersView
+	final class IssuersViewViewModel: NSObject {
 
-		weak var delegate: IssuersDataSourceDelegate?
+		weak var delegate: IssuersViewViewModelDelegate?
 
-		private var isFiltered = false
-		private var filteredIssuers = [Issuer]()
+		private var isFiltering = false
+		private var viewModels = [IssuerCellViewModel]()
+		private var filteredViewModels = [IssuerCellViewModel]()
+		private var subscriptions = Set<AnyCancellable>()
 
 		private let collectionView: UICollectionView
 
@@ -27,15 +30,39 @@ extension IssuersView {
 		///		- collectionView: The collection view
 		init(collectionView: UICollectionView) {
 			self.collectionView = collectionView
+			super.init()
+			updateViewModels()
 		}
 
-		private func setupDataSource(forIssuers issuers: [Issuer], at indexPath: IndexPath, forCell cell: IssuerCell) {
-			var issuer = issuers[indexPath.item]
-			issuer.index = indexPath.item
+		private func setupDataSource(
+			forViewModels viewModels: [IssuerCellViewModel],
+			at indexPath: IndexPath,
+			forCell cell: IssuerCell
+		) {
+			var viewModel = viewModels[indexPath.item]
+			viewModel.image = setImage(forIssuer: viewModel.issuer)
+			viewModel.issuer.index = indexPath.item
 
-			cell.configure(with: issuer)
+			cell.configure(with: viewModel)
 
-			KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
+			KeychainManager.sharedInstance.save(issuer: viewModel.issuer, forService: viewModel.issuer.name)
+		}
+
+		private func setImage(forIssuer issuer: Issuer) -> UIImage? {
+			let nullableImage = IssuerManager.sharedInstance.imagesDict[issuer.name.lowercased()]
+			let placeholderImage = UIImage(named: "lock")?.withRenderingMode(.alwaysTemplate)
+
+			guard let image = nullableImage != nil ? nullableImage : placeholderImage else { return nil }
+			return image
+		}
+
+		private func updateViewModels() {
+			IssuerManager.sharedInstance.$issuers
+				.sink { issuers in
+					let mappedModels = issuers.map(IssuerCellViewModel.init(_:))
+					self.viewModels = mappedModels
+				}
+				.store(in: &subscriptions)
 		}
 
 	}
@@ -44,12 +71,12 @@ extension IssuersView {
 
 // ! UICollectionViewDataSource
 
-extension IssuersView.IssuersDataSource: UICollectionViewDataSource {
+extension IssuersView.IssuersViewViewModel: UICollectionViewDataSource {
 
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		delegate?.shouldAnimateNoIssuersLabel()
-		delegate?.shouldAnimateNoSearchResultsLabel(forIssuers: filteredIssuers, isFiltering: isFiltered)
-		return isFiltered ? filteredIssuers.count : IssuerManager.sharedInstance.issuers.count
+		delegate?.shouldAnimateNoSearchResultsLabel(forViewModels: filteredViewModels, isFiltering: isFiltering)
+		return isFiltering ? filteredViewModels.count : viewModels.count
 	}
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -60,21 +87,21 @@ extension IssuersView.IssuersDataSource: UICollectionViewDataSource {
 			fatalError()
 		}
 
-		if isFiltered {
-			setupDataSource(forIssuers: filteredIssuers, at: indexPath, forCell: cell)
+		if isFiltering {
+			setupDataSource(forViewModels: filteredViewModels, at: indexPath, forCell: cell)
 		}
 		else {
-			setupDataSource(forIssuers: IssuerManager.sharedInstance.issuers, at: indexPath, forCell: cell)
+			setupDataSource(forViewModels: viewModels, at: indexPath, forCell: cell)
 		}
 
 		return cell
-	}	
+	}
 
 }
 
 // ! UICollectionViewDelegate
 
-extension IssuersView.IssuersDataSource: UICollectionViewDelegate {
+extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 
 	func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
@@ -116,13 +143,13 @@ extension IssuersView.IssuersDataSource: UICollectionViewDelegate {
 
 // ! UICollectionViewDragDelegate
 
-extension IssuersView.IssuersDataSource: UICollectionViewDragDelegate {
+extension IssuersView.IssuersViewViewModel: UICollectionViewDragDelegate {
 
 	func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-		let issuer = IssuerManager.sharedInstance.issuers[indexPath.item]
-		let itemProvider = NSItemProvider(object: issuer.name as NSString)
+		let viewModel = viewModels[indexPath.item]
+		let itemProvider = NSItemProvider(object: viewModel.name as NSString)
 		let dragItem = UIDragItem(itemProvider: itemProvider)
-		dragItem.localObject = issuer
+		dragItem.localObject = viewModel
 
 		return [dragItem]
 	}
@@ -140,7 +167,7 @@ extension IssuersView.IssuersDataSource: UICollectionViewDragDelegate {
 
 // ! UICollectionViewDropDelegate
 
-extension IssuersView.IssuersDataSource: UICollectionViewDropDelegate {
+extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 
 	func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
 		if collectionView.hasActiveDrag {
@@ -168,11 +195,11 @@ extension IssuersView.IssuersDataSource: UICollectionViewDropDelegate {
 	private func reorderItems(coordinator: UICollectionViewDropCoordinator, destinationIndexPath: IndexPath, collectionView: UICollectionView) {
 		guard let item = coordinator.items.first,
 			let sourceIndexPath = item.sourceIndexPath,
-			let issuer = item.dragItem.localObject as? Issuer else { return }
+			let viewModel = item.dragItem.localObject as? IssuerCellViewModel else { return }
 
 		collectionView.performBatchUpdates {
-			IssuerManager.sharedInstance.issuers.remove(at: sourceIndexPath.item)
-			IssuerManager.sharedInstance.issuers.insert(issuer, at: destinationIndexPath.item)
+			viewModels.remove(at: sourceIndexPath.item)
+			viewModels.insert(viewModel, at: destinationIndexPath.item)
 
 			// Leptos giga chad code, only that I translated it to Swift ™️
 			// ⇝ https://github.com/leptos-null/OneTime/blob/88395900c67852bb9e7597c2bdae5a2a150b1844/onetime/ViewControllers/OTPassTableViewController.m#L299
@@ -197,7 +224,7 @@ extension IssuersView.IssuersDataSource: UICollectionViewDropDelegate {
 
 // ! UISearchResultsUpdating
 
-extension IssuersView.IssuersDataSource: UISearchResultsUpdating {
+extension IssuersView.IssuersViewViewModel: UISearchResultsUpdating {
 
 	func updateSearchResults(for searchController: UISearchController) {
 		guard let searchedString = searchController.searchBar.text else { return }
@@ -207,9 +234,9 @@ extension IssuersView.IssuersDataSource: UISearchResultsUpdating {
 
 	func updateWithFilteredContent(forString string: String) {
 		let textToSearch = string.trimmingCharacters(in: .whitespacesAndNewlines)
-		isFiltered = !textToSearch.isEmpty ? true : false
+		isFiltering = !textToSearch.isEmpty ? true : false
 
-		filteredIssuers = IssuerManager.sharedInstance.issuers.filter {
+		filteredViewModels = viewModels.filter {
 			return $0.name.range(of: textToSearch, options: .caseInsensitive) != nil
 		}
 	}

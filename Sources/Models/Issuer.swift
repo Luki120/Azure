@@ -5,6 +5,7 @@ import Foundation
 struct Issuer: Codable {
 
 	let name: String
+	let account: String
 	let secret: Data
 	let algorithm: Algorithm
 

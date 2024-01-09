@@ -6,9 +6,7 @@ final class IssuerCell: UICollectionViewCell {
 	static let identifier = "IssuerCell"
 
 	var pinCodeText: String { pinCodeLabel.text ?? "" }
-	var secret: String { return .base32EncodedString(issuer.secret) }
-
-	private var issuer: Issuer!
+	var secret: String { return .base32EncodedString(viewModel.secret) }
 
 	private var isTinyDevice: Bool {
 		if UIScreen.main.nativeBounds.size.height <= 1334 { return true }
@@ -17,6 +15,7 @@ final class IssuerCell: UICollectionViewCell {
 	private var kUserInterfaceStyle: UIUserInterfaceStyle { return traitCollection.userInterfaceStyle }
 
 	private var clearContentView, darkContentView, circleProgressView: UIView!
+	private var viewModel: IssuerCellViewModel!
 
 	private lazy var issuerImageView: UIImageView = {
 		let imageView = UIImageView()
@@ -31,7 +30,7 @@ final class IssuerCell: UICollectionViewCell {
 
 	private lazy var issuerLabel: UILabel = {
 		let label = UILabel()
-		label.numberOfLines = 0
+		label.numberOfLines = 2
 		label.translatesAutoresizingMaskIntoConstraints = false
 		clearContentView.addSubview(label)
 		return label
@@ -135,6 +134,13 @@ final class IssuerCell: UICollectionViewCell {
 		}
 	}
 
+	private func setupFormattedPinCodeText() -> String {
+		var pinText = viewModel.generateOTP()
+		pinText.insert(" ", at: pinText.index(pinText.startIndex, offsetBy: 3))
+
+		return pinText
+	}
+
 	private func setupUI() {
 		clearContentView = UIView()
 		clearContentView.backgroundColor = .tertiarySystemBackground
@@ -183,6 +189,7 @@ final class IssuerCell: UICollectionViewCell {
 			issuerImageView.centerYAnchor.constraint(equalTo: clearContentView.centerYAnchor),
 
 			issuerLabel.leadingAnchor.constraint(equalTo: issuerImageView.trailingAnchor, constant: 15),
+			issuerLabel.trailingAnchor.constraint(equalTo: circleProgressView.leadingAnchor, constant: -5),
 			issuerLabel.centerYAnchor.constraint(equalTo: issuerImageView.centerYAnchor),
 
 			pinCodeLabel.centerYAnchor.constraint(equalTo: circleProgressView.centerYAnchor),
@@ -210,23 +217,6 @@ final class IssuerCell: UICollectionViewCell {
 		pinCodeLabel.layer.add(transition, forKey: nil)
 
 		pinCodeLabel.text = setupFormattedPinCodeText()
-	}
-
-	private func regeneratePINWithoutTransition() {
-		pinCodeLabel.text = ""
-		pinCodeLabel.text = setupFormattedPinCodeText()
-	}
-
-	private func getLastUNIXTimestamp() -> Double {
-		let timestamp = Int(Date().timeIntervalSince1970)
-		return Double(timestamp - timestamp % 30)
-	}
-
-	private func setupFormattedPinCodeText() -> String {
-		var pinText = issuer.generateOTP(forDate: .init(timeIntervalSince1970: getLastUNIXTimestamp()))
-		pinText.insert(" ", at: pinText.index(pinText.startIndex, offsetBy: 3))
-
-		return pinText
 	}
 
 	// ! Reusable
@@ -275,24 +265,22 @@ extension IssuerCell {
 
 	// ! Public
 
-	/// Function to configure the cell with its respective model
+	/// Function to configure the cell with its respective view model
 	/// - Parameters:
-	/// 	- with: The cell's model
-	func configure(with issuer: Issuer) {
-		self.issuer = issuer
+	/// 	- with: The cell's view model
+	func configure(with viewModel: IssuerCellViewModel) {
+		self.viewModel = viewModel
 
 		issuerLabel.attributedText = NSMutableAttributedString(
-			fullString: "\(issuer.name)\nLuki",
-			subString: "Luki"
+			fullString: "\(viewModel.name)\n\(viewModel.account)",
+			subString: "\(viewModel.account)"
 		)
 
-		let image = IssuerManager.sharedInstance.imagesDict[issuer.name.lowercased()]
-		let placeholderImage = UIImage(named: "lock")?.withRenderingMode(.alwaysTemplate)
+		issuerImageView.image = viewModel.image
+		issuerImageView.tintColor = .kAzureMintTintColor
 
-		issuerImageView.image = image != nil ? image : placeholderImage
-		issuerImageView.tintColor = image != nil ? nil : .kAzureMintTintColor
-
-		regeneratePINWithoutTransition()
+		pinCodeLabel.text = ""
+		pinCodeLabel.text = setupFormattedPinCodeText()
 	}
 
 }

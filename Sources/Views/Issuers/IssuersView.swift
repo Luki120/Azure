@@ -39,7 +39,7 @@ final class IssuersView: UIView {
 	private lazy var noIssuersLabel = UILabel()
 	private lazy var noResultsLabel = UILabel()
 
-	private var issuersDataSource: IssuersDataSource!
+	private var viewModel: IssuersViewViewModel!
 
 	weak var delegate: IssuersViewDelegate?
 
@@ -79,13 +79,13 @@ final class IssuersView: UIView {
 	}
 
 	private func setupDataSource() {
-		issuersDataSource = IssuersDataSource(collectionView: issuersCollectionView)
-		issuersDataSource.delegate = self
+		viewModel = IssuersViewViewModel(collectionView: issuersCollectionView)
+		viewModel.delegate = self
 
-		issuersCollectionView.dataSource = issuersDataSource
-		issuersCollectionView.delegate = issuersDataSource
-		issuersCollectionView.dragDelegate = issuersDataSource
-		issuersCollectionView.dropDelegate = issuersDataSource
+		issuersCollectionView.dataSource = viewModel
+		issuersCollectionView.delegate = viewModel
+		issuersCollectionView.dragDelegate = viewModel
+		issuersCollectionView.dropDelegate = viewModel
 	}
 
 	private func layoutViews() {
@@ -119,9 +119,9 @@ final class IssuersView: UIView {
 		}
 	}
 
-	private func animateNoSearchResultsLabel(forIssuers filteredIssuers: [Issuer], isFiltering: Bool) {
+	private func animateNoSearchResultsLabel(forViewModels viewModels: [IssuerCellViewModel], isFiltering: Bool) {
 		UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut) {	
-			if filteredIssuers.count == 0 && IssuerManager.sharedInstance.issuers.count > 0 && isFiltering {
+			if viewModels.count == 0 && IssuerManager.sharedInstance.issuers.count > 0 && isFiltering {
 				self.noResultsLabel.alpha = 1
 			}
 			else {
@@ -155,7 +155,7 @@ extension IssuersView {
 	///		- for: The issuers view controller
 	func setupSearchController(for issuersVC: IssuersVC) {
 		let searchController = UISearchController()
-		searchController.searchResultsUpdater = issuersDataSource
+		searchController.searchResultsUpdater = viewModel
 		searchController.obscuresBackgroundDuringPresentation = false
 
 		issuersVC.navigationItem.searchController = searchController
@@ -163,9 +163,9 @@ extension IssuersView {
 
 }
 
-// ! IssuersDataSourceDelegate
+// ! IssuersViewViewModelDelegate
 
-extension IssuersView: IssuersDataSourceDelegate {
+extension IssuersView: IssuersViewViewModelDelegate {
 
 	func didTapCopyPinCode() {
 		delegate?.didTapCopyPinCode(in: self)
@@ -192,8 +192,8 @@ extension IssuersView: IssuersDataSourceDelegate {
 		animateNoIssuersLabel()
 	}
 
-	func shouldAnimateNoSearchResultsLabel(forIssuers issuers: [Issuer], isFiltering: Bool) {
-		animateNoSearchResultsLabel(forIssuers: issuers, isFiltering: isFiltering)
+	func shouldAnimateNoSearchResultsLabel(forViewModels viewModels: [IssuerCellViewModel], isFiltering: Bool) {
+		animateNoSearchResultsLabel(forViewModels: viewModels, isFiltering: isFiltering)
 	}
 
 }
