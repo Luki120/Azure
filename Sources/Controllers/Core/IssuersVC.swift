@@ -160,7 +160,7 @@ extension IssuersVC: IssuersViewDelegate {
 
 }
 
-extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumentPickerDelegate, UIPopoverPresentationControllerDelegate {
+extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumentPickerDelegate {
 
 	// ! FloatingButtonViewDelegate
 
@@ -187,12 +187,6 @@ extension IssuersVC: FloatingButtonViewDelegate, ModalSheetVCDelegate, UIDocumen
 		UIView.transition(with: view, duration: 0.5) {
 			self.issuersView.reloadData
 		}
-	}
-
-	// ! UIPopoverPresentationControllerDelegate
-
-	func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-		return .none
 	}
 
 }
