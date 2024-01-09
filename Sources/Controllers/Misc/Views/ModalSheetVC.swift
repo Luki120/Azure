@@ -253,7 +253,7 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 						return
 					}
 
-					IssuerManager.sharedInstance.issuers.append(issuer)
+					IssuerManager.sharedInstance.appendIssuer(issuer)
 
 					self.delegate?.shouldReloadData(in: self)
 					self.dismissVC()

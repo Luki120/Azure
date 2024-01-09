@@ -75,6 +75,7 @@ final class NewIssuerVC: UIViewController {
 
 		IssuerManager.sharedInstance.feedIssuer(
 			withName: newIssuerView.issuerTextField.text ?? "",
+			account: "Luki",
 			secret: .base32DecodedString(newIssuerView.secretTextField.text ?? "")
 		) { isDuplicateItem, issuer in
 
@@ -84,7 +85,7 @@ final class NewIssuerVC: UIViewController {
 				return
 			}
 
-			IssuerManager.sharedInstance.issuers.append(issuer)
+			IssuerManager.sharedInstance.appendIssuer(issuer)
 			delegate?.shouldDismissVC(in: self)
 
 			newIssuerView.issuerTextField.text = ""

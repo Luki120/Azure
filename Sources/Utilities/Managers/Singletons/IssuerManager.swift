@@ -1,20 +1,19 @@
 import UIKit
 
 /// Singleton manager to handle the creation, deletion & saving of issuers
-final class IssuerManager {
+final class IssuerManager: ObservableObject {
 
 	private let kIssuersPath = "/Applications/Azure.app/Issuers/"
 
 	static let sharedInstance = IssuerManager()
 
-	var issuers = [Issuer]()
-
-	private var defaults = UserDefaults.standard
 	private(set) var selectedRow = 0
 	private(set) var imagesDict = [String:UIImage]()
 
+	@Published private(set) var issuers = [Issuer]()
+
 	private init() {
-		selectedRow = defaults.integer(forKey: "selectedRow")
+		selectedRow = UserDefaults.standard.integer(forKey: "selectedRow")
 
 		issuers = KeychainManager.sharedInstance.retrieveIssuers()
 		setupImagesDict()
@@ -32,11 +31,12 @@ final class IssuerManager {
 
 	private func createIssuer(
 		withName name: String,
+		account: String = "",
 		secret: Data,
 		algorithm: Issuer.Algorithm,
 		completion: (Bool, Issuer) -> ()
 	) {
-		let issuer: Issuer = .init(name: name, secret: secret, algorithm: algorithm)
+		let issuer: Issuer = .init(name: name, account: account, secret: secret, algorithm: algorithm)
 		KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
 
 		completion(KeychainManager.sharedInstance.isDuplicateItem, issuer)
@@ -51,8 +51,8 @@ extension IssuerManager {
 	/// Function to create an issuer from the given url
 	/// - Parameters:
 	///		- outOfOtPauthString: The ot pauth url string
-	///		- completion: Closure that takes a Bool & Issuer as argument and returns nothing, used to check
-	///		if the issuer being created already exists in the keychain or not
+	///		- completion: Non escaping closure that takes a Bool & Issuer as argument & returns nothing,
+	///		used to check if the issuer being created already exists in the keychain or not
 	func createIssuer(outOfOtPauthString string: String, completion: (Bool, Issuer) -> ()) {
 		guard let safeUrl = URL(string: string) else { return }
 
@@ -86,23 +86,25 @@ extension IssuerManager {
 			createIssuer(withName: scannedName, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
 			return
 		}
-
 		createIssuer(withName: name, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
 	}
 
 	/// Function to pass an index path's row to configure the encryption algorithm
 	/// - Paramaters:
-	///		- row: The given row
+	///     - row: The given row
 	func feedSelectedRow(withRow row: Int) {
 		selectedRow = row
-		defaults.set(selectedRow, forKey: "selectedRow")
+		UserDefaults.standard.set(selectedRow, forKey: "selectedRow")
 	}
 
 	/// Function to create an issuer with the data passed from the input fields
 	/// - Parameters:
 	///		- withName: A string to represent the issuer's name
+	///		- account: A string to represent the issuer's account
 	///		- secret: The secret hash data
-	func feedIssuer(withName name: String, secret: Data, completion: (Bool, Issuer) -> ()) {
+	///		- completion: Non escaping closure that takes a Bool & Issuer as argument & returns nothing,
+	///		used to check if the issuer being created already exists in the keychain or not
+	func feedIssuer(withName name: String, account: String, secret: Data, completion: (Bool, Issuer) -> ()) {
 		var algorithm: Issuer.Algorithm = .sha1
 
 		switch selectedRow {
@@ -112,23 +114,42 @@ extension IssuerManager {
 			default: break
 		}
 
-		createIssuer(withName: name, secret: secret, algorithm: algorithm, completion: completion)
+		createIssuer(withName: name, account: account, secret: secret, algorithm: algorithm, completion: completion)
 	}
 
-	/// Function to save all issuers to the keychain
-	func saveIssuers() {
-		issuers.forEach {
+	/// Function to append an issuer to the issuers array
+	/// - Parameters:
+	///		- issuer: The issuer
+	func appendIssuer(_ issuer: Issuer) {
+		issuers.append(issuer)
+	}
+
+	/// Function to set & save all issuers to the keychain
+	/// - Parameters:
+	///		- issuers: The issuers array
+	func setIssuers(_ issuers: [Issuer]) {
+		self.issuers = issuers
+		self.issuers.forEach {
 			KeychainManager.sharedInstance.save(issuer: $0, forService: $0.name)
 		}
 	}
 
 	/// Function to remove an issuer from the issuers array
 	/// - Parameters:
-	///     - at: The given index path
+	///		- at: The given index path
 	func removeIssuer(at indexPath: IndexPath) {
-		let issuer = issuers[indexPath.row]
-		issuers.remove(at: indexPath.row)
+		var issuer = issuers[indexPath.item]
+		issuers.remove(at: indexPath.item)
 		KeychainManager.sharedInstance.deleteIssuer(forService: issuer.name)
+
+		let slice = issuers[indexPath.item...]
+
+		for (index, _issuer) in zip(slice.indices, slice) {
+			issuer = _issuer
+			issuer.index = index
+
+			KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
+		}
 	}
 
 	/// Function to remove all issuers from the issuers array

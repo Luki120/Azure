@@ -160,7 +160,7 @@ extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 				return
 			}
 
-			IssuerManager.sharedInstance.issuers.append(issuer)
+			IssuerManager.sharedInstance.appendIssuer(issuer)
 
 			captureSession.stopRunning()
 			captureVideoPreviewLayer.removeFromSuperlayer()

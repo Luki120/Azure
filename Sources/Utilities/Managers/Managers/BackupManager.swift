@@ -4,11 +4,10 @@ import Foundation
 final class BackupManager {
 
 	private let fileM = FileManager.default
-	private var kDocumentsPathURL: URL!
 	private var kAzureJailedPathURL: URL!
 
 	init() {
-		kDocumentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
+		let kDocumentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
 		kAzureJailedPathURL = kDocumentsPathURL.appendingPathComponent("AzureBackup.json")
 	}
 
@@ -30,11 +29,10 @@ extension BackupManager {
 		if !fileM.fileExists(atPath: .kAzurePath) && !fileM.fileExists(atPath: kAzureJailedPathURL.path) { return }
 		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
 
-		guard let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL) else { return }
-		let issuers = try! JSONDecoder().decode([Issuer].self, from: data)
+		guard let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL),
+			let issuers = try? JSONDecoder().decode([Issuer].self, from: data) else { return }
 
-		IssuerManager.sharedInstance.issuers = issuers
-		IssuerManager.sharedInstance.saveIssuers()
+		IssuerManager.sharedInstance.setIssuers(issuers)
 	}
 
 	/// Function to encode the data & export it
