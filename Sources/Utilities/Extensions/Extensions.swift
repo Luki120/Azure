@@ -20,10 +20,14 @@ extension NSMutableAttributedString {
 		let rangeOfFullString = NSRange(location: 0, length: fullString.count)
 		let attributedString = NSMutableAttributedString(string: fullString)
 
+		let mutableParagraphStyle = NSMutableParagraphStyle()
+		mutableParagraphStyle.lineBreakMode = .byTruncatingTail
+
 		attributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: rangeOfFullString)
 		attributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.systemGray, range: rangeOfSubString)
 		attributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16), range: rangeOfFullString)
 		attributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14), range: rangeOfSubString)
+		attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: mutableParagraphStyle, range: rangeOfSubString)
 
 		self.init(attributedString: attributedString)
 	}
