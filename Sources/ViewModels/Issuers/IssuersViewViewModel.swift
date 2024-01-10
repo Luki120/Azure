@@ -58,9 +58,9 @@ extension IssuersView {
 
 		private func updateViewModels() {
 			IssuerManager.sharedInstance.$issuers
-				.sink { issuers in
+				.sink { [weak self] issuers in
 					let mappedModels = issuers.map(IssuerCellViewModel.init(_:))
-					self.viewModels = mappedModels
+					self?.viewModels = mappedModels
 				}
 				.store(in: &subscriptions)
 		}
@@ -197,7 +197,9 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 			let sourceIndexPath = item.sourceIndexPath,
 			let viewModel = item.dragItem.localObject as? IssuerCellViewModel else { return }
 
-		collectionView.performBatchUpdates {
+		collectionView.performBatchUpdates { [weak self] in
+			guard let self else { return }
+
 			viewModels.remove(at: sourceIndexPath.item)
 			viewModels.insert(viewModel, at: destinationIndexPath.item)
 
@@ -206,11 +208,11 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 			let start = min(sourceIndexPath.item, destinationIndexPath.item)
 			let stop = max(destinationIndexPath.item, sourceIndexPath.item)
 
-			for i in start...stop {
-				var issuer = IssuerManager.sharedInstance.issuers[i]
-				issuer.index = i
+			for index in start...stop {
+				var viewModel = viewModels[index]
+				viewModel.issuer.index = index
 
-				KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
+				KeychainManager.sharedInstance.save(issuer: viewModel.issuer, forService: viewModel.issuer.name)
 			}
 
 			collectionView.deleteItems(at: [sourceIndexPath])
