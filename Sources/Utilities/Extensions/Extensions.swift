@@ -11,6 +11,7 @@ extension CGColor {
 extension Notification.Name {
 	static let didPurgeDataNotification = Notification.Name("didPurgeDataNotification")
 	static let shouldMakeBackupNotification = Notification.Name("shouldMakeBackupNotification")
+	static let shouldResignResponderNotification = Notification.Name("shouldResignResponderNotification")
 	static let shouldSaveDataNotification = Notification.Name("shouldSaveDataNotification")
 }
 
@@ -128,6 +129,39 @@ extension UIView {
 		view.widthAnchor.constraint(equalToConstant: width).isActive = true
 		view.heightAnchor.constraint(equalToConstant: height).isActive = true
 	}
+
+	func setupCleanShadowLayer(
+		withBackgroundColor color: CGColor = kUserInterfaceStyle == .dark ? .darkBackgroundColor : .lightBackgroundColor
+	) {
+		layer.cornerCurve = .continuous
+		layer.cornerRadius = 14
+		layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 14).cgPath
+		layer.shadowColor = kUserInterfaceStyle == .dark ? .darkShadowColor : .lightShadowColor
+		layer.shadowOffset = .init(width: 0, height: 0)
+		layer.shadowOpacity = 1
+		layer.shadowRadius = 3.5
+		layer.masksToBounds = false
+		layer.backgroundColor = color
+	}
+}
+
+private protocol ReusableView {
+	static var reuseIdentifier: String { get }
+}
+
+private extension ReusableView {
+	static var reuseIdentifier: String { return String(describing: self) }
+}
+
+extension UITableViewCell: ReusableView {}
+
+extension UITableView {
+	func dequeueReusableCell<T>(for indexPath: IndexPath) -> T where T: UITableViewCell {
+		guard let cell = dequeueReusableCell(withIdentifier: T.reuseIdentifier, for: indexPath) as? T else {
+			fatalError("L")
+		}
+		return cell
+	}
 }
 
 extension UIViewController {
@@ -137,6 +171,8 @@ extension UIViewController {
 			.filter { $0.activationState == .foregroundActive }.first?.windows.last
 	}
 }
+
+var kUserInterfaceStyle: UIUserInterfaceStyle { return UIScreen.main.traitCollection.userInterfaceStyle }
 
 func isJailbroken() -> Bool {
 	let fileM = FileManager.default
