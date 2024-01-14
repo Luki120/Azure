@@ -206,12 +206,6 @@ extension ModalSheetVC: NewIssuerVCDelegate {
 		dismissVC()
 	}
 
-	func shouldPushAlgorithmVC(in newIssuerVC: NewIssuerVC) {
-		let algorithmVC = AlgorithmVC()
-		algorithmVC.title = "Algorithm"
-		navVC.pushViewController(algorithmVC, animated: true)
-	}
-
 }
 
 // ! QRCodeVCDelegate

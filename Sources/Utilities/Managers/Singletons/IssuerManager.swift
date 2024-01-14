@@ -3,23 +3,23 @@ import UIKit
 /// Singleton manager to handle the creation, deletion & saving of issuers
 final class IssuerManager: ObservableObject {
 
-	private let kIssuersPath = "/Applications/Azure.app/Issuers/"
-
 	static let sharedInstance = IssuerManager()
 
-	private(set) var selectedRow = 0
+	private(set) var selectedIndex = 0
 	private(set) var imagesDict = [String:UIImage]()
 
 	@Published private(set) var issuers = [Issuer]()
 
 	private init() {
-		selectedRow = UserDefaults.standard.integer(forKey: "selectedRow")
+		selectedIndex = UserDefaults.standard.integer(forKey: "selectedIndex")
 
 		issuers = KeychainManager.sharedInstance.retrieveIssuers()
 		setupImagesDict()
 	}
 
 	private func setupImagesDict() {
+		let kIssuersPath = "/Applications/Azure.app/Issuers/"
+
 		let imagesArray = try? Bundle.main.urls(forResourcesWithExtension: "png", subdirectory: "Issuers") ??
 			FileManager.default.contentsOfDirectory(atPath: kIssuersPath).compactMap { URL(string: $0) }
 
@@ -89,14 +89,6 @@ extension IssuerManager {
 		createIssuer(withName: name, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
 	}
 
-	/// Function to pass an index path's row to configure the encryption algorithm
-	/// - Paramaters:
-	///     - row: The given row
-	func feedSelectedRow(withRow row: Int) {
-		selectedRow = row
-		UserDefaults.standard.set(selectedRow, forKey: "selectedRow")
-	}
-
 	/// Function to create an issuer with the data passed from the input fields
 	/// - Parameters:
 	///		- withName: A string to represent the issuer's name
@@ -104,10 +96,10 @@ extension IssuerManager {
 	///		- secret: The secret hash data
 	///		- completion: Non escaping closure that takes a Bool & Issuer as argument & returns nothing,
 	///		used to check if the issuer being created already exists in the keychain or not
-	func feedIssuer(withName name: String, account: String, secret: Data, completion: (Bool, Issuer) -> ()) {
+	func createIssuer(withName name: String, account: String, secret: Data, completion: (Bool, Issuer) -> ()) {
 		var algorithm: Issuer.Algorithm = .sha1
 
-		switch selectedRow {
+		switch selectedIndex {
 			case 0: algorithm = .sha1
 			case 1: algorithm = .sha256
 			case 2: algorithm = .sha512
@@ -115,6 +107,14 @@ extension IssuerManager {
 		}
 
 		createIssuer(withName: name, account: account, secret: secret, algorithm: algorithm, completion: completion)
+	}
+
+	/// Function to pass the selected segment index to configure the encryption algorithm
+	/// - Paramaters:
+	///		- index: The given index
+	func setSelectedIndex(_ index: Int) {
+		selectedIndex = index
+		UserDefaults.standard.set(selectedIndex, forKey: "selectedIndex")
 	}
 
 	/// Function to append an issuer to the issuers array
