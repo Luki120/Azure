@@ -12,7 +12,6 @@ final class IssuerCell: UICollectionViewCell {
 		if UIScreen.main.nativeBounds.size.height <= 1334 { return true }
 		else { return false }
 	}
-	private var kUserInterfaceStyle: UIUserInterfaceStyle { return traitCollection.userInterfaceStyle }
 
 	private var clearContentView, darkContentView, circleProgressView: UIView!
 	private var viewModel: IssuerCellViewModel!
@@ -47,34 +46,34 @@ final class IssuerCell: UICollectionViewCell {
 		return label
 	}()
 
+	private var progress: CGFloat = 0 {
+		didSet {
+			circleLayer.strokeEnd = min(max(progress, 0), 1)
+		}
+	}
+
 	private lazy var circleLayer: CAShapeLayer = {
+		let axisValue: Double = isTinyDevice ? 40 : 50
+		let x: Double = axisValue / 2
+		let y: Double = axisValue / 2
 		let π: Double = .pi
-		let axisValue: Double = isTinyDevice ? 12.5 : 15
+
+		let radius = max(x, y)
+
+		let path = CGMutablePath()
+		path.move(to: .init(x: x, y: y - radius / 2))
+		path.addArc(center: .init(x: x, y: y), radius: radius / 2, startAngle: -π / 2, endAngle: 3 * π / 2, clockwise: false)
 
 		let layer = CAShapeLayer()
-		layer.path = UIBezierPath(arcCenter: .init(x: axisValue, y: axisValue), radius: isTinyDevice ? 12.5 : 15, startAngle: -0.5 * π, endAngle: 1.5 * π, clockwise: true).cgPath
+		layer.path = path
 		layer.lineCap = .round
-		layer.lineWidth = isTinyDevice ? 6.25 : 7.5
+		layer.lineWidth = isTinyDevice ? 6.5 : 8
 		layer.fillColor = UIColor.clear.cgColor
-		layer.strokeColor = UIColor.kAzureMintTintColor.cgColor
-		layer.shadowColor = UIColor.kAzureMintTintColor.cgColor
-		layer.shadowRadius = isTinyDevice ? 6.25 : 7.5
+		layer.strokeEnd = progress
+		layer.shadowRadius = isTinyDevice ? 6.5 : 8
 		layer.shadowOffset = .init(width: 1, height: 1)
 		layer.shadowOpacity = 0.8
 		circleProgressView.layer.addSublayer(layer)
-		return layer
-	}()
-
-	private lazy var cleanShadowLayer: CAShapeLayer = {
-		let layer = CAShapeLayer()
-		layer.cornerCurve = .continuous
-		layer.cornerRadius = 14
-		layer.backgroundColor = kUserInterfaceStyle == .dark ? .darkBackgroundColor : .lightBackgroundColor
-		layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: 14).cgPath
-		layer.shadowColor = kUserInterfaceStyle == .dark ? .darkShadowColor : .lightShadowColor
-		layer.shadowOffset = CGSize(width: 0, height: 0)
-		layer.shadowOpacity = 1
-		layer.shadowRadius = 3.5
 		return layer
 	}()
 
@@ -92,13 +91,12 @@ final class IssuerCell: UICollectionViewCell {
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
+		layoutUI()
 
-		layer.masksToBounds = false
 		contentView.layer.cornerCurve = .continuous
 		contentView.layer.cornerRadius = 14
 		contentView.layer.masksToBounds = true
-
-		layoutUI()
+		setupCleanShadowLayer()
 	}
 
 	override func prepareForReuse() {
@@ -110,8 +108,8 @@ final class IssuerCell: UICollectionViewCell {
 		super.traitCollectionDidChange(previousTraitCollection)
 		darkContentView.backgroundColor = kUserInterfaceStyle == .dark ? .darkColor : .lightColor
 
-		cleanShadowLayer.backgroundColor = kUserInterfaceStyle == .dark ? .darkBackgroundColor : .lightBackgroundColor
-		cleanShadowLayer.shadowColor = kUserInterfaceStyle == .dark ? .darkShadowColor : .lightShadowColor
+		layer.backgroundColor = kUserInterfaceStyle == .dark ? .darkBackgroundColor : .lightBackgroundColor
+		layer.shadowColor = kUserInterfaceStyle == .dark ? .darkShadowColor : .lightShadowColor
 	}	
 
 	override func dragStateDidChange(_ dragState: UICollectionViewCell.DragState) {
@@ -132,6 +130,7 @@ final class IssuerCell: UICollectionViewCell {
 			self.perform(#selector(self.startTimer), with: self, afterDelay: delay)
 			Timer.scheduledTimer(timeInterval: delay, target: self, selector: #selector(self.regeneratePIN), userInfo: nil, repeats: false)
 		}
+		Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateCircleProgress), userInfo: nil, repeats: true)
 	}
 
 	private func setupFormattedPinCodeText() -> String {
@@ -154,35 +153,26 @@ final class IssuerCell: UICollectionViewCell {
 			$0.translatesAutoresizingMaskIntoConstraints = false
 		}
 
-		setupAnimation()
+		updateCircleProgress()
 
 		contentView.addSubviews(clearContentView, darkContentView, circleProgressView)
-		layer.insertSublayer(cleanShadowLayer, at: 0)
-	}
-
-	private func setupAnimation() {
-		let currentUNIXTimestampOffset = Int(Date().timeIntervalSince1970) % 30
-		let duration = TimeInterval(30 - currentUNIXTimestampOffset)
-		let startingPoint = CGFloat(currentUNIXTimestampOffset) / 30.0
-
-		let singleAnimation = setupAnimation(withDuration: duration, fromValue: startingPoint, repeatCount: 1)
-		singleAnimation.delegate = self
-		circleLayer.add(singleAnimation, forKey: nil)
 	}
 
 	private func layoutUI() {
+		let constant: CGFloat = isTinyDevice ? 20 : 25
+
 		NSLayoutConstraint.activate([
 			clearContentView.topAnchor.constraint(equalTo: contentView.topAnchor),
 			clearContentView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
 			clearContentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-			clearContentView.trailingAnchor.constraint(equalTo: circleProgressView.leadingAnchor, constant: 15),
+			clearContentView.trailingAnchor.constraint(equalTo: circleProgressView.leadingAnchor, constant: constant),
 
 			circleProgressView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor, constant: 30),
 			circleProgressView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
 			darkContentView.topAnchor.constraint(equalTo: contentView.topAnchor),
 			darkContentView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-			darkContentView.leadingAnchor.constraint(equalTo: circleProgressView.trailingAnchor, constant: -15),
+			darkContentView.leadingAnchor.constraint(equalTo: circleProgressView.trailingAnchor, constant: -constant),
 			darkContentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 
 			issuerImageView.leadingAnchor.constraint(equalTo: clearContentView.leadingAnchor, constant: 15),
@@ -197,7 +187,7 @@ final class IssuerCell: UICollectionViewCell {
 			pinCodeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15),
 		])
 
-		setupSizeConstraints(forView: circleProgressView, width: isTinyDevice ? 25 : 30, height: isTinyDevice ? 25 : 30)
+		setupSizeConstraints(forView: circleProgressView, width: isTinyDevice ? 40 : 50, height: isTinyDevice ? 40 : 50)
 		setupSizeConstraints(forView: issuerImageView, width: 40, height: 40)
 	}
 
@@ -219,44 +209,20 @@ final class IssuerCell: UICollectionViewCell {
 		pinCodeLabel.text = setupFormattedPinCodeText()
 	}
 
-	// ! Reusable
+	@objc private func updateCircleProgress() {
+		progress = getProgress()
 
-	private func setupAnimation(
-		withDuration duration: TimeInterval,
-		fromValue value: CGFloat,
-		repeatCount: Float
-	) -> CAAnimationGroup {
+		circleLayer.shadowColor = timeIntervalRemaining() <= 5 ? UIColor.systemRed.cgColor : UIColor.kAzureMintTintColor.cgColor
+		circleLayer.strokeColor = timeIntervalRemaining() <= 5 ? UIColor.systemRed.cgColor : UIColor.kAzureMintTintColor.cgColor
 
-		let strokeEndAnimation = CABasicAnimation(keyPath: "strokeEnd")
-		strokeEndAnimation.fromValue = value
-		strokeEndAnimation.toValue = 1
+		func getProgress() -> Double {
+			return timeIntervalRemaining() / Double(30)
+		}
 
-		let strokeColorAnimation = setupColorAnimation(withKeyPath: #keyPath(CAShapeLayer.strokeColor))
-		let shadowColorAnimation = setupColorAnimation(withKeyPath: #keyPath(CAShapeLayer.shadowColor))
-
-		let progressAndColorAnimation = CAAnimationGroup()
-		progressAndColorAnimation.duration = duration
-		progressAndColorAnimation.animations = [strokeEndAnimation, strokeColorAnimation, shadowColorAnimation]
-		progressAndColorAnimation.repeatCount = repeatCount
-		progressAndColorAnimation.timingFunction = .init(name: .linear)
-		progressAndColorAnimation.isRemovedOnCompletion = false
-		circleLayer.add(progressAndColorAnimation, forKey: nil)
-
-		return progressAndColorAnimation
-	}
-
-	private func setupColorAnimation(withKeyPath keyPath: String) -> CABasicAnimation {
-		let currentUNIXTimestampOffset = Int(Date().timeIntervalSince1970) % 30
-		let duration = TimeInterval(30 - currentUNIXTimestampOffset)
-
-		let animation = CABasicAnimation()
-		animation.keyPath = keyPath
-		animation.fromValue = UIColor.kAzureMintTintColor
-		animation.toValue = UIColor.systemRed.cgColor
-		animation.fillMode = .forwards
-		animation.duration = 0.5
-		animation.beginTime = duration * 0.75
-		return animation
+		func timeIntervalRemaining() -> Double {
+			let period = Double(30)
+			return period - (Date().timeIntervalSince1970.truncatingRemainder(dividingBy: 30))
+		}
 	}
 
 }
@@ -281,18 +247,6 @@ extension IssuerCell {
 
 		pinCodeLabel.text = ""
 		pinCodeLabel.text = setupFormattedPinCodeText()
-	}
-
-}
-
-// ! CAAnimationDelegate
-
-extension IssuerCell: CAAnimationDelegate {
-
-	func animationDidStop(_ anim: CAAnimation, finished: Bool) {
-		guard finished else { return }
-		let infiniteAnimation = setupAnimation(withDuration: 30, fromValue: 0, repeatCount: .infinity)
-		circleLayer.add(infiniteAnimation, forKey: nil)
 	}
 
 }
