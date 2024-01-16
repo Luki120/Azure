@@ -63,19 +63,11 @@ extension NewIssuerOptionsHeaderView {
 		}
 	}
 
-	/// Function to configure the header view
+	/// Function to configure the header view with its respective view model
 	/// - Parameters:
-	///		- withHeight: A Double to represent the header view's height
-	///		- title: A String that represents the header's title
-	///		- subtitle: A String that represents the header's subtitle
-	///		- prepareForReuse: A Bool to check wether we should reuse the header or not
-	func configure(
-		withHeight height: Double = 120,
-		title: String = "Add issuer",
-		subtitle: String = "Add an issuer by scanning a QR code, importing a QR image or entering the secret manually.",
-		prepareForReuse: Bool = false
-	) {
-		if prepareForReuse {
+	///		- with: The view model
+	func configure(with viewModel: NewIssuerOptionsHeaderViewViewModel) {
+		if viewModel.prepareForReuse {
 			strongTitleLabel.text = ""
 			strongSubtitleLabel.text = ""
 
@@ -83,10 +75,14 @@ extension NewIssuerOptionsHeaderView {
 			titleStackView.removeArrangedSubview(strongSubtitleLabel)
 		}
 
-		headerViewHeight = height
+		headerViewHeight = viewModel.height
 
-		strongTitleLabel = createLabel(text: title)
-		strongSubtitleLabel = createLabel(withFont: .systemFont(ofSize: 12), text: subtitle, textColor: .secondaryLabel)
+		strongTitleLabel = createLabel(text: viewModel.title)
+		strongSubtitleLabel = createLabel(
+			withFont: .systemFont(ofSize: 12),
+			text: viewModel.subtitle,
+			textColor: .secondaryLabel
+		)
 	}
 
 }

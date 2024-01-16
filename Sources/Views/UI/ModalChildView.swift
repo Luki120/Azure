@@ -2,16 +2,19 @@ import UIKit
 
 
 protocol ModalChildViewDelegate: AnyObject {
-	func didTapScanQRCodeButton(in modalChildView: ModalChildView)
-	func didTapImportQRImageButton(in modalChildView: ModalChildView)
-	func didTapEnterManuallyButton(in modalChildView: ModalChildView)
+	func didTapScanQRCodeCell(in modalChildView: ModalChildView)
+	func didTapImportQRImageCell(in modalChildView: ModalChildView)
+	func didTapEnterManuallyCell(in modalChildView: ModalChildView)
+	func didTapMakeBackupCell(in modalChildView: ModalChildView)
+	func didTapLoadBackupCell(in modalChildView: ModalChildView)
+	func didTapViewInFilesOrFilzaCell(in modalChildView: ModalChildView)
+	func didTapDismissCell(in modalChildView: ModalChildView)
 	func didTapDimmedView(in modalChildView: ModalChildView)
 	func modalChildView(
 		_ modalChildView: ModalChildView,
 		didPanWithGesture gesture: UIPanGestureRecognizer,
 		modifyingConstraint constraint: NSLayoutConstraint
 	)
-
 }
 
 /// Class that'll show a modal sheet view
@@ -20,11 +23,12 @@ final class ModalChildView: UIView {
 	let kDefaultHeight: CGFloat = 300
 	let kDismissableHeight: CGFloat = 215
 
-	var headerView: NewIssuerOptionsHeaderView { return newIssuerOptionsHeaderView }
+	private let newIssuerOptionsHeaderView = NewIssuerOptionsHeaderView()
+	private let viewModel = ModalChildViewViewModel()
+
 	var tableView: UITableView { return newIssuerOptionsTableView }
 
 	private var containerViewBottomConstraint, containerViewHeightConstraint: NSLayoutConstraint!
-	private var newIssuerOptionsHeaderView: NewIssuerOptionsHeaderView!
 
 	private(set) var currentSheetHeight: CGFloat = 300
 
@@ -48,9 +52,12 @@ final class ModalChildView: UIView {
 
 	private lazy var newIssuerOptionsTableView: UITableView = {
 		let tableView = UITableView(frame: .zero, style: .grouped)
-		tableView.isScrollEnabled = false
+		tableView.delegate = viewModel
+		tableView.dataSource = viewModel
 		tableView.separatorStyle = .none
 		tableView.backgroundColor = .secondarySystemGroupedBackground
+		tableView.isScrollEnabled = false
+		tableView.tableHeaderView = newIssuerOptionsHeaderView
 		tableView.register(NewIssuerOptionsCell.self, forCellReuseIdentifier: NewIssuerOptionsCell.identifier)
 		containerView.addSubview(tableView)
 		return tableView
@@ -62,14 +69,10 @@ final class ModalChildView: UIView {
 		super.init(coder: coder)
 	}
 
-	/// Designated initializer
-	/// - Parameters:
-	///     - dataSource: The object that will conform to the table view's data source
-	init(dataSource: UITableViewDataSource? = nil) {
-		super.init(frame: .zero)
+	override init(frame: CGRect) {
+		super.init(frame: frame)
 		setupUI()
-
-		newIssuerOptionsTableView.dataSource = dataSource
+		viewModel.delegate = self
 	}
 
 	override func layoutSubviews() {
@@ -91,9 +94,6 @@ final class ModalChildView: UIView {
 	private func setupUI() {
 		setupGestures()
 		layoutUI()
-
-		newIssuerOptionsHeaderView = .init()
-		newIssuerOptionsTableView.tableHeaderView = newIssuerOptionsHeaderView
 	}
 
 	private func setupGestures() {
@@ -117,8 +117,6 @@ final class ModalChildView: UIView {
 
 		containerView.pinViewToAllEdges(newIssuerOptionsTableView)
 	}
-
-	// ! Animations
 
 	private func animateSheet() {
 		animateViews(withDuration: 0.3, animations: {
@@ -148,24 +146,46 @@ final class ModalChildView: UIView {
 
 	// ! Selectors
 
-	@objc func didTapScanQRCodeButton() {
-		delegate?.didTapScanQRCodeButton(in: self)
-	}
-
-	@objc func didTapImportQRImageButton() {
-		delegate?.didTapImportQRImageButton(in: self)
-	}
-
-	@objc func didTapEnterManuallyButton() {
-		delegate?.didTapEnterManuallyButton(in: self)
-	}
-
 	@objc private func didTapView() {
 		delegate?.didTapDimmedView(in: self)
 	}
 
 	@objc private func didPan(_ gesture: UIPanGestureRecognizer) {
 		delegate?.modalChildView(self, didPanWithGesture: gesture, modifyingConstraint: containerViewHeightConstraint)
+	}
+
+}
+
+// ! ModalChildViewViewModelDelegate
+
+extension ModalChildView: ModalChildViewViewModelDelegate {
+
+	func didTapScanQRCodeCell() {
+		delegate?.didTapScanQRCodeCell(in: self)
+	}
+
+	func didTapImportQRImageCell() {
+		delegate?.didTapImportQRImageCell(in: self)
+	}
+
+ 	func didTapEnterManuallyCell() {
+		delegate?.didTapEnterManuallyCell(in: self)
+	}
+
+	func didTapLoadBackupCell() {
+		delegate?.didTapLoadBackupCell(in: self)
+	}
+
+	func didTapMakeBackupCell() {
+		delegate?.didTapMakeBackupCell(in: self)
+	}
+
+	func didTapViewInFilesOrFilzaCell() {
+		delegate?.didTapViewInFilesOrFilzaCell(in: self)
+	}
+
+	func didTapDismissCell() {
+		delegate?.didTapDismissCell(in: self)
 	}
 
 }
@@ -181,7 +201,7 @@ extension ModalChildView {
 
 	/// Function to animate the sheet's height constraint
 	/// - Parameters:
-	///     - height: A CGFloat that represents the height
+	///		- height: A CGFloat that represents the height
 	func animateSheetHeight(_ height: CGFloat) {
 		animateViews(withDuration: 0.3) {
 			self.dimmedView.alpha = 0.6
@@ -194,7 +214,7 @@ extension ModalChildView {
 
 	/// Function to animate the dismissal of the modal sheet view
 	/// - Parameters:
-	///     - withCompletion: Optional closure that takes a Bool as argument & returns nothing
+	///		- withCompletion: Optional closure that takes a Bool as argument & returns nothing
 	func animateDismiss(withCompletion completion: ((Bool) -> ())?) {
 		animateViews(withDuration: 0.3, animations: {
 			self.dimmedView.alpha = 0
@@ -205,15 +225,55 @@ extension ModalChildView {
 
 	/// Function to calculate & set the dimmed view's alpha based on the translation of the pan gesture
 	/// - Parameters:
-	///     - basedOnTranslation: A CGPoint that represents the translation
+	///		- basedOnTranslation: A CGPoint that represents the translation
 	func calculateAlpha(basedOnTranslation translation: CGPoint) {
 		let alpha = translation.y / dimmedView.frame.height
 		dimmedView.alpha = 0.6 - alpha
 	}
 
+	/// Function to configure the header
+	/// - Parameters:
+	///		- isDefaultConfiguration: A Bool to check if we should set the header with the default configuration
+	///		- isBackupOptions: A Bool to check if we should set the header for the backup options data source
+	func configureHeader(isDefaultConfiguration: Bool, isBackupOptions: Bool) {
+		if isDefaultConfiguration {
+			newIssuerOptionsHeaderView.configure(with: .init())
+		}
+		else if isBackupOptions {
+			newIssuerOptionsHeaderView.configure(with:
+				.init(
+					height: 110,
+					title: "Backup options",
+					subtitle: "Choose between loading a backup from file or making a new one."
+				)
+			)
+		}
+		else {
+			newIssuerOptionsHeaderView.configure(with:
+				.init(
+					height: 110,
+					title: "Make backup actions",
+					subtitle: "Do you want to view your backup in \(isJailbroken() ? "Filza" : "Files") now?",
+					prepareForReuse: true
+				)
+			)
+
+		}
+	}
+
 	/// Function to reload the modal sheet view's table view data
 	func reloadData() {
 		newIssuerOptionsTableView.reloadData()
+	}
+
+	/// Function to setup the backup options data source
+	func setupBackupOptionsDataSource() {
+		viewModel.setupBackupOptionsDataSource()
+	}
+
+	/// Function to setup the make backup options data source
+	func setupMakeBackupOptionsDataSource() {
+		viewModel.setupMakeBackupOptionsDataSource()
 	}
 
 }

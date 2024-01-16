@@ -3,21 +3,20 @@ import UIKit
 
 
 protocol ModalSheetVCDelegate: AnyObject {
+	func didTapLoadBackupCell(in modalSheetVC: ModalSheetVC)
+	func didTapMakeBackupCell(in modalSheetVC: ModalSheetVC)
+	func didTapViewInFilesOrFilzaCell(in modalSheetVC: ModalSheetVC)
+	func didTapDismissCell(in modalSheetVC: ModalSheetVC)
 	func shouldReloadData(in modalSheetVC: ModalSheetVC)
 }
 
 /// Controller that'll show the modal sheet view
 final class ModalSheetVC: UIViewController {
 
-	let dataSource = ModalSheetDataSource()
-
-	var headerView: NewIssuerOptionsHeaderView { return modalChildView.headerView }
-	var childTableView: UITableView { return modalChildView.tableView }
-
+	private let modalChildView = ModalChildView()
 	private let newIssuerVC = NewIssuerVC()
 	private let toastView = ToastView()
 
-	private var modalChildView: ModalChildView!
 	private var navVC: UINavigationController!
 
 	weak var delegate: ModalSheetVCDelegate?
@@ -31,7 +30,6 @@ final class ModalSheetVC: UIViewController {
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nil, bundle: nil)
 
-		modalChildView = .init(dataSource: dataSource)
 		modalChildView.delegate = self
 		newIssuerVC.delegate = self
 
@@ -75,43 +73,13 @@ final class ModalSheetVC: UIViewController {
 		}
 	}
 
-	// ! Public
-
-	/// Function to reload the child table view's data
-	func reloadData() {
-		modalChildView.reloadData()
-	}
-
-	/// Function to dismiss the current view controller being presented
-	func shouldDismissVC() {
-		modalChildView.animateDismiss { [weak self] _ in
-			self?.dismiss(animated: true)
-		}
-	}
-
-	/// Function to setup the backup options data source
-	/// - Parameters:
-	///		- buttonTarget: The button's target
-	///		- selectors: An array of selectors for the buttons
-	func setupBackupOptionsDataSource(buttonTarget target: Any?, selectors: [Selector]) {
-		dataSource.setupBackupOptionsDataSource(buttonTarget: target, selectors: selectors)
-	}
-
-	/// Function to setup the make backup options data source
-	/// - Parameters:
-	///		- buttonTarget: The button's target
-	///		- selectors: An array of selectors for the buttons
-	func setupMakeBackupOptionsDataSource(buttonTarget target: Any?, selectors: [Selector]) {
-		dataSource.setupMakeBackupOptionsDataSource(buttonTarget: target, selectors: selectors)
-	}
-
 }
 
 // ! ModalChildViewDelegate
 
 extension ModalSheetVC: ModalChildViewDelegate {
 
-	@objc func didTapScanQRCodeButton(in modalChildView: ModalChildView) {
+	func didTapScanQRCodeCell(in modalChildView: ModalChildView) {
 		let qrCodeVC = QRCodeVC()
 		qrCodeVC.delegate = self
 
@@ -125,7 +93,7 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		present(navVC, animated: true)
 	}
 
-	@objc func didTapImportQRImageButton(in modalChildView: ModalChildView) {
+	func didTapImportQRImageCell(in modalChildView: ModalChildView) {
 		var configuration = PHPickerConfiguration()
 		configuration.filter = PHPickerFilter.images
 
@@ -137,7 +105,7 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		keyWindow.pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
-	@objc func didTapEnterManuallyButton(in modalChildView: ModalChildView) {
+	func didTapEnterManuallyCell(in modalChildView: ModalChildView) {
 		configureVC(
 			newIssuerVC,
 			withTitle: "Enter QR Code",
@@ -151,6 +119,22 @@ extension ModalSheetVC: ModalChildViewDelegate {
 			selector: #selector(didTapDismissButton)
 		)
 		present(navVC, animated: true)
+	}
+
+	func didTapLoadBackupCell(in modalChildView: ModalChildView) {
+		delegate?.didTapLoadBackupCell(in: self)
+	}
+
+	func didTapMakeBackupCell(in modalChildView: ModalChildView) {
+		delegate?.didTapMakeBackupCell(in: self)
+	}
+
+	func didTapViewInFilesOrFilzaCell(in modalChildView: ModalChildView) {
+		delegate?.didTapViewInFilesOrFilzaCell(in: self)
+	}
+
+	func didTapDismissCell(in modalChildView: ModalChildView) {
+		delegate?.didTapDismissCell(in: self)
 	}
 
 	func didTapDimmedView(in modalChildView: ModalChildView) {
@@ -254,6 +238,49 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 				}
 			}
 		}
+	}
+
+}
+
+extension ModalSheetVC {
+
+	// ! Public
+
+	/// Function to animate the child's table view
+	func animateTableView() {
+		UIView.transition(with: modalChildView.tableView, duration: 0.35, options: .transitionCrossDissolve) {
+			self.reloadData()
+		}
+	}
+
+	/// Function to configure the header
+	/// - Parameters:
+	///		- isDefaultConfiguration: A Bool to check if we should set the header with the default configuration
+	///		- isBackupOptions: A Bool to check if we should set the header for the backup options data source
+	func configureHeader(isDefaultConfiguration: Bool = true, isBackupOptions: Bool = false) {
+		modalChildView.configureHeader(isDefaultConfiguration: isDefaultConfiguration, isBackupOptions: isBackupOptions)
+	}
+
+	/// Function to reload the child table view's data
+	func reloadData() {
+		modalChildView.reloadData()
+	}
+
+	/// Function to dismiss the current view controller being presented
+	func shouldDismissVC() {
+		modalChildView.animateDismiss { [weak self] _ in
+			self?.dismiss(animated: true)
+		}
+	}
+
+	/// Function to setup the backup options data source
+	func setupBackupOptionsDataSource() {
+		modalChildView.setupBackupOptionsDataSource()
+	}
+
+	/// Function to setup the make backup options data source
+	func setupMakeBackupOptionsDataSource() {
+		modalChildView.setupMakeBackupOptionsDataSource()
 	}
 
 }

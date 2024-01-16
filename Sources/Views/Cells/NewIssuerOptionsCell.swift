@@ -17,15 +17,13 @@ final class NewIssuerOptionsCell: UITableViewCell {
 		return imageView
 	}()
 
-	private lazy var optionsButton: UIButton = {
-		let button = UIButton()
-		button.alpha = 0
-		button.transform = .init(scaleX: 0.1, y: 0.1)
-		button.titleLabel?.font = .systemFont(ofSize: 16)
-		button.setTitleColor(.label, for: .normal)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		contentView.addSubview(button)
-		return button
+	private lazy var optionsLabel: UILabel = {
+		let label = UILabel()
+		label.alpha = 0
+		label.transform = .init(scaleX: 0.1, y: 0.1)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		contentView.addSubview(label)
+		return label
 	}()
 
 	/// ! Lifecycle
@@ -53,8 +51,8 @@ final class NewIssuerOptionsCell: UITableViewCell {
 
 		setupSizeConstraints(forView: optionsImageView, width: 25, height: 25)
 
-		optionsButton.centerYAnchor.constraint(equalTo: optionsImageView.centerYAnchor).isActive = true
-		optionsButton.leadingAnchor.constraint(equalTo: optionsImageView.trailingAnchor, constant: 15).isActive = true	
+		optionsLabel.centerYAnchor.constraint(equalTo: optionsImageView.centerYAnchor).isActive = true
+		optionsLabel.leadingAnchor.constraint(equalTo: optionsImageView.trailingAnchor, constant: 15).isActive = true	
 	}
 
 }
@@ -63,26 +61,21 @@ extension NewIssuerOptionsCell {
 
 	// ! Public
 
-	/// Function to configure the cell
+	/// Function to configure the cell with its respective view model
 	/// - Parameters:
-	///		- withImage: An image that represents the image view's image
-	///		- title: A String that represents the button's title
-	///		- target: An object representing the target for the button
-	///		- selector: A Selector object for the button
-	func configure(withImage image: UIImage!, title: String, target: Any? = ModalChildView.init(), selector: Selector) {
-		optionsImageView.image = image
-
-		optionsButton.setTitle(title, for: .normal)
-		optionsButton.addTarget(target, action: selector, for: .touchUpInside)
+	/// 	- with: The cell's view model
+	func configure(with viewModel: NewIssuerOptionsCellViewModel) {
+		optionsImageView.image = viewModel.image
+		optionsLabel.text = viewModel.text
 
 		UIView.animate(withDuration: 0.5, delay: 0.8, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.2, options: .transitionCrossDissolve, animations: {
-			[self.optionsImageView, self.optionsButton].forEach {
+			[self.optionsImageView, self.optionsLabel].forEach {
 				$0.alpha = 1
 				$0.transform = .init(scaleX: 1, y: 1)
 			}
 		}) { _ in
 			self.optionsImageView.transform = .identity
-			self.optionsButton.transform = .identity
+			self.optionsLabel.transform = .identity
 		}
 	}
 
