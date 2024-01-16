@@ -1,6 +1,6 @@
 # Azure
 
-<img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureHome.jpeg" width="300"> &nbsp; <img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureSettings.jpeg" width="300">
+<img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureHome.png" width="300"> &nbsp; <img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureSettings.png" width="300">
 
 ## Features
 
@@ -18,10 +18,8 @@
 
 ## To do
 
-* [x] Add docs 💀
-* [x] Create a social cell to show & tap GitHub/Twitter links + update credits.
 * [ ] Explain what a user should do to get an issuer’s icon for the respective app.
-* [ ] New UI refactor 💀
+* [x] New UI refactor 💀
 
 ## Socials
 
