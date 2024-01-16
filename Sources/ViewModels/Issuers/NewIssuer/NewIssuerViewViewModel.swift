@@ -27,7 +27,7 @@ final class NewIssuerViewViewModel: NSObject {
 	private var cells = [CellType]()
 
 	private let issuerViewModel = NewIssuerFormCellViewModel(tag: 0, placeholder: "Enter name", returnKeyType: .next)
-	private let accountViewModel = NewIssuerFormCellViewModel(tag: 1, placeholder: "Enter e-mail", returnKeyType: .next)
+	private let accountViewModel = NewIssuerFormCellViewModel(tag: 1, placeholder: "E-mail or username", returnKeyType: .next)
 	private let secretViewModel = NewIssuerFormCellViewModel(tag: 2, placeholder: "Enter secret", returnKeyType: .default)
 	private let algorithmViewModel = NewIssuerAlgorithmCellViewModel(
 		algorithmText: "Algorithm",

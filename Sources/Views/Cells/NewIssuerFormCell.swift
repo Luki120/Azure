@@ -39,7 +39,7 @@ final class NewIssuerFormCell: UITableViewCell {
 		contentView.layer.cornerCurve = .continuous
 		contentView.layer.cornerRadius = 14
 		contentView.layer.masksToBounds = true
-		setupCleanShadowLayer()
+		setupCleanShadowLayer(withBackgroundColor: UIColor.secondarySystemGroupedBackground.cgColor)
 	}
 
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -50,15 +50,6 @@ final class NewIssuerFormCell: UITableViewCell {
 	}
 
 	// ! Private
-
-	private func setupCleanShadowLayer() {
-		layer.masksToBounds = false
-		layer.shadowColor = kUserInterfaceStyle == .dark ? .darkShadowColor : .lightShadowColor
-		layer.shadowOffset = .init(width: 0, height: 0)
-		layer.shadowOpacity = 1
-		layer.shadowRadius = 3.5
-		layer.backgroundColor = UIColor.secondarySystemGroupedBackground.cgColor
-	}
 
 	@objc private func resignResponder() {
 		cleanTextField.resignFirstResponder()
