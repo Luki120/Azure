@@ -1,30 +1,30 @@
 import UIKit
 
 
-protocol ModalChildViewDelegate: AnyObject {
-	func didTapScanQRCodeCell(in modalChildView: ModalChildView)
-	func didTapImportQRImageCell(in modalChildView: ModalChildView)
-	func didTapEnterManuallyCell(in modalChildView: ModalChildView)
-	func didTapMakeBackupCell(in modalChildView: ModalChildView)
-	func didTapLoadBackupCell(in modalChildView: ModalChildView)
-	func didTapViewInFilesOrFilzaCell(in modalChildView: ModalChildView)
-	func didTapDismissCell(in modalChildView: ModalChildView)
-	func didTapDimmedView(in modalChildView: ModalChildView)
-	func modalChildView(
-		_ modalChildView: ModalChildView,
+protocol NewIssuerOptionsViewDelegate: AnyObject {
+	func didTapScanQRCodeCell(in newIssuerOptionsView: NewIssuerOptionsView)
+	func didTapImportQRImageCell(in newIssuerOptionsView: NewIssuerOptionsView)
+	func didTapEnterManuallyCell(in newIssuerOptionsView: NewIssuerOptionsView)
+	func didTapLoadBackupCell(in newIssuerOptionsView: NewIssuerOptionsView)
+	func didTapMakeBackupCell(in newIssuerOptionsView: NewIssuerOptionsView)
+	func didTapViewInFilesOrFilzaCell(in newIssuerOptionsView: NewIssuerOptionsView)
+	func didTapDismissCell(in newIssuerOptionsView: NewIssuerOptionsView)
+	func didTapDimmedView(in newIssuerOptionsView: NewIssuerOptionsView)
+	func newIssuerOptionsView(
+		_ newIssuerOptionsView: NewIssuerOptionsView,
 		didPanWithGesture gesture: UIPanGestureRecognizer,
 		modifyingConstraint constraint: NSLayoutConstraint
 	)
 }
 
-/// Class that'll show a modal sheet view
-final class ModalChildView: UIView {
+/// Class that'll show the new issuer options view
+final class NewIssuerOptionsView: UIView {
 
 	let kDefaultHeight: CGFloat = 300
 	let kDismissableHeight: CGFloat = 215
 
 	private let newIssuerOptionsHeaderView = NewIssuerOptionsHeaderView()
-	private let viewModel = ModalChildViewViewModel()
+	private let viewModel = NewIssuerOptionsViewViewModel()
 
 	var tableView: UITableView { return newIssuerOptionsTableView }
 
@@ -32,7 +32,7 @@ final class ModalChildView: UIView {
 
 	private(set) var currentSheetHeight: CGFloat = 300
 
-	weak var delegate: ModalChildViewDelegate?
+	weak var delegate: NewIssuerOptionsViewDelegate?
 
 	private lazy var dimmedView: UIView = {
 		let view = UIView()
@@ -151,14 +151,14 @@ final class ModalChildView: UIView {
 	}
 
 	@objc private func didPan(_ gesture: UIPanGestureRecognizer) {
-		delegate?.modalChildView(self, didPanWithGesture: gesture, modifyingConstraint: containerViewHeightConstraint)
+		delegate?.newIssuerOptionsView(self, didPanWithGesture: gesture, modifyingConstraint: containerViewHeightConstraint)
 	}
 
 }
 
-// ! ModalChildViewViewModelDelegate
+// ! NewIssuerOptionsViewViewModelDelegate
 
-extension ModalChildView: ModalChildViewViewModelDelegate {
+extension NewIssuerOptionsView: NewIssuerOptionsViewViewModelDelegate {
 
 	func didTapScanQRCodeCell() {
 		delegate?.didTapScanQRCodeCell(in: self)
@@ -190,7 +190,7 @@ extension ModalChildView: ModalChildViewViewModelDelegate {
 
 }
 
-extension ModalChildView {
+extension NewIssuerOptionsView {
 
 	// ! Public
 
@@ -212,7 +212,7 @@ extension ModalChildView {
 		currentSheetHeight = height
 	}
 
-	/// Function to animate the dismissal of the modal sheet view
+	/// Function to animate the dismissal of the sheet view
 	/// - Parameters:
 	///		- withCompletion: Optional closure that takes a Bool as argument & returns nothing
 	func animateDismiss(withCompletion completion: ((Bool) -> ())?) {
@@ -261,7 +261,7 @@ extension ModalChildView {
 		}
 	}
 
-	/// Function to reload the modal sheet view's table view data
+	/// Function to reload the new issuer options view's table view data
 	func reloadData() {
 		newIssuerOptionsTableView.reloadData()
 	}

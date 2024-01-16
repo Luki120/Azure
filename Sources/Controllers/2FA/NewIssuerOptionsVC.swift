@@ -2,24 +2,24 @@ import PhotosUI
 import UIKit
 
 
-protocol ModalSheetVCDelegate: AnyObject {
-	func didTapLoadBackupCell(in modalSheetVC: ModalSheetVC)
-	func didTapMakeBackupCell(in modalSheetVC: ModalSheetVC)
-	func didTapViewInFilesOrFilzaCell(in modalSheetVC: ModalSheetVC)
-	func didTapDismissCell(in modalSheetVC: ModalSheetVC)
-	func shouldReloadData(in modalSheetVC: ModalSheetVC)
+protocol NewIssuerOptionsVCDelegate: AnyObject {
+	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
+	func didTapMakeBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
+	func didTapViewInFilesOrFilzaCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
+	func didTapDismissCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
+	func shouldReloadData(in newIssuerOptionsVC: NewIssuerOptionsVC)
 }
 
 /// Controller that'll show the modal sheet view
-final class ModalSheetVC: UIViewController {
+final class NewIssuerOptionsVC: UIViewController {
 
-	private let modalChildView = ModalChildView()
+	private let newIssuerOptionsView = NewIssuerOptionsView()
 	private let newIssuerVC = NewIssuerVC()
 	private let toastView = ToastView()
 
 	private var navVC: UINavigationController!
 
-	weak var delegate: ModalSheetVCDelegate?
+	weak var delegate: NewIssuerOptionsVCDelegate?
 
 	// ! Lifecycle
 
@@ -30,17 +30,17 @@ final class ModalSheetVC: UIViewController {
 	override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
 		super.init(nibName: nil, bundle: nil)
 
-		modalChildView.delegate = self
+		newIssuerOptionsView.delegate = self
 		newIssuerVC.delegate = self
 
 		view.backgroundColor = .clear
 	}
 
-	override func loadView() { view = modalChildView }
+	override func loadView() { view = newIssuerOptionsView }
 
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		modalChildView.animateViews()
+		newIssuerOptionsView.animateViews()
 	}
 
 	// ! Reusable funcs
@@ -67,7 +67,7 @@ final class ModalSheetVC: UIViewController {
 	private func dismissVC() {
 		dismiss(animated: true, completion: nil)
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-			self.modalChildView.animateDismiss { [weak self] _ in
+			self.newIssuerOptionsView.animateDismiss { [weak self] _ in
 				self?.dismiss(animated: true)
 			}
 		}
@@ -75,11 +75,11 @@ final class ModalSheetVC: UIViewController {
 
 }
 
-// ! ModalChildViewDelegate
+// ! NewIssuerOptionsViewDelegate
 
-extension ModalSheetVC: ModalChildViewDelegate {
+extension NewIssuerOptionsVC: NewIssuerOptionsViewDelegate {
 
-	func didTapScanQRCodeCell(in modalChildView: ModalChildView) {
+	func didTapScanQRCodeCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		let qrCodeVC = QRCodeVC()
 		qrCodeVC.delegate = self
 
@@ -93,7 +93,7 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		present(navVC, animated: true)
 	}
 
-	func didTapImportQRImageCell(in modalChildView: ModalChildView) {
+	func didTapImportQRImageCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		var configuration = PHPickerConfiguration()
 		configuration.filter = PHPickerFilter.images
 
@@ -105,7 +105,7 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		keyWindow.pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
-	func didTapEnterManuallyCell(in modalChildView: ModalChildView) {
+	func didTapEnterManuallyCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		configureVC(
 			newIssuerVC,
 			withTitle: "Enter QR Code",
@@ -121,53 +121,53 @@ extension ModalSheetVC: ModalChildViewDelegate {
 		present(navVC, animated: true)
 	}
 
-	func didTapLoadBackupCell(in modalChildView: ModalChildView) {
+	func didTapLoadBackupCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		delegate?.didTapLoadBackupCell(in: self)
 	}
 
-	func didTapMakeBackupCell(in modalChildView: ModalChildView) {
+	func didTapMakeBackupCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		delegate?.didTapMakeBackupCell(in: self)
 	}
 
-	func didTapViewInFilesOrFilzaCell(in modalChildView: ModalChildView) {
+	func didTapViewInFilesOrFilzaCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		delegate?.didTapViewInFilesOrFilzaCell(in: self)
 	}
 
-	func didTapDismissCell(in modalChildView: ModalChildView) {
+	func didTapDismissCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		delegate?.didTapDismissCell(in: self)
 	}
 
-	func didTapDimmedView(in modalChildView: ModalChildView) {
-		modalChildView.animateDismiss { [weak self] _ in
+	func didTapDimmedView(in newIssuerOptionsView: NewIssuerOptionsView) {
+		newIssuerOptionsView.animateDismiss { [weak self] _ in
 			self?.dismiss(animated: true)
 		}
 	}
 
-	func modalChildView(
-		_ modalChildView: ModalChildView,
+	func newIssuerOptionsView(
+		_ newIssuerOptionsView: NewIssuerOptionsView,
 		didPanWithGesture gesture: UIPanGestureRecognizer,
 		modifyingConstraint constraint: NSLayoutConstraint
 	) {
 		let translation = gesture.translation(in: view)
-		let newHeight = modalChildView.currentSheetHeight - translation.y
+		let newHeight = newIssuerOptionsView.currentSheetHeight - translation.y
 
 		switch gesture.state {
 			case .changed:
-				if newHeight < modalChildView.kDefaultHeight {
+				if newHeight < newIssuerOptionsView.kDefaultHeight {
 					constraint.constant = newHeight
 					constraint.isActive = true
 
-					modalChildView.calculateAlpha(basedOnTranslation: translation)
+					newIssuerOptionsView.calculateAlpha(basedOnTranslation: translation)
 					view.layoutIfNeeded()
 				}
 			case .ended:
-				if newHeight < modalChildView.kDismissableHeight {
-					modalChildView.animateDismiss { [weak self] _ in
+				if newHeight < newIssuerOptionsView.kDismissableHeight {
+					newIssuerOptionsView.animateDismiss { [weak self] _ in
 						self?.dismissVC()
 					}
 				}
-				else if newHeight < modalChildView.kDefaultHeight {
-					modalChildView.animateSheetHeight(modalChildView.kDefaultHeight)
+				else if newHeight < newIssuerOptionsView.kDefaultHeight {
+					newIssuerOptionsView.animateSheetHeight(newIssuerOptionsView.kDefaultHeight)
 				}
 			default: break
 		}
@@ -183,7 +183,7 @@ extension ModalSheetVC: ModalChildViewDelegate {
 
 // ! NewIssuerVCDelegate
 
-extension ModalSheetVC: NewIssuerVCDelegate {
+extension NewIssuerOptionsVC: NewIssuerVCDelegate {
 
 	func shouldDismissVC(in newIssuerVC: NewIssuerVC) {
 		delegate?.shouldReloadData(in: self)
@@ -194,7 +194,7 @@ extension ModalSheetVC: NewIssuerVCDelegate {
 
 // ! QRCodeVCDelegate
 
-extension ModalSheetVC: QRCodeVCDelegate {
+extension NewIssuerOptionsVC: QRCodeVCDelegate {
 
 	func didCreateIssuerOutOfQRCode(in qrCodeVC: QRCodeVC) {
 		delegate?.shouldReloadData(in: self)
@@ -205,7 +205,7 @@ extension ModalSheetVC: QRCodeVCDelegate {
 
 // ! PHPickerViewControllerDelegate
 
-extension ModalSheetVC: PHPickerViewControllerDelegate {
+extension NewIssuerOptionsVC: PHPickerViewControllerDelegate {
 
 	func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
 		guard !results.isEmpty else {
@@ -242,13 +242,13 @@ extension ModalSheetVC: PHPickerViewControllerDelegate {
 
 }
 
-extension ModalSheetVC {
+extension NewIssuerOptionsVC {
 
 	// ! Public
 
-	/// Function to animate the child's table view
+	/// Function to animate the new issuer options table view
 	func animateTableView() {
-		UIView.transition(with: modalChildView.tableView, duration: 0.35, options: .transitionCrossDissolve) {
+		UIView.transition(with: newIssuerOptionsView.tableView, duration: 0.35, options: .transitionCrossDissolve) {
 			self.reloadData()
 		}
 	}
@@ -258,29 +258,29 @@ extension ModalSheetVC {
 	///		- isDefaultConfiguration: A Bool to check if we should set the header with the default configuration
 	///		- isBackupOptions: A Bool to check if we should set the header for the backup options data source
 	func configureHeader(isDefaultConfiguration: Bool = true, isBackupOptions: Bool = false) {
-		modalChildView.configureHeader(isDefaultConfiguration: isDefaultConfiguration, isBackupOptions: isBackupOptions)
+		newIssuerOptionsView.configureHeader(isDefaultConfiguration: isDefaultConfiguration, isBackupOptions: isBackupOptions)
 	}
 
-	/// Function to reload the child table view's data
+	/// Function to reload the new issuer options table view's data
 	func reloadData() {
-		modalChildView.reloadData()
+		newIssuerOptionsView.reloadData()
 	}
 
 	/// Function to dismiss the current view controller being presented
 	func shouldDismissVC() {
-		modalChildView.animateDismiss { [weak self] _ in
+		newIssuerOptionsView.animateDismiss { [weak self] _ in
 			self?.dismiss(animated: true)
 		}
 	}
 
 	/// Function to setup the backup options data source
 	func setupBackupOptionsDataSource() {
-		modalChildView.setupBackupOptionsDataSource()
+		newIssuerOptionsView.setupBackupOptionsDataSource()
 	}
 
 	/// Function to setup the make backup options data source
 	func setupMakeBackupOptionsDataSource() {
-		modalChildView.setupMakeBackupOptionsDataSource()
+		newIssuerOptionsView.setupMakeBackupOptionsDataSource()
 	}
 
 }

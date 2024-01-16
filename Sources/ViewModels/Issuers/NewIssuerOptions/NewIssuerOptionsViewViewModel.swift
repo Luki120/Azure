@@ -1,7 +1,7 @@
 import UIKit
 
 
-protocol ModalChildViewViewModelDelegate: AnyObject {
+protocol NewIssuerOptionsViewViewModelDelegate: AnyObject {
 	func didTapScanQRCodeCell()
 	func didTapImportQRImageCell()
 	func didTapEnterManuallyCell()
@@ -11,10 +11,10 @@ protocol ModalChildViewViewModelDelegate: AnyObject {
 	func didTapDismissCell()
 }
 
-extension ModalChildView {
+extension NewIssuerOptionsView {
 
-	/// View model class for ModalChildView
-	final class ModalChildViewViewModel: NSObject {
+	/// View model class for NewIssuerOptionsView
+	final class NewIssuerOptionsViewViewModel: NSObject {
 
 		private let newIssuerOptionsViewModels: [NewIssuerOptionsCellViewModel] = [
 			.init(image: UIImage(systemName: "qrcode"), text: "Scan QR Code"),
@@ -39,7 +39,7 @@ extension ModalChildView {
 			cell.configure(with: self.newIssuerOptionsViewModels[indexPath.row])
 		}
 
-		weak var delegate: ModalChildViewViewModelDelegate?
+		weak var delegate: NewIssuerOptionsViewViewModelDelegate?
 
 	}
 
@@ -47,7 +47,7 @@ extension ModalChildView {
 
 // ! UITableViewDataSource
 
-extension ModalChildView.ModalChildViewViewModel: UITableViewDataSource {
+extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel: UITableViewDataSource {
 
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return rowsCount
@@ -63,7 +63,7 @@ extension ModalChildView.ModalChildViewViewModel: UITableViewDataSource {
 
 // ! UITableViewDelegate
 
-extension ModalChildView.ModalChildViewViewModel: UITableViewDelegate {
+extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel: UITableViewDelegate {
 
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
@@ -96,7 +96,7 @@ extension ModalChildView.ModalChildViewViewModel: UITableViewDelegate {
 
 }
 
-extension ModalChildView.ModalChildViewViewModel {
+extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel {
 
 	// ! Public
 

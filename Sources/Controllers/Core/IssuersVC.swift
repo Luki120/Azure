@@ -8,7 +8,7 @@ final class IssuersVC: UIViewController {
 	private let backupManager = BackupManager()
 
 	private var issuersView: IssuersView!
-	private var modalSheetVC: ModalSheetVC!
+	private var newIssuerOptionsVC: NewIssuerOptionsVC!
 
 	// ! Lifecycle
 
@@ -61,12 +61,12 @@ final class IssuersVC: UIViewController {
 	}
 
 	private func makeBackup() {
-		modalSheetVC = ModalSheetVC()
-		modalSheetVC.delegate = self
-		modalSheetVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: true)
-		modalSheetVC.setupBackupOptionsDataSource()
-		modalSheetVC.modalPresentationStyle = .overFullScreen
-		present(modalSheetVC, animated: false)
+		newIssuerOptionsVC = NewIssuerOptionsVC()
+		newIssuerOptionsVC.delegate = self
+		newIssuerOptionsVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: true)
+		newIssuerOptionsVC.setupBackupOptionsDataSource()
+		newIssuerOptionsVC.modalPresentationStyle = .overFullScreen
+		present(newIssuerOptionsVC, animated: false)
 	}
 
 }
@@ -76,13 +76,13 @@ final class IssuersVC: UIViewController {
 extension IssuersVC: FloatingButtonViewDelegate {
 
 	func didTapFloatingButton(in floatingButtonView: FloatingButtonView) {
-		modalSheetVC = ModalSheetVC()
-		modalSheetVC.delegate = self
-		modalSheetVC.configureHeader()
-		modalSheetVC.modalPresentationStyle = .overFullScreen
+		newIssuerOptionsVC = NewIssuerOptionsVC()
+		newIssuerOptionsVC.delegate = self
+		newIssuerOptionsVC.configureHeader()
+		newIssuerOptionsVC.modalPresentationStyle = .overFullScreen
 
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-			self.present(self.modalSheetVC, animated: false)
+			self.present(self.newIssuerOptionsVC, animated: false)
 		}
 	}
 
@@ -115,21 +115,21 @@ extension IssuersVC: IssuersViewDelegate {
 
 }
 
-// ! ModalSheetVCDelegate
+// ! NewIssuerOptionsVCDelegate
 
-extension IssuersVC: ModalSheetVCDelegate {
+extension IssuersVC: NewIssuerOptionsVCDelegate {
 
-	func didTapLoadBackupCell(in modalSheetVC: ModalSheetVC) {
+	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		if isJailbroken() {
 			backupManager.decodeData()
 			UIView.transition(with: view, duration: 0.5, animations: {
 				self.issuersView.reloadData
 			}) { _ in
-				self.modalSheetVC.shouldDismissVC()
+				self.newIssuerOptionsVC.shouldDismissVC()
 			}
 		}
 		else {
-			modalSheetVC.shouldDismissVC()
+			newIssuerOptionsVC.shouldDismissVC()
 
 			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
 				let documentPickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json])
@@ -139,15 +139,15 @@ extension IssuersVC: ModalSheetVCDelegate {
 		}
 	}
 
-	func didTapMakeBackupCell(in modalSheetVC: ModalSheetVC) {
+	func didTapMakeBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		backupManager.encodeData()
 
-		modalSheetVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: false)
-		modalSheetVC.setupMakeBackupOptionsDataSource()
-		modalSheetVC.animateTableView()
+		newIssuerOptionsVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: false)
+		newIssuerOptionsVC.setupMakeBackupOptionsDataSource()
+		newIssuerOptionsVC.animateTableView()
 	}
 
-	func didTapViewInFilesOrFilzaCell(in modalSheetVC: ModalSheetVC) {
+	func didTapViewInFilesOrFilzaCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		let pathToFilza = "filza://view" + .kAzurePath
 		let pathToFiles = "shareddocuments://"
 
@@ -156,11 +156,11 @@ extension IssuersVC: ModalSheetVCDelegate {
 		UIApplication.shared.open(backupURLPath)
 	}
 
-	func didTapDismissCell(in modalSheetVC: ModalSheetVC) {
-		modalSheetVC.shouldDismissVC()
+	func didTapDismissCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
+		newIssuerOptionsVC.shouldDismissVC()
 	}
 
-	func shouldReloadData(in modalSheetVC: ModalSheetVC) {
+	func shouldReloadData(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		issuersView.reloadData
 	}
 
