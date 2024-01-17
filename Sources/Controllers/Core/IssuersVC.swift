@@ -25,12 +25,16 @@ final class IssuersVC: UIViewController {
 		setupObservers()
 	}
 
-	override func loadView() { view = issuersView }
-
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		issuersView.delegate = self
 		issuersView.backgroundColor = .systemBackground
+		view.addSubview(issuersView)
+	}
+
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		view.pinViewToAllEdgesIncludingSafeAreas(issuersView)
 	}
 
 	// ! Private

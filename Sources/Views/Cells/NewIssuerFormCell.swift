@@ -44,8 +44,6 @@ final class NewIssuerFormCell: UITableViewCell {
 
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
 		super.traitCollectionDidChange(previousTraitCollection)
-
-		layer.backgroundColor = UIColor.secondarySystemGroupedBackground.cgColor
 		layer.shadowColor = kUserInterfaceStyle == .dark ? .darkShadowColor : .lightShadowColor
 	}
 
