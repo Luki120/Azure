@@ -6,6 +6,7 @@ protocol IssuersViewViewModelDelegate: AnyObject {
 	func didTapCopyPinCode()
 	func didTapCopySecret()
 	func didTapDeleteAndPresent(alertController: UIAlertController)
+	func didTapAddToSystemAndOpen(url: URL)
 	func didAnimateFloatingButton(in scrollView: UIScrollView)
 	func shouldAnimateNoIssuersLabel()
 	func shouldAnimateNoSearchResultsLabel(forViewModels viewModels: [IssuerCellViewModel], isFiltering: Bool)
@@ -131,7 +132,33 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 				self.delegate?.didTapDeleteAndPresent(alertController: alertController)
 			}
 
-			return UIMenu(title: "", children: [copyCodeAction, copySecretAction, deleteAction])
+			var additionalActions = [UIAction]()
+
+			if #available(iOS 15.0, *) {
+				let addToSystemAction = UIAction(title: "Add To System", image: UIImage(systemName: "key")) { _ in
+					let issuer = IssuerManager.sharedInstance.issuers[indexPath.item]
+
+					// credits ⇝ https://github.com/leptos-null/OneTime/blob/88395900c67852bb9e7597c2bdae5a2a150b1844/OneTimeKit/Models/OTBag.m#L154
+					var urlComponents = URLComponents()
+					urlComponents.scheme = "apple-otpauth"
+					urlComponents.host = "totp"
+					urlComponents.path = "/\(issuer.name):\(issuer.account)"
+					urlComponents.queryItems = [
+						.init(name: "secret", value: .base32EncodedString(issuer.secret)),
+						.init(name: "issuer", value: issuer.name),
+						.init(name: "algorithm", value: issuer.algorithm.rawValue.uppercased()),
+					]
+
+					guard let url = urlComponents.url else { return }
+					self.delegate?.didTapAddToSystemAndOpen(url: url)
+				}
+				additionalActions.append(addToSystemAction)
+			}
+
+			return UIMenu(title: "", children: [
+				UIMenu(title: "", options: .displayInline, children: [copyCodeAction, copySecretAction, deleteAction]),
+				UIMenu(title: "", options: .displayInline, children: additionalActions)
+			])
 		}
 	}
 

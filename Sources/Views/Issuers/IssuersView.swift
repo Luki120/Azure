@@ -5,6 +5,7 @@ protocol IssuersViewDelegate: AnyObject {
 	func didTapCopyPinCode(in issuersView: IssuersView)
 	func didTapCopySecret(in issuersView: IssuersView)
 	func issuersView(_ issuersView: IssuersView, didTapDeleteAndPresent alertController: UIAlertController)
+	func issuersView(_ issuersView: IssuersView, didTapAddToSystemAndOpen url: URL)
 }
 
 /// Class to represent the issuers view
@@ -177,6 +178,10 @@ extension IssuersView: IssuersViewViewModelDelegate {
 
 	func didTapDeleteAndPresent(alertController: UIAlertController) {
 		delegate?.issuersView(self, didTapDeleteAndPresent: alertController)
+	}
+
+	func didTapAddToSystemAndOpen(url: URL) {
+		delegate?.issuersView(self, didTapAddToSystemAndOpen: url)
 	}
 
 	func didAnimateFloatingButton(in scrollView: UIScrollView) {

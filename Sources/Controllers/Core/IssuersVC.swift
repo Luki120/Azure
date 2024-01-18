@@ -117,6 +117,10 @@ extension IssuersVC: IssuersViewDelegate {
 		present(alertController, animated: true)
 	}
 
+	func issuersView(_ issuersView: IssuersView, didTapAddToSystemAndOpen url: URL) {
+		UIApplication.shared.open(url)
+	}
+
 }
 
 // ! NewIssuerOptionsVCDelegate
