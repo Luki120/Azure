@@ -7,6 +7,7 @@ final class IssuersVC: UIViewController {
 	private let authManager = AuthManager()
 	private let backupManager = BackupManager()
 
+	private var continueAction: UIAlertAction!
 	private var issuersView: IssuersView!
 	private var newIssuerOptionsVC: NewIssuerOptionsVC!
 
@@ -73,6 +74,34 @@ final class IssuersVC: UIViewController {
 		present(newIssuerOptionsVC, animated: false)
 	}
 
+	private func presentAlertController(completion: @escaping () -> Void) {
+		let alertController = UIAlertController(
+			title: "Azure",
+			message: "Please enter the password \"SuperSecretPassword\" in order to continue",
+			preferredStyle: .alert
+		)
+
+		alertController.addTextField { textField in
+			textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
+		}
+
+		continueAction = UIAlertAction(title: "Continue", style: .default) { _ in
+			completion()
+		}
+		continueAction.isEnabled = false
+
+		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+		alertController.addAction(continueAction)
+		alertController.addAction(cancelAction)
+
+		presentedViewController?.present(alertController, animated: true)
+	}
+
+	@objc private func textFieldDidChange(_ textField: UITextField) {
+		continueAction.isEnabled = textField.text == backupManager.encryptionPassword
+	}
+
 }
 
 // ! FloatingButtonViewDelegate
@@ -129,30 +158,43 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 
 	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		if isJailbroken() {
-			backupManager.decodeData()
-			UIView.transition(with: view, duration: 0.5, animations: {
-				self.issuersView.reloadData
-			}) { _ in
-				self.newIssuerOptionsVC.shouldDismissVC()
+			presentAlertController { [weak self] in
+				guard let self else { return }
+
+				backupManager.decodeData()
+
+				UIView.transition(with: self.view, duration: 0.5, animations: {
+					self.issuersView.reloadData
+				}) { _ in
+					self.newIssuerOptionsVC.shouldDismissVC()
+				}
 			}
 		}
 		else {
-			newIssuerOptionsVC.shouldDismissVC()
+			presentAlertController { [weak self] in
+				guard let self else { return }
 
-			DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-				let documentPickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json])
-				documentPickerVC.delegate = self
-				self.present(documentPickerVC, animated: true)
+				newIssuerOptionsVC.shouldDismissVC()
+
+				DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+					let documentPickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json])
+					documentPickerVC.delegate = self
+					self.present(documentPickerVC, animated: true)
+				}
 			}
 		}
 	}
 
 	func didTapMakeBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
-		backupManager.encodeData()
+		presentAlertController { [weak self] in
+			guard let self else { return }
 
-		newIssuerOptionsVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: false)
-		newIssuerOptionsVC.setupMakeBackupOptionsDataSource()
-		newIssuerOptionsVC.animateTableView()
+			backupManager.encodeData()
+
+			newIssuerOptionsVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: false)
+			newIssuerOptionsVC.setupMakeBackupOptionsDataSource()
+			newIssuerOptionsVC.animateTableView()
+		}
 	}
 
 	func didTapViewInFilesOrFilzaCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
