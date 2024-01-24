@@ -6,3 +6,6 @@ Description: FOSS TOTP 2FA app with a clean, straightforward UI
 Maintainer: Luki
 Author: Luki
 Section: Utilities
+Icon: https://raw.githubusercontent.com/Luki120/Azure/main/Resources/AzureIcon.png
+Depiction: https://luki120.github.io/depictions/web/?p=me.luki.azure
+SileoDepiction: https://luki120.github.io/depictions/native/me.luki.azure/depiction.json
