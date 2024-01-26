@@ -35,13 +35,14 @@ extension NSMutableAttributedString {
 }
 
 extension String {
+	static let kAzureDir = "/var/mobile/Documents/Azure"
+	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 	static let kCheckra1n = "/var/checkra1n.dmg"
 	static let kDopamine = "/var/jb/"
+	static let kSerotonin = "/var/mobile/.serotonin_"
 	static let kTaurine = "/taurine"
 	static let kUnc0ver = "/private/etc/apt/undecimus"
 	static let kZina = "/var/LIY/"
-	static let kAzureDir = "/var/mobile/Documents/Azure"
-	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
 }
 
 extension UIBarButtonItem {
@@ -178,6 +179,7 @@ func isJailbroken() -> Bool {
 	let fileM = FileManager.default
 	if fileM.fileExists(atPath: .kCheckra1n)
 		|| fileM.fileExists(atPath: .kDopamine)
+		|| fileM.fileExists(atPath: .kSerotonin)
 		|| fileM.fileExists(atPath: .kTaurine)
 		|| fileM.fileExists(atPath: .kUnc0ver)
 		|| fileM.fileExists(atPath: .kZina) { return true }
