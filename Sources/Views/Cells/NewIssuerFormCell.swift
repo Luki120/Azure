@@ -16,6 +16,7 @@ final class NewIssuerFormCell: UITableViewCell {
 	}()
 
 	var completion: ((String) -> Void)?
+	var textField: UITextField { return cleanTextField }
 
 	// ! Lifecycle
 

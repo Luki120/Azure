@@ -5,6 +5,6 @@ struct NewIssuerAlgorithmCellViewModel: Hashable {
 
 	let algorithmText: String
 	let items: [String]
-	let selectedSegmentIndex: Int
+	var selectedSegmentIndex = 0
 
 }

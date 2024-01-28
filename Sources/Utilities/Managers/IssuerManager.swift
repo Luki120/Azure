@@ -11,8 +11,6 @@ final class IssuerManager: ObservableObject {
 	@Published private(set) var issuers = [Issuer]()
 
 	private init() {
-		selectedIndex = UserDefaults.standard.integer(forKey: "selectedIndex")
-
 		issuers = KeychainManager.sharedInstance.retrieveIssuers()
 		setupImagesDict()
 	}
@@ -31,7 +29,7 @@ final class IssuerManager: ObservableObject {
 
 	private func createIssuer(
 		withName name: String,
-		account: String = "",
+		account: String,
 		secret: Data,
 		algorithm: Issuer.Algorithm,
 		completion: (Bool, Issuer) -> ()
@@ -77,16 +75,17 @@ extension IssuerManager {
 				default: break
 			}
 		}
-		guard !name.isEmpty else {
-			let scanner = Scanner(string: string)
-			guard scanner.scanUpToString("/totp/") != nil,
-				scanner.scanString("/totp/") != nil,
-				let scannedName = scanner.scanUpToString("?") else { return }
 
-			createIssuer(withName: scannedName, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
+		let scanner = Scanner(string: string)
+		guard scanner.scanUpToString("/totp/") != nil,
+			scanner.scanString("/totp/") != nil,
+			let account = scanner.scanUpToString("?") else { return }
+
+		guard !name.isEmpty else {
+			createIssuer(withName: account, account: account, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
 			return
 		}
-		createIssuer(withName: name, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
+		createIssuer(withName: name, account: account, secret: .base32DecodedString(secret), algorithm: algorithm, completion: completion)
 	}
 
 	/// Function to create an issuer with the data passed from the input fields
@@ -107,6 +106,8 @@ extension IssuerManager {
 		}
 
 		createIssuer(withName: name, account: account, secret: secret, algorithm: algorithm, completion: completion)
+
+		selectedIndex = 0
 	}
 
 	/// Function to pass the selected segment index to configure the encryption algorithm
@@ -114,7 +115,6 @@ extension IssuerManager {
 	///		- index: The given index
 	func setSelectedIndex(_ index: Int) {
 		selectedIndex = index
-		UserDefaults.standard.set(selectedIndex, forKey: "selectedIndex")
 	}
 
 	/// Function to append an issuer to the issuers array

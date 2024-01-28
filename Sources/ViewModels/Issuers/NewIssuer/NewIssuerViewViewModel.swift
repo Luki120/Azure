@@ -31,8 +31,7 @@ final class NewIssuerViewViewModel: NSObject {
 	private let secretViewModel = NewIssuerFormCellViewModel(tag: 2, placeholder: "Enter secret", returnKeyType: .default)
 	private let algorithmViewModel = NewIssuerAlgorithmCellViewModel(
 		algorithmText: "Algorithm",
-		items: ["SHA1", "SHA256", "SHA512"],
-		selectedSegmentIndex: IssuerManager.sharedInstance.selectedIndex
+		items: ["SHA1", "SHA256", "SHA512"]
 	)
 
 	@frozen private enum Section: String {
@@ -119,6 +118,7 @@ extension NewIssuerViewViewModel: UITableViewDelegate {
 					cell.completion = { [weak self] text in
 						self?.name = text
 					}
+					cell.textField.becomeFirstResponder()
 					return cell
 
 				case .account(let viewModel):
