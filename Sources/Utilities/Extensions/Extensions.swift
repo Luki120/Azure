@@ -37,12 +37,6 @@ extension NSMutableAttributedString {
 extension String {
 	static let kAzureDir = "/var/mobile/Documents/Azure"
 	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
-	static let kCheckra1n = "/var/checkra1n.dmg"
-	static let kDopamine = "/var/jb/"
-	static let kSerotonin = "/var/mobile/.serotonin_"
-	static let kTaurine = "/taurine"
-	static let kUnc0ver = "/private/etc/apt/undecimus"
-	static let kZina = "/var/LIY/"
 }
 
 extension UIBarButtonItem {
@@ -175,14 +169,17 @@ extension UIViewController {
 
 var kUserInterfaceStyle: UIUserInterfaceStyle { return UIScreen.main.traitCollection.userInterfaceStyle }
 
-func isJailbroken() -> Bool {
-	let fileM = FileManager.default
-	if fileM.fileExists(atPath: .kCheckra1n)
-		|| fileM.fileExists(atPath: .kDopamine)
-		|| fileM.fileExists(atPath: .kSerotonin)
-		|| fileM.fileExists(atPath: .kTaurine)
-		|| fileM.fileExists(atPath: .kUnc0ver)
-		|| fileM.fileExists(atPath: .kZina) { return true }
+private enum Jailbreak: String, CaseIterable {
+	case checkra1n = "/var/checkra1n.dmg"
+	case dopamine = "/var/jb/"
+	case serotonin = "/var/mobile/.serotonin_"
+	case taurine = "/taurine"
+	case unc0ver = "/private/etc/apt/undecimus"
+	case zina = "/var/LIY/"
 
-	return false
+	var path: String { return rawValue }
+}
+
+func isJailbroken() -> Bool {
+	return Jailbreak.allCases.contains { FileManager.default.fileExists(atPath: $0.path) }
 }

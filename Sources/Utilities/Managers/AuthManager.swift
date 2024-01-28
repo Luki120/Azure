@@ -30,7 +30,7 @@ final class AuthManager {
 		var systemInfo = utsname()
 		uname(&systemInfo)
 		let deviceModel = String(cString: &systemInfo.machine.0)
-		if FileManager.default.fileExists(atPath: .kCheckra1n)
+		if FileManager.default.fileExists(atPath: "/var/checkra1n.dmg")
 			&& deviceModel == "iPhone10,1"
 			|| deviceModel == "iPhone10,4"
 			|| deviceModel == "iPhone10,2"
