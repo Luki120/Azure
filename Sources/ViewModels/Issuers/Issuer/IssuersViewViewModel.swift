@@ -66,6 +66,15 @@ extension IssuersView {
 				.store(in: &subscriptions)
 		}
 
+		private func makePreviewParameters() -> UIDragPreviewParameters? {
+			let parameters = UIDragPreviewParameters()
+			let path = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: 374, height: 64), cornerRadius: 14)
+			parameters.shadowPath = path
+			parameters.visiblePath = path
+			parameters.backgroundColor = .clear
+			return parameters
+		}
+
 	}
 
 }
@@ -182,12 +191,7 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDragDelegate {
 	}
 
 	func collectionView(_ collectionView: UICollectionView, dragPreviewParametersForItemAt indexPath: IndexPath) -> UIDragPreviewParameters? {
-		let parameters = UIDragPreviewParameters()
-		let path = UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: 374, height: 64), cornerRadius: 14)
-		parameters.shadowPath = path
-		parameters.visiblePath = path
-		parameters.backgroundColor = .clear
-		return parameters
+		return makePreviewParameters()
 	}
 
 }
@@ -217,6 +221,10 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 		if coordinator.proposal.operation == .move {
 			reorderItems(coordinator: coordinator, destinationIndexPath: destinationIndexPath, collectionView: collectionView)
 		}
+	}
+
+	func collectionView(_ collectionView: UICollectionView, dropPreviewParametersForItemAt indexPath: IndexPath) -> UIDragPreviewParameters? {
+		return makePreviewParameters()
 	}
 
 	private func reorderItems(coordinator: UICollectionViewDropCoordinator, destinationIndexPath: IndexPath, collectionView: UICollectionView) {
