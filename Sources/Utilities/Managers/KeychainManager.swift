@@ -14,11 +14,13 @@ final class KeychainManager {
 	/// Parameters:
 	///		- issuer: The issuer object
 	///		- forService: A string representing the service for the given issuer
-	func save(issuer: Issuer, forService service: String) {
+	///		- account: A string representing the account for the given issuer
+	func save(issuer: Issuer, forService service: String, account: String) {
 		guard let encodedIssuer = try? JSONEncoder().encode(issuer) else { return }
 
 		let query: [CFString : Any] = [
 			kSecValueData: encodedIssuer,
+			kSecAttrAccount: account,
 			kSecAttrService: service,
 			kSecClass: kSecClassGenericPassword
 		]
@@ -27,6 +29,7 @@ final class KeychainManager {
 
 		guard !isDuplicateItem else {
 			let query: [CFString : Any] = [
+				kSecAttrAccount: account,
 				kSecAttrService: service,
 				kSecClass: kSecClassGenericPassword,
 			]
@@ -34,8 +37,11 @@ final class KeychainManager {
 			let attributes = [kSecValueData: encodedIssuer] as CFDictionary
 
 			SecItemUpdate(query as CFDictionary, attributes)
+			NSLog("AZURE: item updated")
 			return
 		}
+
+		NSLog("AZURE: new item")
 	}
 
 	/// Function to decode & retrieve an array of issuers form the keychain

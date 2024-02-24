@@ -35,7 +35,7 @@ final class IssuerManager: ObservableObject {
 		completion: (Bool, Issuer) -> ()
 	) {
 		let issuer: Issuer = .init(name: name, account: account, secret: secret, algorithm: algorithm)
-		KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
+		KeychainManager.sharedInstance.save(issuer: issuer, forService: name, account: account)
 
 		completion(KeychainManager.sharedInstance.isDuplicateItem, issuer)
 	}
@@ -130,7 +130,7 @@ extension IssuerManager {
 	func setIssuers(_ issuers: [Issuer]) {
 		self.issuers = issuers
 		self.issuers.forEach {
-			KeychainManager.sharedInstance.save(issuer: $0, forService: $0.name)
+			KeychainManager.sharedInstance.save(issuer: $0, forService: $0.name, account: $0.account)
 		}
 	}
 
@@ -148,7 +148,7 @@ extension IssuerManager {
 			issuer = _issuer
 			issuer.index = index
 
-			KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name)
+			KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name, account: issuer.account)
 		}
 	}
 

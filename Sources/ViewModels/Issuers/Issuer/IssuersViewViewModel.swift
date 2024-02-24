@@ -46,7 +46,7 @@ extension IssuersView {
 
 			cell.configure(with: viewModel)
 
-			KeychainManager.sharedInstance.save(issuer: viewModel.issuer, forService: viewModel.issuer.name)
+			KeychainManager.sharedInstance.save(issuer: viewModel.issuer, forService: viewModel.issuer.name, account: viewModel.issuer.account)
 		}
 
 		private func setImage(forIssuer issuer: Issuer) -> UIImage? {
@@ -247,7 +247,11 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 				var viewModel = viewModels[index]
 				viewModel.issuer.index = index
 
-				KeychainManager.sharedInstance.save(issuer: viewModel.issuer, forService: viewModel.issuer.name)
+				KeychainManager.sharedInstance.save(
+					issuer: viewModel.issuer,
+					forService: viewModel.issuer.name,
+					account: viewModel.issuer.account
+				)
 			}
 
 			collectionView.deleteItems(at: [sourceIndexPath])
