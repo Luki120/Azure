@@ -11,6 +11,9 @@ final class IssuersVC: UIViewController {
 	private var issuersView: IssuersView!
 	private var newIssuerOptionsVC: NewIssuerOptionsVC!
 
+	private var isEncrypted = false
+	private var password = ""
+
 	// ! Lifecycle
 
 	required init?(coder: NSCoder) {
@@ -74,19 +77,50 @@ final class IssuersVC: UIViewController {
 		present(newIssuerOptionsVC, animated: false)
 	}
 
-	private func presentAlertController(completion: @escaping () -> Void) {
-		let alertController = UIAlertController(
-			title: "Azure",
-			message: "Please enter the password \"SuperSecretPassword\" in order to continue",
-			preferredStyle: .alert
-		)
+	private func presentInitialAlertController(isEncrypting: Bool = true, completion: @escaping () -> Void) {
+		let message = isEncrypting ? "Do you want to encrypt your data?" : "Did you encrypt your backup?"
+		let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
+
+		let yesAction = UIAlertAction(title: "Yes", style: .default) { _ in
+			completion()
+			self.isEncrypted = true
+		}
+
+		let noAction = UIAlertAction(title: "No", style: .default) { _ in
+			if isEncrypting {
+				self.backupManager.encodeData()
+				self.configureNewIssuerOptionsHeader()
+			}
+			else {
+				if isJailbroken() {
+					self.backupManager.decodeData()
+					self.transitionIssuersView()
+				}
+				else {
+					self.didPresentDocumentPickerVC()
+				}
+			}
+
+			self.isEncrypted = false
+		}
+
+		alertController.addAction(yesAction)
+		alertController.addAction(noAction)
+
+		presentedViewController?.present(alertController, animated: true)
+	}
+
+	private func presentAlertController(isMakingBackup: Bool = true, completion: @escaping (String) -> Void) {
+		let message = isMakingBackup ? backupManager.makeBackupMessage : backupManager.loadBackupMessage
+
+		let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
 
 		alertController.addTextField { textField in
 			textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
 		}
 
 		continueAction = UIAlertAction(title: "Continue", style: .default) { _ in
-			completion()
+			completion(alertController.textFields?.first?.text ?? "")
 		}
 		continueAction.isEnabled = false
 
@@ -99,7 +133,33 @@ final class IssuersVC: UIViewController {
 	}
 
 	@objc private func textFieldDidChange(_ textField: UITextField) {
-		continueAction.isEnabled = textField.text == backupManager.encryptionPassword
+		continueAction.isEnabled = textField.text?.count ?? 0 >= 8
+	}
+
+	// ! Reusable
+
+	private func configureNewIssuerOptionsHeader() {
+		newIssuerOptionsVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: false)
+		newIssuerOptionsVC.setupMakeBackupOptionsDataSource()
+		newIssuerOptionsVC.animateTableView()
+	}
+
+	private func didPresentDocumentPickerVC() {
+		newIssuerOptionsVC.shouldDismissVC()
+
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+			let documentPickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json])
+			documentPickerVC.delegate = self
+			self.present(documentPickerVC, animated: true)
+		}
+	}
+
+	private func transitionIssuersView() {
+		UIView.transition(with: view, duration: 0.5, animations: {
+			self.issuersView.reloadData
+		}) { _ in
+			self.newIssuerOptionsVC.shouldDismissVC()
+		}
 	}
 
 }
@@ -158,42 +218,35 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 
 	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		if isJailbroken() {
-			presentAlertController { [weak self] in
-				guard let self else { return }
+			presentInitialAlertController(isEncrypting: false) {
+				self.presentAlertController(isMakingBackup: false) { [weak self] password in
+					guard let self else { return }
 
-				backupManager.decodeData()
-
-				UIView.transition(with: self.view, duration: 0.5, animations: {
-					self.issuersView.reloadData
-				}) { _ in
-					self.newIssuerOptionsVC.shouldDismissVC()
+					backupManager.decodeData(withPassword: password, isEncrypted: true)
+					self.transitionIssuersView()
 				}
 			}
 		}
 		else {
-			presentAlertController { [weak self] in
-				guard let self else { return }
+			presentInitialAlertController(isEncrypting: false) {
+				self.presentAlertController(isMakingBackup: false) { [weak self] password in
+					guard let self else { return }
+					self.password = password
 
-				newIssuerOptionsVC.shouldDismissVC()
-
-				DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-					let documentPickerVC = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.json])
-					documentPickerVC.delegate = self
-					self.present(documentPickerVC, animated: true)
+					self.didPresentDocumentPickerVC()
 				}
 			}
 		}
 	}
 
 	func didTapMakeBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
-		presentAlertController { [weak self] in
-			guard let self else { return }
+		presentInitialAlertController {
+			self.presentAlertController { [weak self] password in
+				guard let self else { return }
 
-			backupManager.encodeData()
-
-			newIssuerOptionsVC.configureHeader(isDefaultConfiguration: false, isBackupOptions: false)
-			newIssuerOptionsVC.setupMakeBackupOptionsDataSource()
-			newIssuerOptionsVC.animateTableView()
+				backupManager.encodeData(withPassword: password, encrypt: true)
+				self.configureNewIssuerOptionsHeader()
+			}
 		}
 	}
 
@@ -221,7 +274,7 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 extension IssuersVC: UIDocumentPickerDelegate {
 
 	func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-		backupManager.decodeData()
+		backupManager.decodeData(withPassword: password, isEncrypted: isEncrypted)
 
 		UIView.transition(with: view, duration: 0.5) {
 			self.issuersView.reloadData
