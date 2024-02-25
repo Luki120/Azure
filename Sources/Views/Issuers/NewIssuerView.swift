@@ -52,7 +52,7 @@ extension NewIssuerView: NewIssuerViewViewModelDelegate {
 
 	func didFadeInOutToastView(isDuplicateItem: Bool) {
 		if isDuplicateItem {
-			toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+			toastView.fadeInOutToastView(withMessage: "Item already exists.", finalDelay: 1.5)
 		}
 		else {
 			toastView.fadeInOutToastView(withMessage: "Fill out all forms.", finalDelay: 1.5)
