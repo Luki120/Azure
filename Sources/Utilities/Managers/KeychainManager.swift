@@ -37,11 +37,8 @@ final class KeychainManager {
 			let attributes = [kSecValueData: encodedIssuer] as CFDictionary
 
 			SecItemUpdate(query as CFDictionary, attributes)
-			NSLog("AZURE: item updated")
 			return
 		}
-
-		NSLog("AZURE: new item")
 	}
 
 	/// Function to decode & retrieve an array of issuers form the keychain
