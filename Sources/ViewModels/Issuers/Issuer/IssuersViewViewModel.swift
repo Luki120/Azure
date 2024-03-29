@@ -118,7 +118,7 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 			guard let cell = collectionView.cellForItem(at: indexPath) as? IssuerCell else { return UIMenu() }
 
 			let copyCodeAction = UIAction(title: "Copy Code", image: UIImage(systemName: "doc.on.doc")) { _ in
-				UIPasteboard.general.string = cell.pinCodeText
+				UIPasteboard.general.string = cell.pinCodeText.replacingOccurrences(of: " ", with: "")
 				self.delegate?.didTapCopyPinCode()
 			}
 			let copySecretAction = UIAction(title: "Copy Secret", image: UIImage(systemName: "key.fill")) { _ in
