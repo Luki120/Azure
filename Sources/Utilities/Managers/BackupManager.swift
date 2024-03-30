@@ -8,20 +8,13 @@ final class BackupManager {
 	let loadBackupMessage = "Please enter your password in order to continue." 
 	let makeBackupMessage = "Please input a password equal or greater than 8 characters in order to continue, make sure to remember it otherwise you won't be able to restore encrypted backups."
 
+	var kBackupsPathURL: URL!
+
 	private let fileM = FileManager.default
-	private var kAzureJailedPathURL: URL!
 
 	init() {
-		let kDocumentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
-		kAzureJailedPathURL = kDocumentsPathURL.appendingPathComponent("AzureBackup.json")
-	}
-
-	private func createFile(atPath path: String) {
-		if !fileM.fileExists(atPath: path) { fileM.createFile(atPath: path, contents: nil) }
-		else {
-			try? fileM.removeItem(atPath: path)
-			fileM.createFile(atPath: path, contents: nil)
-		}
+		let documentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
+		kBackupsPathURL = documentsPathURL.appendingPathComponent("AzureBackup").appendingPathExtension("json")
 	}
 
 }
@@ -35,10 +28,8 @@ extension BackupManager {
 	/// 	- withPassword: A string that represents the password needed for decrpyting the data
 	/// 	- isEncrypted: A bool to check wether the data is encrypted or not
 	func decodeData(withPassword password: String = "", isEncrypted: Bool = false) {
-		if !fileM.fileExists(atPath: .kAzurePath) && !fileM.fileExists(atPath: kAzureJailedPathURL.path) { return }
-		let kAzurePathURL = URL(fileURLWithPath: .kAzurePath)
-
-		guard let data = try? Data(contentsOf: isJailbroken() ? kAzurePathURL : kAzureJailedPathURL) else { return }
+		if !fileM.fileExists(atPath: kBackupsPathURL.path) { return }
+		guard let data = try? Data(contentsOf: kBackupsPathURL) else { return }
 
 		if isEncrypted {
 			guard let decryptedData = try? decryptData(data, password: password),
@@ -58,16 +49,6 @@ extension BackupManager {
 	/// 	- encrypt: A bool to check wether the data should be encrypted or not
 	func encodeData(withPassword password: String = "", encrypt: Bool = false) {
 		guard IssuerManager.sharedInstance.issuers.count > 0 else { return }
-		if isJailbroken() {
-			if !fileM.fileExists(atPath: .kAzureDir) {
-				try? fileM.createDirectory(atPath: .kAzureDir, withIntermediateDirectories: false, attributes: nil)
-			}
-			createFile(atPath: .kAzurePath)
-		}
-		else { createFile(atPath: kAzureJailedPathURL.path) }
-
-		let fileHandle = FileHandle(forWritingAtPath: isJailbroken() ? .kAzurePath : kAzureJailedPathURL.path)
-		fileHandle?.seekToEndOfFile()
 
 		let encoder = JSONEncoder()
 		encoder.outputFormatting = .prettyPrinted
@@ -76,13 +57,11 @@ extension BackupManager {
 
 		if encrypt {
 			guard let encryptedData = try? encryptData(encodedData, password: password) else { return }
-			fileHandle?.write(encryptedData)
+			try? encryptedData.write(to: kBackupsPathURL, options: .atomic)
 		}
 		else {
-			fileHandle?.write(encodedData)
+			try? encodedData.write(to: kBackupsPathURL, options: .atomic)
 		}
-
-		fileHandle?.closeFile()
 	}
 
 }

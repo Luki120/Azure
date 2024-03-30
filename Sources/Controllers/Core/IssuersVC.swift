@@ -251,7 +251,7 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 	}
 
 	func didTapViewInFilesOrFilzaCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
-		let pathToFilza = "filza://view" + .kAzurePath
+		let pathToFilza = "filza://view" + backupManager.kBackupsPathURL.path
 		let pathToFiles = "shareddocuments://"
 
 		let urlString = isJailbroken() ? pathToFilza : pathToFiles

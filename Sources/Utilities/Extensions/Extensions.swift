@@ -34,11 +34,6 @@ extension NSMutableAttributedString {
 	}
 }
 
-extension String {
-	static let kAzureDir = "/var/mobile/Documents/Azure"
-	static let kAzurePath = "/var/mobile/Documents/Azure/AzureBackup.json"
-}
-
 extension UIBarButtonItem {
 	static func getBarButtomItem(withImage image: UIImage, target: Any?, selector: Selector) -> UIBarButtonItem {
 		return UIBarButtonItem(image: image, style: .done, target: target, action: selector)
