@@ -79,6 +79,17 @@ extension IssuersView {
 
 }
 
+// ! IssuerCellDelegate
+
+extension IssuersView.IssuersViewViewModel: IssuerCellDelegate {
+
+	func didTapCopyPinCode(in issuerCell: IssuerCell) {
+		UIPasteboard.general.string = issuerCell.pinCodeText.replacingOccurrences(of: " ", with: "")
+		delegate?.didTapCopyPinCode()
+	}
+
+}
+
 // ! UICollectionViewDataSource
 
 extension IssuersView.IssuersViewViewModel: UICollectionViewDataSource {
@@ -96,6 +107,8 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDataSource {
 		) as? IssuerCell else {
 			fatalError()
 		}
+
+		cell.delegate = self
 
 		if isFiltering {
 			setupDataSource(forViewModels: filteredViewModels, at: indexPath, forCell: cell)
@@ -117,10 +130,6 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
 			guard let cell = collectionView.cellForItem(at: indexPath) as? IssuerCell else { return UIMenu() }
 
-			let copyCodeAction = UIAction(title: "Copy Code", image: UIImage(systemName: "doc.on.doc")) { _ in
-				UIPasteboard.general.string = cell.pinCodeText.replacingOccurrences(of: " ", with: "")
-				self.delegate?.didTapCopyPinCode()
-			}
 			let copySecretAction = UIAction(title: "Copy Secret", image: UIImage(systemName: "key.fill")) { _ in
 				UIPasteboard.general.string = cell.secret
 				self.delegate?.didTapCopySecret()
@@ -165,7 +174,7 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 			}
 
 			return UIMenu(title: "", children: [
-				UIMenu(title: "", options: .displayInline, children: [copyCodeAction, copySecretAction, deleteAction]),
+				UIMenu(title: "", options: .displayInline, children: [copySecretAction, deleteAction]),
 				UIMenu(title: "", options: .displayInline, children: additionalActions)
 			])
 		}

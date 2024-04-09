@@ -1,5 +1,10 @@
 import UIKit
 
+
+protocol IssuerCellDelegate: AnyObject {
+	func didTapCopyPinCode(in issuerCell: IssuerCell)
+}
+
 /// Class to represent the issuer cell
 final class IssuerCell: UICollectionViewCell {
 
@@ -15,6 +20,8 @@ final class IssuerCell: UICollectionViewCell {
 
 	private var clearContentView, darkContentView, circleProgressView: UIView!
 	private var viewModel: IssuerCellViewModel!
+
+	weak var delegate: IssuerCellDelegate?
 
 	private lazy var issuerImageView: UIImageView = {
 		let imageView = UIImageView()
@@ -148,6 +155,9 @@ final class IssuerCell: UICollectionViewCell {
 
 		darkContentView = UIView()
 		darkContentView.backgroundColor = kUserInterfaceStyle == .dark ? .darkColor : .lightColor
+		darkContentView.addGestureRecognizer(
+			UITapGestureRecognizer(target: self, action: #selector(didTapCopyPinCode))
+		)
 
 		[clearContentView, circleProgressView, darkContentView].forEach {
 			$0.translatesAutoresizingMaskIntoConstraints = false
@@ -189,6 +199,12 @@ final class IssuerCell: UICollectionViewCell {
 
 		setupSizeConstraints(forView: circleProgressView, width: isTinyDevice ? 40 : 50, height: isTinyDevice ? 40 : 50)
 		setupSizeConstraints(forView: issuerImageView, width: 40, height: 40)
+	}
+
+	// ! Selectors
+
+	@objc private func didTapCopyPinCode() {
+		delegate?.didTapCopyPinCode(in: self)
 	}
 
 	// ! Timer
