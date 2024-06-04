@@ -14,8 +14,8 @@ struct SettingsView: View {
 	private let credits = """
 	Credits:
 	@6007135: App icon & significant contributions
-	@RuntimeOverflow: Significant contributions
-	@leptos-null, @L1ghtmann: Valuable contributions
+	@leptos-null, @RuntimeOverflow: Significant contributions
+	@L1ghtmann: Valuable contributions
 	"""
 
 	private let viewModel = SettingsViewViewModel()
