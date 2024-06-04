@@ -210,6 +210,10 @@ extension IssuersVC: IssuersViewDelegate {
 		UIApplication.shared.open(url)
 	}
 
+	func issuersView(_ issuersView: IssuersView, didPresent alertController: UIAlertController) {
+		present(alertController, animated: true)
+	}
+
 }
 
 // ! NewIssuerOptionsVCDelegate

@@ -10,74 +10,83 @@ final class KeychainManager {
 
 	var isDuplicateItem: Bool { return status == errSecDuplicateItem }
 
-	/// Function to encode & save a single issuer to the keychain, or update it if it already exists
+	/// Function to encode & save a single issuer to the keychain
 	/// Parameters:
 	///		- issuer: The issuer object
 	///		- forService: A string representing the service for the given issuer
 	///		- account: A string representing the account for the given issuer
-	func save(issuer: Issuer, forService service: String, account: String) {
+	func save(issuer: inout Issuer, forService service: String, account: String) {
 		guard let encodedIssuer = try? JSONEncoder().encode(issuer) else { return }
 
-		let query: [CFString : Any] = [
-			kSecValueData: encodedIssuer,
-			kSecAttrAccount: account,
+		let query: [NSString : Any] = [
 			kSecAttrService: service,
+			kSecAttrAccount: account,
 			kSecClass: kSecClassGenericPassword
 		]
 
-		status = SecItemAdd(query as CFDictionary, nil)
+		var attributes: [NSString : Any] = [
+			kSecValueData: encodedIssuer,
+			kSecAttrService: issuer.name,
+			kSecAttrAccount: issuer.account
+		]
 
-		guard !isDuplicateItem else {
-			let query: [CFString : Any] = [
-				kSecAttrAccount: account,
-				kSecAttrService: service,
-				kSecClass: kSecClassGenericPassword,
-			]
-
-			let attributes = [kSecValueData: encodedIssuer] as CFDictionary
-
-			SecItemUpdate(query as CFDictionary, attributes)
-			return
+		if issuer.creationDate != nil {
+			status = SecItemUpdate(query as NSDictionary, attributes as NSDictionary)
+			guard status == errSecItemNotFound else { return }
 		}
+
+		attributes[kSecReturnAttributes] = true
+		attributes[kSecClass] = kSecClassGenericPassword
+
+		var result: AnyObject?
+		status = SecItemAdd(attributes as NSDictionary, &result)
+
+		let resultAttributes = result as? [NSString : Any] ?? [:]
+		issuer.creationDate = resultAttributes[kSecAttrCreationDate] as? Date
 	}
 
 	/// Function to decode & retrieve an array of issuers form the keychain
 	/// - Returns: An array of issuers
 	func retrieveIssuers() -> [Issuer] {
-		let query: [CFString : Any] = [
+		let query: [NSString : Any] = [
 			kSecClass: kSecClassGenericPassword,
 			kSecMatchLimit: kSecMatchLimitAll,
-			kSecReturnData: true,
+			kSecReturnAttributes: true,
+			kSecReturnData: true
 		]
 
 		var result: AnyObject?
-		SecItemCopyMatching(query as CFDictionary, &result)
+		SecItemCopyMatching(query as NSDictionary, &result)
 
-		guard let results = result as? [Data] else { return [] }
+		guard let results = result as? [[NSString : Any]] else { return [] }
 
 		let decoder = JSONDecoder()
 		return results
-			.compactMap { try? decoder.decode(Issuer.self, from: $0) }
+			.compactMap {
+				var issuer = try? decoder.decode(Issuer.self, from: $0[kSecValueData] as? Data ?? Data())
+				issuer?.creationDate = $0[kSecAttrCreationDate] as? Date
+				return issuer
+			}
 			.sorted { $0.index < $1.index }
 	}
 
-	/// Function to delete a single issuer from the keychain
+	/// Function to delete a specific issuer from the keychain
 	/// Parameters:
 	///		- forService: A string representing the service for the given issuer
-	func deleteIssuer(forService service: String) {
-		let query: [CFString : Any] = [
+	///		- account: A string representing the account for the given issuer	
+	func deleteIssuer(forService service: String, account: String) {
+		let query: [NSString : Any] = [
 			kSecAttrService: service,
-			kSecClass: kSecClassGenericPassword,
+			kSecAttrAccount: account,
+			kSecClass: kSecClassGenericPassword
 		]
 
-		SecItemDelete(query as CFDictionary)
+		SecItemDelete(query as NSDictionary)
 	}
 
 	/// Function to delete all issuers from the keychain
 	func batchDeleteIssuers() {
-		for itemClass in [kSecClassGenericPassword] {
-			SecItemDelete([kSecClass: itemClass] as CFDictionary)
-		}
+		[kSecClassGenericPassword].forEach { SecItemDelete([kSecClass: $0] as NSDictionary) }
 	}
 
 }

@@ -10,6 +10,7 @@ struct Issuer: Codable {
 	let algorithm: Algorithm
 
 	var index = 0
+	var creationDate: Date? = nil
 
 	/// Enum to represent the encryption algorithm
 	enum Algorithm: String, Codable {

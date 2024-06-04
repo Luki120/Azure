@@ -8,6 +8,7 @@ protocol IssuersViewViewModelDelegate: AnyObject {
 	func didTapDeleteAndPresent(alertController: UIAlertController)
 	func didTapAddToSystemAndOpen(url: URL)
 	func didAnimateFloatingButton(in scrollView: UIScrollView)
+	func didPresent(alertController: UIAlertController)
 	func shouldAnimateNoIssuersLabel()
 	func shouldAnimateNoSearchResultsLabel(forViewModels viewModels: [IssuerCellViewModel], isFiltering: Bool)
 }
@@ -19,6 +20,7 @@ extension IssuersView {
 
 		weak var delegate: IssuersViewViewModelDelegate?
 
+		private var saveAction: UIAlertAction!
 		private var isFiltering = false
 		private var viewModels = [IssuerCellViewModel]()
 		private var filteredViewModels = [IssuerCellViewModel]()
@@ -46,7 +48,7 @@ extension IssuersView {
 
 			cell.configure(with: viewModel)
 
-			KeychainManager.sharedInstance.save(issuer: viewModel.issuer, forService: viewModel.issuer.name, account: viewModel.issuer.account)
+			KeychainManager.sharedInstance.save(issuer: &viewModel.issuer, forService: viewModel.issuer.name, account: viewModel.issuer.account)
 		}
 
 		private func setImage(forIssuer issuer: Issuer) -> UIImage? {
@@ -134,6 +136,75 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 				UIPasteboard.general.string = cell.secret
 				self.delegate?.didTapCopySecret()
 			}
+			let editAction = UIAction(title: "Edit", image: UIImage(systemName: "square.and.pencil")) { _ in
+				let alertController = UIAlertController(title: "Azure", message: "Enter the new issuer & account name", preferredStyle: .alert)
+
+				var textFields = [UITextField]()
+
+				for index in 0...1 {
+					alertController.addTextField { textField in
+						if index == 0 { textField.text = self.viewModels[indexPath.item].name }
+						textFields.append(textField)
+
+						NotificationCenter.default.addObserver(
+							forName: UITextField.textDidChangeNotification,
+							object: textField,
+							queue: .main
+						) { _ in
+							self.validateTextFields(textFields)
+						}
+					}
+				}
+
+				self.saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+					alertController.textFields?.forEach {
+						NotificationCenter.default.removeObserver(self, name: UITextField.textDidChangeNotification, object: $0)
+					}
+
+					var viewModel = self.viewModels[indexPath.item]
+
+					viewModel.name = alertController.textFields?.first?.text ?? ""
+					viewModel.account = alertController.textFields?[1].text ?? ""
+
+					let oldIssuer = IssuerManager.sharedInstance.issuers[indexPath.item]
+
+					var newIssuer: Issuer = .init(
+						name: viewModel.name,
+						account: viewModel.account,
+						secret: viewModel.secret,
+						algorithm: viewModel.issuer.algorithm,
+						index: indexPath.item,
+						creationDate: oldIssuer.creationDate
+					)
+
+					viewModel.image = self.setImage(forIssuer: newIssuer)
+					cell.configure(with: viewModel)
+
+					UIView.performWithoutAnimation {
+						collectionView.reloadData()
+					}
+
+					KeychainManager.sharedInstance.save(
+						issuer: &newIssuer,
+						forService: oldIssuer.name,
+						account: oldIssuer.account
+					)
+
+					IssuerManager.sharedInstance.updateIssuer(newIssuer, at: indexPath)
+				}
+				self.saveAction.isEnabled = false
+
+				let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+					alertController.textFields?.forEach {
+						NotificationCenter.default.removeObserver(self, name: UITextField.textDidChangeNotification, object: $0)
+					}
+				}
+
+				alertController.addAction(self.saveAction)
+				alertController.addAction(cancelAction)
+
+				self.delegate?.didPresent(alertController: alertController)
+			}
 			let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
 				let issuerName = IssuerManager.sharedInstance.issuers[indexPath.item].name
 				let message = "You're about to delete the code for the issuer named \(issuerName) ❗❗. Are you sure you want to proceed? You'll need to set 2FA again for this issuer if you wished to."
@@ -174,7 +245,7 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 			}
 
 			return UIMenu(title: "", children: [
-				UIMenu(title: "", options: .displayInline, children: [copySecretAction, deleteAction]),
+				UIMenu(title: "", options: .displayInline, children: [copySecretAction, editAction, deleteAction]),
 				UIMenu(title: "", options: .displayInline, children: additionalActions)
 			])
 		}
@@ -182,6 +253,10 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 
 	func scrollViewDidScroll(_ scrollView: UIScrollView) {
 		delegate?.didAnimateFloatingButton(in: scrollView)
+	}
+
+	@objc private func validateTextFields(_ textFields: [UITextField]) {
+		saveAction.isEnabled = textFields.allSatisfy { $0.text?.count ?? 0 >= 1 }
 	}
 
 }
@@ -247,6 +322,9 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 			viewModels.remove(at: sourceIndexPath.item)
 			viewModels.insert(viewModel, at: destinationIndexPath.item)
 
+			IssuerManager.sharedInstance.removeIssuer(at: sourceIndexPath.item)
+			IssuerManager.sharedInstance.insertIssuer(viewModel.issuer, at: destinationIndexPath.item)
+
 			// Leptos giga chad code, only that I translated it to Swift ™️
 			// ⇝ https://github.com/leptos-null/OneTime/blob/88395900c67852bb9e7597c2bdae5a2a150b1844/onetime/ViewControllers/OTPassTableViewController.m#L299
 			let start = min(sourceIndexPath.item, destinationIndexPath.item)
@@ -257,7 +335,7 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 				viewModel.issuer.index = index
 
 				KeychainManager.sharedInstance.save(
-					issuer: viewModel.issuer,
+					issuer: &viewModel.issuer,
 					forService: viewModel.issuer.name,
 					account: viewModel.issuer.account
 				)

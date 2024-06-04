@@ -5,8 +5,8 @@ import UIKit.UIImage
 struct IssuerCellViewModel {
 
 	var issuer: Issuer
-	let name: String
-	let account: String
+	var name: String
+	var account: String
 	let secret: Data
 
 	var image: UIImage?

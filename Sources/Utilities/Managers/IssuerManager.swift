@@ -34,8 +34,8 @@ final class IssuerManager: ObservableObject {
 		algorithm: Issuer.Algorithm,
 		completion: (Bool, Issuer) -> ()
 	) {
-		let issuer: Issuer = .init(name: name, account: account, secret: secret, algorithm: algorithm)
-		KeychainManager.sharedInstance.save(issuer: issuer, forService: name, account: account)
+		var issuer: Issuer = .init(name: name, account: account, secret: secret, algorithm: algorithm)
+		KeychainManager.sharedInstance.save(issuer: &issuer, forService: name, account: account)
 
 		completion(KeychainManager.sharedInstance.isDuplicateItem, issuer)
 	}
@@ -124,23 +124,47 @@ extension IssuerManager {
 		issuers.append(issuer)
 	}
 
+	/// Function to insert an issuer to the issuers array at a given index
+	/// - Parameters:
+	///		- issuer: The issuer
+	///		- at: The index
+	func insertIssuer(_ issuer: Issuer, at index: Int) {
+		issuers.insert(issuer, at: index)		
+	}
+
+	/// Function to remove an issuer from the issuers array
+	/// - Parameters:
+	///		- at: The index
+	func removeIssuer(at index: Int) {
+		issuers.remove(at: index)
+	}
+
 	/// Function to set & save all issuers to the keychain
 	/// - Parameters:
 	///		- issuers: The issuers array
 	func setIssuers(_ issuers: [Issuer]) {
 		self.issuers = issuers
 		self.issuers.forEach {
-			KeychainManager.sharedInstance.save(issuer: $0, forService: $0.name, account: $0.account)
+			var issuer = $0
+			KeychainManager.sharedInstance.save(issuer: &issuer, forService: issuer.name, account: issuer.account)
 		}
 	}
 
-	/// Function to remove an issuer from the issuers array
+	/// Function to update an issuer at the given index path
+	/// - Parameters:
+	///		- issuer: The issuer object
+	///		- at: The given index path
+	func updateIssuer(_ issuer: Issuer, at indexPath: IndexPath) {
+		issuers[indexPath.item] = issuer
+	}
+
+	/// Function to remove an issuer at the given index path
 	/// - Parameters:
 	///		- at: The given index path
 	func removeIssuer(at indexPath: IndexPath) {
 		var issuer = issuers[indexPath.item]
 		issuers.remove(at: indexPath.item)
-		KeychainManager.sharedInstance.deleteIssuer(forService: issuer.name)
+		KeychainManager.sharedInstance.deleteIssuer(forService: issuer.name, account: issuer.account)
 
 		let slice = issuers[indexPath.item...]
 
@@ -148,7 +172,7 @@ extension IssuerManager {
 			issuer = _issuer
 			issuer.index = index
 
-			KeychainManager.sharedInstance.save(issuer: issuer, forService: issuer.name, account: issuer.account)
+			KeychainManager.sharedInstance.save(issuer: &issuer, forService: issuer.name, account: issuer.account)
 		}
 	}
 

@@ -6,6 +6,7 @@ protocol IssuersViewDelegate: AnyObject {
 	func didTapCopySecret(in issuersView: IssuersView)
 	func issuersView(_ issuersView: IssuersView, didTapDeleteAndPresent alertController: UIAlertController)
 	func issuersView(_ issuersView: IssuersView, didTapAddToSystemAndOpen url: URL)
+	func issuersView(_ issuersView: IssuersView, didPresent alertController: UIAlertController)
 }
 
 /// Class to represent the issuers view
@@ -191,6 +192,10 @@ extension IssuersView: IssuersViewViewModelDelegate {
 		else {
 			floatingButtonView.animateView(withAlpha: 1, translateY: 0)
 		}
+	}
+
+	func didPresent(alertController: UIAlertController) {
+		delegate?.issuersView(self, didPresent: alertController)
 	}
 
 	func shouldAnimateNoIssuersLabel() {
