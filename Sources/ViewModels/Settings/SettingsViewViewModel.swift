@@ -18,10 +18,10 @@ final class SettingsViewViewModel {
 
 	private func setupModels() {
 		appCellViewModels = [
-			.init(app: .aurora) { [weak self] app in
+			.init(app: .areesha) { [weak self] app in
 				self?.openURL(app.appURL)
 			},
-			.init(app: .cora) { [weak self] app in
+			.init(app: .aurora) { [weak self] app in
 				self?.openURL(app.appURL)
 			}
 		]

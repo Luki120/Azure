@@ -25,26 +25,26 @@ import Foundation
 
 /// Enum to represent each app for the app cell
 @frozen enum App: String {
+	case areesha = "Areesha"
 	case aurora = "Aurora"
-	case cora = "Cora"
 
 	var appName: String {
 		switch self {
-			case .aurora, .cora: return rawValue
+			case .areesha, .aurora: return rawValue
 		}
 	}
 
 	var appDescription: String {
 		switch self {
+			case .areesha: return "Keep track of your favorite TV shows"
 			case .aurora: return "Vanilla password manager"
-			case .cora: return "See your device's uptime in less clicks"
 		}
 	}
 
 	var appURL: URL? {
 		switch self {
+			case .areesha: return URL(string: "https://github.com/Luki120/Areesha")
 			case .aurora: return URL(string: "https://luki120.github.io/depictions/web/?p=me.luki.aurora")
-			case .cora: return URL(string: "https://luki120.github.io/depictions/web/?p=me.luki.cora")
 		}
 	}
 
