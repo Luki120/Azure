@@ -49,3 +49,22 @@ import Foundation
 	}
 
 }
+
+/// Enum to represent each funding platform for the funding cell
+@frozen enum FundingPlatform: String {
+	case kofi = "Ko-fi"
+	case paypal = "PayPal"
+
+	var name: String {
+		switch self {
+			case .kofi, .paypal: return rawValue
+		}
+	}
+
+	var url: URL? {
+		switch self {
+			case .kofi: return URL(string: "https://ko-fi.com/Luki120")
+			case .paypal: return URL(string: "https://paypal.me/Luki120")
+		}
+	}
+} 

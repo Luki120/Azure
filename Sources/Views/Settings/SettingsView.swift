@@ -75,6 +75,22 @@ struct SettingsView: View {
 		}
 	}
 
+	@ViewBuilder
+	private func SettingsAppCellView() -> some View {
+		ForEach(viewModel.appCellViewModels) { viewModel in
+			VStack(alignment: .leading) {
+				Text(viewModel.appName)
+
+				Text(viewModel.appDescription)
+					.font(.system(size: 10))
+					.foregroundColor(.secondary)
+			}
+			.onTapGesture {
+				viewModel.onTap(viewModel.app)
+			}
+		}
+	}
+
 	@State private var shouldShowLicenseSheet = false
 	@State private var shouldShowSourceCodeSheet = false
 	@State private var shouldShowFlatIconSheet = false
@@ -93,6 +109,10 @@ struct SettingsView: View {
 				.foregroundColor(.primary)
 			}
 
+			Section(header: Text("Support development")) {
+				SettingsFundingCellView()
+			}
+
 			Section(header: Text("Credits")) {
 				Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
 					.foregroundColor(.primary)
@@ -106,17 +126,13 @@ struct SettingsView: View {
 	}
 
 	@ViewBuilder
-	private func SettingsAppCellView() -> some View {
-		ForEach(viewModel.appCellViewModels) { viewModel in
+	private func SettingsFundingCellView() -> some View {
+		ForEach(viewModel.fundingCellViewModels) { viewModel in
 			VStack(alignment: .leading) {
-				Text(viewModel.appName)
-
-				Text(viewModel.appDescription)
-					.font(.system(size: 10))
-					.foregroundColor(.secondary)
+				Text(viewModel.name)
 			}
 			.onTapGesture {
-				viewModel.onTap(viewModel.app)
+				viewModel.onTap(viewModel.platform)
 			}
 		}
 	}

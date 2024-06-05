@@ -9,6 +9,7 @@ final class SettingsViewViewModel {
 
 	private(set) var appCellViewModels = [SettingsAppCellViewViewModel]()
 	private(set) var ghCellViewModels = [SettingsGitHubCellViewViewModel]()
+	private(set) var fundingCellViewModels = [SettingsFundingCellViewViewModel]()
 
 	/// Designated initializer
 	init() {
@@ -33,11 +34,20 @@ final class SettingsViewViewModel {
 				self?.openURL(developer.targetURL)
 			}
 		]
+
+		fundingCellViewModels = [
+			.init(platform: .kofi) { [weak self] platform in
+				self?.openURL(platform.url)
+			},
+			.init(platform: .paypal) { [weak self] platform in
+				self?.openURL(platform.url)
+			}
+		]
 	}
 
 	private func openURL(_ url: URL?) {
 		guard let url else { return }
-		UIApplication.shared.open(url, options: [:], completionHandler: nil)
+		UIApplication.shared.open(url)
 	}
 
 }
