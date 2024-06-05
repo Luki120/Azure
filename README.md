@@ -1,6 +1,6 @@
 # Azure
 
-<img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureHome.png" width="300"> &nbsp; <img src="https://raw.githubusercontent.com/Luki120/luki120.github.io/master/assets/Apps/Azure/AzureSettings.png" width="300">
+<img src="Assets/AzureHome.png" width="300"> &nbsp; <img src="/Assets/AzureSettings.png" width="300">
 
 ## Features
 
@@ -8,18 +8,20 @@
 * Backup/import feature.
 * Biometrics.
 * Data gets securely stored in the Keychain.
+* Editable & rearrangeable issuers.
 * Manually input QR code hashes, import a QR image & scan QR codes.
 * **NO** account system required.
 * **NO** email required.
 * **NO** phone number required.
 * Pleasant, clean UIKit animations.
 * Purge all data.
-* Rearrangeable issuers.
 
-## To do
+## Add an issuer's icon
 
-* [ ] Explain what a user should do to get an issuer’s icon for the respective app.
-* [x] New UI refactor 💀
+* Clone this repository.
+* Get the icon for the app that you want in the best quality you can get & compress it to 120x120px, using lossless compression if possible.
+* Place it inside `/Resources/Issuers/` with an appropriate naming, using capital letters if needed to.
+* Follow the contributions' etiquette to commit, push your changes & open a PR.
 
 ## Socials
 
