@@ -1,0 +1,68 @@
+name: Makefile CD
+
+on:
+  push:
+    tags:
+    - '*'
+  pull_request:
+    tags:
+    - '*'
+
+jobs:
+  release:
+    permissions:
+      contents: write
+
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Fetch Theos' latest commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+            latest_commit=$(gh api -H 'Accept: application/vnd.github.sha' \
+            /repos/theos/theos/commits/master); echo "latest_commit=$latest_commit" >> $GITHUB_OUTPUT
+        id: commit
+
+      - uses: actions/cache@v4
+        id: cache-theos
+        with:
+          path: ${{ github.workspace }}/theos
+          key: steps.commit.outputs.latest_commit
+
+      - name: Checkout theos/theos
+        if: steps.cache-theos.outputs.cache-hit != 'true'
+        uses: actions/checkout@main
+        with:
+          repository: theos/theos
+          ref: master
+          submodules: recursive
+          path: theos
+
+      - name: Checkout theos/sdks
+        if: steps.cache-theos.outputs.cache-hit != 'true'
+        uses: actions/checkout@main
+        with:
+          repository: theos/sdks
+          ref: master
+          sparse-checkout: iPhoneOS16.5.sdk
+          path: theos/sdks
+
+      - name: Build
+        run: |
+          brew install make ldid
+          THEOS=theos gmake clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1
+          THEOS=theos gmake clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
+          THEOS=theos gmake clean package TARGET="iphone:clang:16.5:14.0" FINALPACKAGE=1 PACKAGE_FORMAT=ipa
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ github.ref_name }} \
+          --notes 'See the latest commits for new features & bug fixes.' \
+          --repo ${{ github.repository }} \
+          --title '${{ github.ref_name }}' \
+          --verify-tag \
+          ${{ github.workspace }}/packages/*
