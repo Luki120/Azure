@@ -143,7 +143,12 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 
 				for index in 0...1 {
 					alertController.addTextField { textField in
-						if index == 0 { textField.text = self.viewModels[indexPath.item].name }
+						switch index {
+							case 0: textField.text = self.viewModels[indexPath.item].name
+							case 1: textField.text = self.viewModels[indexPath.item].account
+							default: break
+						}
+
 						textFields.append(textField)
 
 						NotificationCenter.default.addObserver(
