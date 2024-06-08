@@ -13,7 +13,6 @@ final class NewIssuerView: UIView {
 
 	private let newIssuerTableView: UITableView = {
 		let tableView = UITableView(frame: .zero, style: .insetGrouped)
-		tableView.allowsSelection = false
 		tableView.isScrollEnabled = false
 		tableView.register(NewIssuerFormCell.self, forCellReuseIdentifier: NewIssuerFormCell.identifier)
 		tableView.register(NewIssuerAlgorithmCell.self, forCellReuseIdentifier: NewIssuerAlgorithmCell.identifier)
