@@ -29,7 +29,9 @@ final class AuthManager {
 	func shouldUseBiometrics() -> Bool {
 		var systemInfo = utsname()
 		uname(&systemInfo)
-		let deviceModel = String(cString: &systemInfo.machine.0)
+
+		let deviceModel = withUnsafePointer(to: &systemInfo.machine.0) { String(cString: $0) }
+
 		if FileManager.default.fileExists(atPath: "/var/checkra1n.dmg")
 			&& deviceModel == "iPhone10,1"
 			|| deviceModel == "iPhone10,4"
