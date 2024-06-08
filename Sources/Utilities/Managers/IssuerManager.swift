@@ -22,8 +22,8 @@ final class IssuerManager: ObservableObject {
 			FileManager.default.contentsOfDirectory(atPath: kIssuersPath).compactMap { URL(string: $0) }
 
 		for image in imagesArray ?? [] {
-			let strippedName = image.lastPathComponent.components(separatedBy: ".").first!
-			imagesDict.updateValue(UIImage(named: "Issuers/" + strippedName)!, forKey: strippedName.lowercased())
+			guard let strippedName = image.lastPathComponent.components(separatedBy: ".").first else { return }
+			imagesDict[strippedName.lowercased()] = UIImage(named: "Issuers/" + strippedName)!
 		}
 	}
 
