@@ -20,6 +20,15 @@ struct SettingsView: View {
 
 	private let viewModel = SettingsViewViewModel()
 
+	private var copyrightYear: String {
+		if #available(iOS 15.0, *) {
+			return "© 2022-\(Date.now.formatted(.dateTime.year())) Luki120"
+		}
+		else {
+			return "© 2022-\(Calendar.current.component(.year, from: Date())) Luki120"
+		}
+	}
+
 	var body: some View {
 		VStack {
 			List {
@@ -119,7 +128,7 @@ struct SettingsView: View {
 					.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
 			}
 
-			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n© 2022-2024 Luki120\n\n\(credits)")) {}
+			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n\(copyrightYear)\n\n\(credits)")) {}
 		}
 		.padding(.top, 25)
 		.listStyle(.insetGrouped)
