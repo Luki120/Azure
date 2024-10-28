@@ -1,6 +1,6 @@
 # Azure
 
-<img src="Assets/AzureHome.png" width="300"> &nbsp; <img src="/Assets/AzureSettings.png" width="300">
+<img src="Assets/Home.png" width="300" alt="Azure home"> &nbsp; <img src="/Assets/Settings.png" width="300" alt="Azure settings">
 
 ## Features
 
