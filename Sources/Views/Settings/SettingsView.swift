@@ -20,7 +20,7 @@ struct SettingsView: View {
 
 	private let viewModel = SettingsViewViewModel()
 
-	private var copyrightYear: String {
+	private var copyrightLabel: String {
 		if #available(iOS 15.0, *) {
 			return "© 2022-\(Date.now.formatted(.dateTime.year())) Luki120"
 		}
@@ -128,7 +128,7 @@ struct SettingsView: View {
 					.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
 			}
 
-			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n\(copyrightYear)\n\n\(credits)")) {}
+			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n\(copyrightLabel)\n\n\(credits)")) {}
 		}
 		.padding(.top, 25)
 		.listStyle(.insetGrouped)
