@@ -66,11 +66,6 @@ final class IssuersView: UIView {
 		floatingButtonView.delegate = floatingButtonViewDelegate
 	}
 
-	override func layoutSubviews() {
-		super.layoutSubviews()
-		layoutViews()
-	}
-
 	// ! Private
 
 	private func setupViews() {
@@ -78,6 +73,8 @@ final class IssuersView: UIView {
 		noResultsLabel = createLabel(withText: "No results were found for this query.", initialAlpha: 0)
 
 		addSubviews(issuersCollectionView, floatingButtonView, toastView, noIssuersLabel, noResultsLabel)
+
+		layoutViews()
 	}
 
 	private func setupDataSource() {

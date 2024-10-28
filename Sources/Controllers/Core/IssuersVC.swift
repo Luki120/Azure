@@ -34,10 +34,6 @@ final class IssuersVC: UIViewController {
 		issuersView.delegate = self
 		issuersView.backgroundColor = .systemBackground
 		view.addSubview(issuersView)
-	}
-
-	override func viewDidLayoutSubviews() {
-		super.viewDidLayoutSubviews()
 		view.pinViewToAllEdgesIncludingSafeAreas(issuersView)
 	}
 

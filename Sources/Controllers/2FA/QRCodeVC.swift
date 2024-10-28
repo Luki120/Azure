@@ -77,7 +77,9 @@ final class QRCodeVC: UIViewController {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
 		view.addSubview(dimmedView)
+		view.pinViewToAllEdges(dimmedView)
 		keyWindow.addSubview(toastView)
+		keyWindow.pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -15)
 
 		checkAuthorizationStatus()
 	}
@@ -90,12 +92,6 @@ final class QRCodeVC: UIViewController {
 	override func viewWillDisappear(_ animated: Bool) {
 		super.viewWillDisappear(animated)
 		if captureSession.isRunning { captureSession.stopRunning() }
-	}
-
-	override func viewDidLayoutSubviews() {
-		super.viewDidLayoutSubviews()
-		view.pinViewToAllEdges(dimmedView)
-		keyWindow.pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -15)
 	}
 
 	// ! Private

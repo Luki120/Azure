@@ -36,10 +36,7 @@ final class NewIssuerOptionsCell: UITableViewCell {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 		contentView.backgroundColor = .clear
 		selectionStyle = .none
-	}
 
-	override func layoutSubviews() {
-		super.layoutSubviews()
 		layoutUI()
 	}
 

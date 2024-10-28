@@ -96,16 +96,6 @@ final class IssuerCell: UICollectionViewCell {
 		initializeTimers()
 	}
 
-	override func layoutSubviews() {
-		super.layoutSubviews()
-		layoutUI()
-
-		contentView.layer.cornerCurve = .continuous
-		contentView.layer.cornerRadius = 14
-		contentView.layer.masksToBounds = true
-		setupCleanShadowLayer()
-	}
-
 	override func prepareForReuse() {
 		super.prepareForReuse()
 		issuerImageView.image = nil
@@ -148,6 +138,11 @@ final class IssuerCell: UICollectionViewCell {
 	}
 
 	private func setupUI() {
+		contentView.layer.cornerCurve = .continuous
+		contentView.layer.cornerRadius = 14
+		contentView.layer.masksToBounds = true
+		setupCleanShadowLayer()
+
 		clearContentView = UIView()
 		clearContentView.backgroundColor = .tertiarySystemBackground
 
@@ -166,6 +161,8 @@ final class IssuerCell: UICollectionViewCell {
 		updateCircleProgress()
 
 		contentView.addSubviews(clearContentView, darkContentView, circleProgressView)
+
+		layoutUI()
 	}
 
 	private func layoutUI() {

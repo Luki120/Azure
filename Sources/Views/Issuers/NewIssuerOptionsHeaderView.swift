@@ -19,10 +19,12 @@ final class NewIssuerOptionsHeaderView: UIView {
 
 	// ! Lifecycle
 
-	override func layoutSubviews() {
-		super.layoutSubviews()
+	required init?(coder: NSCoder) {
+		super.init(coder: coder)
+	}
 
-		frame = .init(x: 0, y: 0, width: frame.size.width, height: headerViewHeight)
+	override init(frame: CGRect) {
+		super.init(frame: .init(x: 0, y: 0, width: frame.size.width, height: headerViewHeight))
 
 		NSLayoutConstraint.activate([
 			titleStackView.topAnchor.constraint(equalTo: topAnchor, constant: 30),

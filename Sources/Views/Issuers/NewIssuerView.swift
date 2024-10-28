@@ -30,17 +30,13 @@ final class NewIssuerView: UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		addSubviews(newIssuerTableView, toastView)
+		pinViewToAllEdges(newIssuerTableView)
+		pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 
 		newIssuerTableView.delegate = viewModel
 
 		viewModel.delegate = self
 		viewModel.setupTableView(newIssuerTableView)
-	}
-
-	override func layoutSubviews() {
-		super.layoutSubviews()
-		pinViewToAllEdges(newIssuerTableView)
-		pinToastToTheBottomCenteredOnTheXAxis(toastView, bottomConstant: -5)
 	}
 
 }
