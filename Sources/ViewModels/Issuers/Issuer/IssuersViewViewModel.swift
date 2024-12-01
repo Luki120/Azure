@@ -197,7 +197,6 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 
 					IssuerManager.sharedInstance.updateIssuer(newIssuer, at: indexPath)
 				}
-				self.saveAction.isEnabled = false
 
 				let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
 					alertController.textFields?.forEach {
