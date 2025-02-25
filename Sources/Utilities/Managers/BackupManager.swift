@@ -8,9 +8,8 @@ final class BackupManager {
 	let loadBackupMessage = "Please enter your password in order to continue." 
 	let makeBackupMessage = "Please input a password equal or greater than 8 characters in order to continue, make sure to remember it otherwise you won't be able to restore encrypted backups."
 
-	var kBackupsPathURL: URL!
-
 	private let fileM = FileManager.default
+	private(set) var kBackupsPathURL: URL!
 
 	init() {
 		let documentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
