@@ -1,7 +1,7 @@
 import Foundation
 
 /// Enum to represent each developer for the GitHub cell
-@frozen enum Developer: String {
+enum Developer: String {
 	case luki = "Luki120"
 	case cookies = "Cookie"
 
@@ -24,7 +24,7 @@ import Foundation
 }
 
 /// Enum to represent each app for the app cell
-@frozen enum App: String {
+enum App: String {
 	case areesha = "Areesha"
 	case aurora = "Aurora"
 
@@ -51,7 +51,7 @@ import Foundation
 }
 
 /// Enum to represent each funding platform for the funding cell
-@frozen enum FundingPlatform: String {
+enum FundingPlatform: String {
 	case kofi = "Ko-fi"
 	case paypal = "PayPal"
 

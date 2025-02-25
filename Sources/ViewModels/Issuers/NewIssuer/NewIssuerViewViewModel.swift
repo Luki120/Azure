@@ -34,7 +34,7 @@ final class NewIssuerViewViewModel: NSObject {
 		items: ["SHA1", "SHA256", "SHA512"]
 	)
 
-	@frozen private enum Section: String {
+	private enum Section: String {
 		case issuer = "Issuer"
 		case account = "Account"
 		case secret = "Secret"
