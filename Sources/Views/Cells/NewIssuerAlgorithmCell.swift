@@ -66,7 +66,8 @@ final class NewIssuerAlgorithmCell: UITableViewCell {
 			algorithmLabel.trailingAnchor.constraint(equalTo: algorithmSegmentedControl.leadingAnchor, constant: -20),
 
 			algorithmSegmentedControl.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-			algorithmSegmentedControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20)
+			algorithmSegmentedControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+			algorithmSegmentedControl.heightAnchor.constraint(equalToConstant: 36)
 		])
 	}
 
