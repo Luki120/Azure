@@ -1,4 +1,5 @@
 import UIKit
+import func SwiftUI.withAnimation
 
 /// View model class for SettingsGitHubCellView
 final class SettingsGitHubCellViewViewModel: Identifiable, ObservableObject {
@@ -28,37 +29,24 @@ final class SettingsGitHubCellViewViewModel: Identifiable, ObservableObject {
 	}
 
 	private func fetchImage() {
-		guard let imageURLString else { return }
-			fetchImage(imageURLString) { [weak self] result in
-			switch result {
-				case .success(let image):
-					DispatchQueue.main.async {
-						self?.image = image
-					}
+		guard let imageURLString, let url = URL(string: imageURLString) else { return }
 
-				case .failure: break
+		if let cachedImage = imageCache.object(forKey: imageURLString as NSString) {
+			DispatchQueue.main.async {
+				self.image = cachedImage
 			}
-		}
-	}
-
-	private func fetchImage(_ urlString: String, completion: @escaping (Result<UIImage, Error>) -> ()) {
-		if let cachedImage = imageCache.object(forKey: urlString as NSString) {
-			completion(.success(cachedImage))
-			return
-		}
-
-		guard let url = URL(string: urlString) else {
-			completion(.failure(URLError(.badURL)))
 			return
 		}
 
 		let task = URLSession.shared.dataTask(with: url) { data, _, error in
-			guard let data, let image = UIImage(data: data), error == nil else {
-				completion(.failure(error ?? URLError(.badServerResponse)))
-				return
+			guard let data, let image = UIImage(data: data), error == nil else { return }
+			self.imageCache.setObject(image, forKey: imageURLString as NSString)
+
+			DispatchQueue.main.async {
+				withAnimation(.easeInOut) {
+					self.image = image
+				}
 			}
-			self.imageCache.setObject(image, forKey: urlString as NSString)
-			completion(.success(image))
 		}
 		task.resume()
 	}
