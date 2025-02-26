@@ -49,6 +49,7 @@ final class NewIssuerFormCell: UITableViewCell {
 	}()
 
 	var completion: ((String) -> Void)?
+	var debounceWorkItem: DispatchWorkItem?
 	var textField: UITextField { return cleanTextField }
 
 	// ! Lifecycle
@@ -109,6 +110,14 @@ final class NewIssuerFormCell: UITableViewCell {
 		UIView.transition(with: clearAllButton, duration: 0.35, options: .transitionCrossDissolve) {
 			self.clearAllButton.alpha = text.count > 0 ? 1 : 0
 		}
+
+		debounceWorkItem?.cancel()
+
+		let workItem = DispatchWorkItem { [weak self] in
+			self?.completion?(text)
+		}
+		debounceWorkItem = workItem
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: workItem)
 	}
 
 }
@@ -144,7 +153,6 @@ extension NewIssuerFormCell: UITextFieldDelegate {
 		UIView.transition(with: clearAllButton, duration: 0.35, options: .transitionCrossDissolve) {
 			self.clearAllButton.alpha = 0
 		}
-		completion?(textField.text ?? "")
 	}
 
 	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
