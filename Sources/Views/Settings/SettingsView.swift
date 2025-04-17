@@ -6,8 +6,8 @@ struct SettingsView: View {
 
 	@Environment(\.colorScheme) private var colorScheme
 
-	@State private var shouldShowWarningAlert = false
-	@State private var shouldShowCreditsSheet = false
+	@State private var showWarningAlert = false
+	@State private var showCreditsSheet = false
 
 	private let credits = """
 	Credits:
@@ -56,10 +56,10 @@ struct SettingsView: View {
 					.foregroundColor(.primary)
 
 					Button("Purge data") {
-						shouldShowWarningAlert.toggle()
+						showWarningAlert.toggle()
 					}
 					.foregroundColor(Color(.kAzureMintTintColor))
-					.alert(isPresented: $shouldShowWarningAlert) {
+					.alert(isPresented: $showWarningAlert) {
 						Alert(
 							title: Text("Azure"),
 							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗Don’t be a dumbass, you’ll regret it later, I warned you. Besides, keep in mind that this won't remove 2FA from your accounts, so make sure you also disable it from the issuers' settings in order to prevent being locked out."),
@@ -76,10 +76,12 @@ struct SettingsView: View {
 				}
 
 				Section(header: Text("Misc")) {
-					Button("Credits") { shouldShowCreditsSheet.toggle() }
+					Button("About Azure") { showCreditsSheet.toggle() }
 						.foregroundColor(.primary)
-						.sheet(isPresented: $shouldShowCreditsSheet) { CreditsView() }
+						.sheet(isPresented: $showCreditsSheet) { CreditsView() }
 				}
+
+				Section(footer: SettingsFundingCellView()) {}
 			}
 			.listStyle(.insetGrouped)
 		}
@@ -101,50 +103,55 @@ struct SettingsView: View {
 		}
 	}
 
-	@State private var shouldShowLicenseSheet = false
-	@State private var shouldShowSourceCodeSheet = false
-	@State private var shouldShowFlatIconSheet = false
+	@ViewBuilder
+	private func SettingsFundingCellView() -> some View {
+		VStack(spacing: 15) {
+			HStack {
+				ForEach(viewModel.fundingCellViewModels) { viewModel in
+					viewModel.platform.image
+						.resizable()
+						.aspectRatio(contentMode: .fit)
+						.frame(width: 25, height: 25)
+						.contentShape(.rect)
+						.onTapGesture {
+							viewModel.onTap(viewModel.platform)
+						}
+				}
+			}
+			Text(copyrightLabel)
+		}
+		.frame(maxWidth: .infinity)
+	}
+
+
+	@State private var showLicenseSheet = false
+	@State private var showSourceCodeSheet = false
+	@State private var showFlatIconSheet = false
 
 	@ViewBuilder
 	private func CreditsView() -> some View {
 		List {
 			Section(header: Text("Azure")) {
 				Group {
-					Button("LICENSE") { shouldShowLicenseSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowLicenseSheet, urlString: .kLicenseURL)
+					Button("LICENSE") { showLicenseSheet.toggle() }
+						.openSafariSheet(shouldShow: $showLicenseSheet, urlString: .kLicenseURL)
 
-					Button("Source Code") { shouldShowSourceCodeSheet.toggle() }
-						.openSafariSheet(shouldShow: $shouldShowSourceCodeSheet, urlString: .kSourceCodeURL)
+					Button("Source Code") { showSourceCodeSheet.toggle() }
+						.openSafariSheet(shouldShow: $showSourceCodeSheet, urlString: .kSourceCodeURL)
 				}
 				.foregroundColor(.primary)
 			}
 
-			Section(header: Text("Support development")) {
-				SettingsFundingCellView()
-			}
-
 			Section(header: Text("Credits")) {
-				Button("Lock Icon") { shouldShowFlatIconSheet.toggle() }
+				Button("Lock Icon") { showFlatIconSheet.toggle() }
 					.foregroundColor(.primary)
-					.openSafariSheet(shouldShow: $shouldShowFlatIconSheet, urlString: .kFlatIconURL)
+					.openSafariSheet(shouldShow: $showFlatIconSheet, urlString: .kFlatIconURL)
 			}
 
-			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n\(copyrightLabel)\n\n\(credits)")) {}
+			Section(footer: Text("Lock icon created by Freepik - Flat icon.\n\n\(credits)")) {}
 		}
 		.padding(.top, 25)
 		.listStyle(.insetGrouped)
-	}
-
-	@ViewBuilder
-	private func SettingsFundingCellView() -> some View {
-		ForEach(viewModel.fundingCellViewModels) { viewModel in
-			VStack(alignment: .leading) {
-				Text(viewModel.name)
-			}
-			.onTapGesture {
-				viewModel.onTap(viewModel.platform)
-			}
-		}
 	}
 
 }

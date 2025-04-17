@@ -1,4 +1,5 @@
 import Foundation
+import struct SwiftUI.Image
 
 /// Enum to represent each developer for the GitHub cell
 enum Developer: String {
@@ -8,11 +9,7 @@ enum Developer: String {
 	static let lukiIcon = "https://avatars.githubusercontent.com/u/74214115?v=4"
 	static let cookiesIcon = "https://avatars.githubusercontent.com/u/98801093?v=4"
 
-	var devName: String {
-		switch self {
-			case .luki, .cookies: return rawValue
-		}
-	}
+	var devName: String { rawValue }
 
 	var targetURL: URL? {
 		switch self {
@@ -28,11 +25,7 @@ enum App: String {
 	case areesha = "Areesha"
 	case aurora = "Aurora"
 
-	var appName: String {
-		switch self {
-			case .areesha, .aurora: return rawValue
-		}
-	}
+	var appName: String { rawValue }
 
 	var appDescription: String {
 		switch self {
@@ -55,9 +48,12 @@ enum FundingPlatform: String {
 	case kofi = "Ko-fi"
 	case paypal = "PayPal"
 
-	var name: String {
+	var name: String { rawValue }
+
+	var image: Image {
 		switch self {
-			case .kofi, .paypal: return rawValue
+			case .kofi: return Image(uiImage: .init(named: "Kofi")!)
+			case .paypal: return Image(uiImage: .init(named: "PayPal")!)
 		}
 	}
 
