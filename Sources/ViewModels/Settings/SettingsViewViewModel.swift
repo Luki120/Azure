@@ -5,11 +5,22 @@ import class SafariServices.SFSafariViewController
 /// View model class for SettingsView
 final class SettingsViewViewModel {
 
-	@AppStorage("useBiometrics") private(set) var shouldUseBiometricsToggle = false
+	@AppStorage("useBiometrics") private(set) var useBiometrics = false
+	@AppStorage("useFloatingButton") private var useFloatingButton = false
 
 	private(set) var appCellViewModels = [SettingsAppCellViewViewModel]()
 	private(set) var ghCellViewModels = [SettingsGitHubCellViewViewModel]()
 	private(set) var fundingCellViewModels = [SettingsFundingCellViewViewModel]()
+
+	var useFloatingButtonBinding: Binding<Bool> {
+		Binding(
+			get: { self.useFloatingButton },
+			set: { newValue in
+				self.useFloatingButton = newValue
+				NotificationCenter.default.post(name: .shouldUseFloatingButtonNotification, object: nil)
+			}
+		)
+	}
 
 	/// Designated initializer
 	init() {

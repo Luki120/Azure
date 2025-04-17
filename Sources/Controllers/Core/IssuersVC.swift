@@ -7,8 +7,9 @@ final class IssuersVC: UIViewController {
 	private let authManager = AuthManager()
 	private let backupManager = BackupManager()
 
-	private var continueAction: UIAlertAction!
+	private var plusButton: UIButton!
 	private var issuersView: IssuersView!
+	private var continueAction: UIAlertAction!
 	private var newIssuerOptionsVC: NewIssuerOptionsVC!
 
 	private var isEncrypted = false
@@ -35,13 +36,32 @@ final class IssuersVC: UIViewController {
 		issuersView.backgroundColor = .systemBackground
 		view.addSubview(issuersView)
 		view.pinViewToAllEdgesIncludingSafeAreas(issuersView)
+
+		setupNavBarItem()
 	}
 
 	// ! Private
 
+	private func setupNavBarItem() {
+		let configuration = UIImage.SymbolConfiguration(pointSize: 20)
+
+		plusButton = UIButton()
+		plusButton.alpha = UserDefaults.standard.bool(forKey: "useFloatingButton") ? 0 : 1
+		plusButton.setImage(.init(systemName: "plus", withConfiguration: configuration), for: .normal)
+		plusButton.addAction(
+			UIAction { [weak self] _ in
+				self?.presentNewIssuerOptionsVC()
+			},
+			for: .touchUpInside
+		)
+
+		navigationItem.rightBarButtonItem = .init(customView: plusButton)
+	}
+
 	private func setupObservers() {
 		NotificationCenter.default.addObserver(self, selector: #selector(didPurgeData), name: .didPurgeDataNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(shouldMakeBackup), name: .shouldMakeBackupNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(didTapMakeBackup), name: .shouldMakeBackupNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(didTapUseFloatingButton), name: .shouldUseFloatingButtonNotification, object: nil)
 	}
 
 	// ! NotificationCenter
@@ -51,7 +71,7 @@ final class IssuersVC: UIViewController {
 		issuersView.reloadData
 	}
 
-	@objc private func shouldMakeBackup() {
+	@objc private func didTapMakeBackup() {
 		guard authManager.shouldUseBiometrics() else {
 			makeBackup()
 			return
@@ -62,6 +82,10 @@ final class IssuersVC: UIViewController {
 				self?.makeBackup()
 			}
 		}
+	}
+
+	@objc private func didTapUseFloatingButton() {
+		plusButton.alpha = UserDefaults.standard.bool(forKey: "useFloatingButton") ? 0 : 1
 	}
 
 	private func makeBackup() {
@@ -150,6 +174,17 @@ final class IssuersVC: UIViewController {
 		}
 	}
 
+	private func presentNewIssuerOptionsVC() {
+		newIssuerOptionsVC = .init()
+		newIssuerOptionsVC.delegate = self
+		newIssuerOptionsVC.configureHeader()
+		newIssuerOptionsVC.modalPresentationStyle = .overFullScreen
+
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+			self.present(self.newIssuerOptionsVC, animated: false)
+		}
+	}
+
 	private func transitionIssuersView() {
 		UIView.transition(with: view, duration: 0.5, animations: {
 			self.issuersView.reloadData
@@ -165,14 +200,7 @@ final class IssuersVC: UIViewController {
 extension IssuersVC: FloatingButtonViewDelegate {
 
 	func didTapFloatingButton(in floatingButtonView: FloatingButtonView) {
-		newIssuerOptionsVC = NewIssuerOptionsVC()
-		newIssuerOptionsVC.delegate = self
-		newIssuerOptionsVC.configureHeader()
-		newIssuerOptionsVC.modalPresentationStyle = .overFullScreen
-
-		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-			self.present(self.newIssuerOptionsVC, animated: false)
-		}
+		presentNewIssuerOptionsVC()
 	}
 
 }

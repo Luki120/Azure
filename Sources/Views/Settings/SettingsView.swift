@@ -9,8 +9,6 @@ struct SettingsView: View {
 	@State private var shouldShowWarningAlert = false
 	@State private var shouldShowCreditsSheet = false
 
-	private let kAzureMintTintColor = Color(red: 0.40, green: 0.81, blue: 0.73)
-
 	private let credits = """
 	Credits:
 	@6007135: App icon & significant contributions
@@ -46,8 +44,11 @@ struct SettingsView: View {
 				}
 
 				Section(header: Text("Settings")) {
-					Toggle("Use biometrics", isOn: viewModel.$shouldUseBiometricsToggle)
-						.toggleStyle(SwitchToggleStyle(tint: kAzureMintTintColor))
+					Toggle("Use biometrics", isOn: viewModel.$useBiometrics)
+						.toggleStyle(SwitchToggleStyle(tint: Color(.kAzureMintTintColor)))
+
+					Toggle("Use floating button", isOn: viewModel.useFloatingButtonBinding)
+						.toggleStyle(SwitchToggleStyle(tint: Color(.kAzureMintTintColor)))
 
 					Button("Backup options") {
 						viewModel.didTapBackupOptionsButton()
@@ -57,7 +58,7 @@ struct SettingsView: View {
 					Button("Purge data") {
 						shouldShowWarningAlert.toggle()
 					}
-					.foregroundColor(kAzureMintTintColor)
+					.foregroundColor(Color(.kAzureMintTintColor))
 					.alert(isPresented: $shouldShowWarningAlert) {
 						Alert(
 							title: Text("Azure"),

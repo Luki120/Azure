@@ -13,6 +13,7 @@ extension Notification.Name {
 	static let shouldMakeBackupNotification = Notification.Name("shouldMakeBackupNotification")
 	static let shouldResignResponderNotification = Notification.Name("shouldResignResponderNotification")
 	static let shouldSaveDataNotification = Notification.Name("shouldSaveDataNotification")
+	static let shouldUseFloatingButtonNotification = Notification.Name("shouldUseFloatingButtonNotification")
 }
 
 extension NSMutableAttributedString {

@@ -33,6 +33,8 @@ final class FloatingButtonView: UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		setupFloatingButton()
+
+		NotificationCenter.default.addObserver(self, selector: #selector(didTapUseFloatingButton), name: .shouldUseFloatingButtonNotification, object: nil)
 	}
 
 	override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -43,6 +45,8 @@ final class FloatingButtonView: UIView {
 	// ! Private
 
 	private func setupFloatingButton() {
+		isHidden = !UserDefaults.standard.bool(forKey: "useFloatingButton") ? true : false
+
 		translatesAutoresizingMaskIntoConstraints = false
 		pinViewToAllEdges(floatingButton)
 
@@ -67,6 +71,10 @@ final class FloatingButtonView: UIView {
 			}
 		}
 		delegate?.didTapFloatingButton(in: self)
+	}
+
+	@objc private func didTapUseFloatingButton() {
+		isHidden = !UserDefaults.standard.bool(forKey: "useFloatingButton") ? true : false
 	}
 }
 
