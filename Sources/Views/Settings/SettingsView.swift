@@ -112,7 +112,7 @@ struct SettingsView: View {
 						.resizable()
 						.aspectRatio(contentMode: .fit)
 						.frame(width: 25, height: 25)
-						.contentShape(.rect)
+						.contentShape(Rectangle())
 						.onTapGesture {
 							viewModel.onTap(viewModel.platform)
 						}
@@ -122,7 +122,6 @@ struct SettingsView: View {
 		}
 		.frame(maxWidth: .infinity)
 	}
-
 
 	@State private var showLicenseSheet = false
 	@State private var showSourceCodeSheet = false

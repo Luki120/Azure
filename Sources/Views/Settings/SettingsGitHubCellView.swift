@@ -11,7 +11,7 @@ struct SettingsGitHubCellView: View {
 				.resizable()
 				.aspectRatio(contentMode: .fit)
 				.frame(width: 40, height: 40)
-				.clipShape(.circle)
+				.clipShape(Circle())
 
 			Text(viewModel.devName)
 		}
