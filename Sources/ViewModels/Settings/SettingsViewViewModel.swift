@@ -3,7 +3,7 @@ import UIKit
 import class SafariServices.SFSafariViewController
 
 /// View model class for SettingsView
-final class SettingsViewViewModel {
+final class SettingsViewViewModel: ObservableObject {
 
 	@AppStorage("useBiometrics") private(set) var useBiometrics = false
 	@AppStorage("useFloatingButton") private var useFloatingButton = false
@@ -17,6 +17,8 @@ final class SettingsViewViewModel {
 			get: { self.useFloatingButton },
 			set: { newValue in
 				self.useFloatingButton = newValue
+				self.objectWillChange.send()
+
 				NotificationCenter.default.post(name: .shouldUseFloatingButtonNotification, object: nil)
 			}
 		)

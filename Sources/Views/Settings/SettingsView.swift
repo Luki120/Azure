@@ -16,7 +16,7 @@ struct SettingsView: View {
 	@L1ghtmann: Valuable contributions
 	"""
 
-	private let viewModel = SettingsViewViewModel()
+	@StateObject private var viewModel = SettingsViewViewModel()
 
 	private var copyrightLabel: String {
 		if #available(iOS 15.0, *) {
