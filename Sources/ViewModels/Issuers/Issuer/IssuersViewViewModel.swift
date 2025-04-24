@@ -52,11 +52,19 @@ extension IssuersView {
 		}
 
 		private func setImage(forIssuer issuer: Issuer) -> UIImage? {
-			let nullableImage = IssuerManager.sharedInstance.imagesDict[issuer.name.lowercased()]
-			let placeholderImage = UIImage(named: "lock")?.withRenderingMode(.alwaysTemplate)
+			var issuerImage: UIImage?
 
-			guard let image = nullableImage != nil ? nullableImage : placeholderImage else { return nil }
-			return image
+			["zoho mail", "zoho"].forEach {
+				if issuer.name.lowercased() == $0 {
+					issuerImage = .init(named: "Issuers/ZohoMail")
+				}
+			}
+
+			if issuerImage == nil {
+				issuerImage = IssuerManager.sharedInstance.imagesDict[issuer.name.lowercased()]
+			}
+
+			return issuerImage ?? .init(named: "lock")?.withRenderingMode(.alwaysTemplate)
 		}
 
 		private func updateViewModels() {
