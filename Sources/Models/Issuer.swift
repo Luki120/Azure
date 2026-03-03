@@ -3,9 +3,7 @@ import Foundation
 
 /// Struct to represent an issuer for the TOTP code
 struct Issuer: Codable {
-
-	let name: String
-	let account: String
+	let name, account: String
 	let secret: Data
 	let algorithm: Algorithm
 
@@ -14,9 +12,7 @@ struct Issuer: Codable {
 
 	/// Enum to represent the encryption algorithm
 	enum Algorithm: String, Codable {
-		case sha1
-		case sha256
-		case sha512
+		case sha1, sha256, sha512
 
 		fileprivate var hashFunction: any HashFunction.Type {
 			switch self {
@@ -50,17 +46,14 @@ struct Issuer: Codable {
 
 }
 
+// ! Public
+
 extension Issuer {
-
-	// ! Public
-
 	/// Function to generate a TOTP code for the given date
-	/// - Parameters:
-	///		- forDate: The given date
-	///	- Returns: A string
+	/// - Parameter forDate: The given `Date`
+	///	- Returns: `String`
 	func generateOTP(forDate date: Date) -> String {
 		let counter = UInt64(date.timeIntervalSince1970 / TimeInterval(30))
 		return generateOTP(forCounter: counter)
 	}
-
 }

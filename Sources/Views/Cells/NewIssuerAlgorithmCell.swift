@@ -1,13 +1,11 @@
 import UIKit
 
-
 protocol NewIssuerAlgorithmCellDelegate: AnyObject {
 	func didChangeSelectedIndex(_ index: Int)
 }
 
 /// Class to represent the new issuer algorithm cell
 final class NewIssuerAlgorithmCell: UITableViewCell {
-
 	static let identifier = "NewIssuerAlgorithmCell"
 
 	private var items = [String]()
@@ -74,21 +72,17 @@ final class NewIssuerAlgorithmCell: UITableViewCell {
 	@objc private func didChangeSelectedIndex(_ sender: UISegmentedControl) {
 		delegate?.didChangeSelectedIndex(sender.selectedSegmentIndex)
 	}
-
 }
 
+// ! Public
+
 extension NewIssuerAlgorithmCell {
-
-	// ! Public
-
 	/// Function to configure the cell with its respective view model
-	/// - Parameters:
-	/// 	- with: The cell's view model
+	/// - Parameter with: The cell's view model
 	func configure(with viewModel: NewIssuerAlgorithmCellViewModel) {
 		items = viewModel.items
 
 		algorithmLabel.text = viewModel.algorithmText
 		algorithmSegmentedControl.selectedSegmentIndex = viewModel.selectedSegmentIndex
 	}
-
 }

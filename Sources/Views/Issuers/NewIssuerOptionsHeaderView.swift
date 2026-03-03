@@ -2,7 +2,6 @@ import UIKit
 
 /// Class that'll show a header view for the modal child view's table view
 final class NewIssuerOptionsHeaderView: UIView {
-
 	private lazy var titleStackView: UIStackView = {
 		let stackView = UIStackView()
 		stackView.axis = .vertical
@@ -50,13 +49,11 @@ final class NewIssuerOptionsHeaderView: UIView {
 		titleStackView.addArrangedSubview(label)
 		return label
 	}
-
 }
 
+// ! Public
+
 extension NewIssuerOptionsHeaderView {
-
-	// ! Public
-
 	/// Function to animate the header view's alpha & transform properties
 	func animateHeaderView() {
 		UIView.animate(withDuration: 0.5, delay: 0.15, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.2, options: .transitionCrossDissolve) {
@@ -66,8 +63,7 @@ extension NewIssuerOptionsHeaderView {
 	}
 
 	/// Function to configure the header view with its respective view model
-	/// - Parameters:
-	///		- with: The view model
+	/// - Parameter with: The view model
 	func configure(with viewModel: NewIssuerOptionsHeaderViewViewModel) {
 		if viewModel.prepareForReuse {
 			strongTitleLabel.text = ""
@@ -86,5 +82,4 @@ extension NewIssuerOptionsHeaderView {
 			textColor: .secondaryLabel
 		)
 	}
-
 }

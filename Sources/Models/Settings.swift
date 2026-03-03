@@ -17,7 +17,6 @@ enum Developer: String {
 			case .cookies: return URL(string: "https://github.com/6007135")
 		}
 	}
-
 }
 
 /// Enum to represent each app for the app cell
@@ -40,7 +39,6 @@ enum App: String {
 			case .aurora: return URL(string: "https://luki120.github.io/depictions/web/?p=me.luki.aurora")
 		}
 	}
-
 }
 
 /// Enum to represent each funding platform for the funding cell

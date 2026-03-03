@@ -2,7 +2,6 @@ import SwiftUI
 
 /// Struct to represent the GitHub cell view
 struct SettingsGitHubCellView: View {
-
 	@ObservedObject private(set) var viewModel: SettingsGitHubCellViewViewModel
 
 	var body: some View {
@@ -17,5 +16,4 @@ struct SettingsGitHubCellView: View {
 		}
 		.frame(maxWidth: .infinity, alignment: .center)
 	}
-
 }

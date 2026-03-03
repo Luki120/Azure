@@ -1,13 +1,11 @@
 import UIKit
 
-
 protocol FloatingButtonViewDelegate: AnyObject {
 	func didTapFloatingButton(in floatingButtonView: FloatingButtonView)
 }
 
 /// Class that'll show a floating button view on top of the issuers view
 final class FloatingButtonView: UIView {
-
 	private lazy var floatingButton: UIButton = {
 		let button = UIButton()
 		button.tintColor = .label
@@ -78,19 +76,17 @@ final class FloatingButtonView: UIView {
 	}
 }
 
+// ! Public
+
 extension FloatingButtonView {
-
-	// ! Public
-
 	/// Function to animate the button's alpha & transform properties
 	/// - Parameters:
-	///		- withAlpha: A CGFloat that represents the button's alpha
-	///		- translateY: A CGFloat that represents the button's translation Y value
+	///		- withAlpha: A `CGFloat` that represents the button's alpha
+	///		- translateY: A `CGFloat` that represents the button's translation Y value
 	func animateView(withAlpha alpha: CGFloat, translateY ty: CGFloat) {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.1, options: .transitionCrossDissolve) {
 			self.alpha = alpha
 			self.transform = .init(translationX: 0, y: ty)
 		}
 	}
-
 }

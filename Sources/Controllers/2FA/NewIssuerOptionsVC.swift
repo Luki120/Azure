@@ -1,7 +1,6 @@
 import PhotosUI
 import UIKit
 
-
 protocol NewIssuerOptionsVCDelegate: AnyObject {
 	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
 	func didTapMakeBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
@@ -12,7 +11,6 @@ protocol NewIssuerOptionsVCDelegate: AnyObject {
 
 /// Controller that'll show the modal sheet view
 final class NewIssuerOptionsVC: UIViewController {
-
 	private let newIssuerOptionsView = NewIssuerOptionsView()
 	private let newIssuerVC = NewIssuerVC()
 	private let toastView = ToastView()
@@ -43,7 +41,7 @@ final class NewIssuerOptionsVC: UIViewController {
 		newIssuerOptionsView.animateViews()
 	}
 
-	// ! Reusable funcs
+	// ! Reusable
 
 	private func configureVC(
 		_ vc: UIViewController,
@@ -72,13 +70,11 @@ final class NewIssuerOptionsVC: UIViewController {
 			}
 		}
 	}
-
 }
 
 // ! NewIssuerOptionsViewDelegate
 
 extension NewIssuerOptionsVC: NewIssuerOptionsViewDelegate {
-
 	func didTapScanQRCodeCell(in newIssuerOptionsView: NewIssuerOptionsView) {
 		let qrCodeVC = QRCodeVC()
 		qrCodeVC.delegate = self
@@ -178,35 +174,29 @@ extension NewIssuerOptionsVC: NewIssuerOptionsViewDelegate {
 	}
 
 	@objc private func didTapDismissButton() { dismissVC() }
-
 }
 
 // ! NewIssuerVCDelegate
 
 extension NewIssuerOptionsVC: NewIssuerVCDelegate {
-
 	func shouldDismissVC(in newIssuerVC: NewIssuerVC) {
 		delegate?.shouldReloadData(in: self)
 		dismissVC()
 	}
-
 }
 
 // ! QRCodeVCDelegate
 
 extension NewIssuerOptionsVC: QRCodeVCDelegate {
-
 	func didCreateIssuerOutOfQRCode(in qrCodeVC: QRCodeVC) {
 		delegate?.shouldReloadData(in: self)
 		dismissVC()
 	}
-
 }
 
 // ! PHPickerViewControllerDelegate
 
 extension NewIssuerOptionsVC: PHPickerViewControllerDelegate {
-
 	func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
 		guard !results.isEmpty else {
 			dismissVC()
@@ -239,13 +229,11 @@ extension NewIssuerOptionsVC: PHPickerViewControllerDelegate {
 			}
 		}
 	}
-
 }
 
+// ! Public
+
 extension NewIssuerOptionsVC {
-
-	// ! Public
-
 	/// Function to animate the new issuer options table view
 	func animateTableView() {
 		UIView.transition(with: newIssuerOptionsView.tableView, duration: 0.35, options: .transitionCrossDissolve) {
@@ -282,5 +270,4 @@ extension NewIssuerOptionsVC {
 	func setupMakeBackupOptionsDataSource() {
 		newIssuerOptionsView.setupMakeBackupOptionsDataSource()
 	}
-
 }

@@ -1,9 +1,8 @@
 import UIKit
 import func SwiftUI.withAnimation
 
-/// View model class for SettingsGitHubCellView
+/// View model class for `SettingsGitHubCellView`
 final class SettingsGitHubCellViewViewModel: Identifiable, ObservableObject {
-
 	let id = UUID()
 	let developer: Developer
 	let onTap: (Developer) -> ()
@@ -18,9 +17,9 @@ final class SettingsGitHubCellViewViewModel: Identifiable, ObservableObject {
 
 	/// Designated initializer
 	/// - Parameters:
-	/// 	- developer: A Developer object to represent the developer
-	/// 	- imageURLString: An optional string to represent the image's url string
-	/// 	- onTap: An escaping closure that takes a Developer object as argument & returns void
+	/// 	- developer: A `Developer` object to represent the developer
+	/// 	- imageURLString: An optional `String` to represent the image's url string
+	/// 	- onTap: An `@escaping` closure that takes a `Developer` object as argument & returns nothing
 	init(developer: Developer, imageURLString: String?, onTap: @escaping (Developer) -> ()) {
 		self.developer = developer
 		self.imageURLString = imageURLString
@@ -50,5 +49,4 @@ final class SettingsGitHubCellViewViewModel: Identifiable, ObservableObject {
 		}
 		task.resume()
 	}
-
 }

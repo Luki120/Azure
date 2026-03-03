@@ -1,6 +1,5 @@
 import UIKit
 
-
 protocol IssuersViewDelegate: AnyObject {
 	func didTapCopyPinCode(in issuersView: IssuersView)
 	func didTapCopySecret(in issuersView: IssuersView)
@@ -11,7 +10,6 @@ protocol IssuersViewDelegate: AnyObject {
 
 /// Class to represent the issuers view
 final class IssuersView: UIView {
-
 	let toastView = ToastView()
 	private let floatingButtonView = FloatingButtonView()
 
@@ -56,8 +54,7 @@ final class IssuersView: UIView {
 	}
 
 	/// Designated initializer
-	/// - Parameters:
-	///		- floatingButtonViewDelegate: The object that will conform to the floating button view delegate
+	/// - Parameter floatingButtonViewDelegate: The `FloatingButtonViewDelegate`
 	init(floatingButtonViewDelegate: FloatingButtonViewDelegate) {
 		super.init(frame: .zero)
 		setupViews()
@@ -142,16 +139,13 @@ final class IssuersView: UIView {
 		addSubview(label)
 		return label
 	}
-
 }
 
+// ! Public
+
 extension IssuersView {
-
-	// ! Public
-
 	/// Function to setup the search controller for the issuers view controller
-	/// - Parameters:
-	///		- for: The issuers view controller
+	/// - Parameter for: The `IssuersVC`
 	func setupSearchController(for issuersVC: IssuersVC) {
 		let searchController = UISearchController()
 		searchController.searchResultsUpdater = viewModel
@@ -159,13 +153,11 @@ extension IssuersView {
 
 		issuersVC.navigationItem.searchController = searchController
 	}
-
 }
 
 // ! IssuersViewViewModelDelegate
 
 extension IssuersView: IssuersViewViewModelDelegate {
-
 	func didTapCopyPinCode() {
 		delegate?.didTapCopyPinCode(in: self)
 	}
@@ -202,5 +194,4 @@ extension IssuersView: IssuersViewViewModelDelegate {
 	func shouldAnimateNoSearchResultsLabel(forViewModels viewModels: [IssuerCellViewModel], isFiltering: Bool) {
 		animateNoSearchResultsLabel(forViewModels: viewModels, isFiltering: isFiltering)
 	}
-
 }

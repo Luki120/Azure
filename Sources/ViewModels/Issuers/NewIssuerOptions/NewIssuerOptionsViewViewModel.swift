@@ -1,6 +1,5 @@
 import UIKit
 
-
 protocol NewIssuerOptionsViewViewModelDelegate: AnyObject {
 	func didTapScanQRCodeCell()
 	func didTapImportQRImageCell()
@@ -12,10 +11,8 @@ protocol NewIssuerOptionsViewViewModelDelegate: AnyObject {
 }
 
 extension NewIssuerOptionsView {
-
-	/// View model class for NewIssuerOptionsView
+	/// View model class for `NewIssuerOptionsView`
 	final class NewIssuerOptionsViewViewModel: NSObject {
-
 		private let newIssuerOptionsViewModels: [NewIssuerOptionsCellViewModel] = [
 			.init(image: UIImage(systemName: "qrcode"), text: "Scan QR Code"),
 			.init(image: UIImage(systemName: "square.and.arrow.up"), text: "Import QR Image"),
@@ -40,15 +37,12 @@ extension NewIssuerOptionsView {
 		}
 
 		weak var delegate: NewIssuerOptionsViewViewModelDelegate?
-
 	}
-
 }
 
 // ! UITableViewDataSource
 
 extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel: UITableViewDataSource {
-
 	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		return rowsCount
 	}
@@ -58,13 +52,11 @@ extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel: UITableViewDataSou
 		dataSourceHandler(cell, indexPath)
 		return cell
 	}
-
 }
 
 // ! UITableViewDelegate
 
 extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel: UITableViewDelegate {
-
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		tableView.deselectRow(at: indexPath, animated: true)
 
@@ -93,13 +85,11 @@ extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel: UITableViewDelegat
 			}
 		}
 	}
-
 }
 
+// ! Public
+
 extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel {
-
-	// ! Public
-
 	/// Function to setup the backup options data source
 	func setupBackupOptionsDataSource() {
 		isBackupOptions = true
@@ -119,5 +109,4 @@ extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel {
 			cell.configure(with: self.makeBackupOptionsViewModels[indexPath.row])
 		}
 	}
-
 }

@@ -4,7 +4,6 @@ import class SafariServices.SFSafariViewController
 
 /// View model class for SettingsView
 final class SettingsViewViewModel: ObservableObject {
-
 	@AppStorage("useBiometrics") private(set) var useBiometrics = false
 	@AppStorage("useFloatingButton") private var useFloatingButton = false
 
@@ -62,13 +61,11 @@ final class SettingsViewViewModel: ObservableObject {
 		guard let url else { return }
 		UIApplication.shared.open(url)
 	}
-
 }
 
+// ! Public
+
 extension SettingsViewViewModel {
-
-	// ! Public
-
 	/// Function to send a notification when the backup options button is tapped
 	func didTapBackupOptionsButton() {
 		NotificationCenter.default.post(name: .shouldMakeBackupNotification, object: nil)
@@ -78,5 +75,4 @@ extension SettingsViewViewModel {
 	func didTapPurgeDataButton() {
 		NotificationCenter.default.post(name: .didPurgeDataNotification, object: nil)
 	}
-
 }

@@ -1,8 +1,6 @@
 import UIKit
 
-
 final class NewIssuerOptionsCell: UITableViewCell {
-
 	static let identifier = "NewIssuerOptionsCell"
 
 	private lazy var optionsImageView: UIImageView = {
@@ -51,16 +49,13 @@ final class NewIssuerOptionsCell: UITableViewCell {
 		optionsLabel.centerYAnchor.constraint(equalTo: optionsImageView.centerYAnchor).isActive = true
 		optionsLabel.leadingAnchor.constraint(equalTo: optionsImageView.trailingAnchor, constant: 15).isActive = true	
 	}
-
 }
 
+// ! Public
+
 extension NewIssuerOptionsCell {
-
-	// ! Public
-
 	/// Function to configure the cell with its respective view model
-	/// - Parameters:
-	/// 	- with: The cell's view model
+	/// - Parameter with: The cell's view model
 	func configure(with viewModel: NewIssuerOptionsCellViewModel) {
 		optionsImageView.image = viewModel.image
 		optionsLabel.text = viewModel.text
@@ -75,5 +70,4 @@ extension NewIssuerOptionsCell {
 			self.optionsLabel.transform = .identity
 		}
 	}
-
 }

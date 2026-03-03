@@ -4,28 +4,25 @@ import Foundation
 
 /// Manager to handle importing & exporting backups
 final class BackupManager {
-
 	let loadBackupMessage = "Please enter your password in order to continue." 
 	let makeBackupMessage = "Please input a password equal or greater than 8 characters in order to continue, make sure to remember it otherwise you won't be able to restore encrypted backups."
 
+	let kBackupsPathURL: URL!
 	private let fileM = FileManager.default
-	private(set) var kBackupsPathURL: URL!
 
 	init() {
 		let documentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
 		kBackupsPathURL = documentsPathURL.appendingPathComponent("AzureBackup").appendingPathExtension("json")
 	}
-
 }
 
+// ! Public
+
 extension BackupManager {
-
-	// ! Public
-
 	/// Function to decode the data from a backup & import it
 	/// - Parameters:
-	/// 	- withPassword: A string that represents the password needed for decrpyting the data
-	/// 	- isEncrypted: A bool to check wether the data is encrypted or not
+	/// 	- withPassword: A `String` that represents the password needed for decrpyting the data
+	/// 	- isEncrypted: A `Bool` to check wether the data is encrypted or not
 	func decodeData(withPassword password: String = "", isEncrypted: Bool = false) {
 		if !fileM.fileExists(atPath: kBackupsPathURL.path) { return }
 		guard let data = try? Data(contentsOf: kBackupsPathURL) else { return }
@@ -44,8 +41,8 @@ extension BackupManager {
 
 	/// Function to encode the data & export it
 	/// - Parameters:
-	/// 	- withPassword: A string that represents the password needed for encrypting the data
-	/// 	- encrypt: A bool to check wether the data should be encrypted or not
+	/// 	- withPassword: A `String` that represents the password needed for encrypting the data
+	/// 	- encrypt: A `Bool` to check wether the data should be encrypted or not
 	func encodeData(withPassword password: String = "", encrypt: Bool = false) {
 		guard IssuerManager.sharedInstance.issuers.count > 0 else { return }
 
@@ -62,11 +59,9 @@ extension BackupManager {
 			try? encodedData.write(to: kBackupsPathURL, options: .atomic)
 		}
 	}
-
 }
 
 extension BackupManager {
-
 	private func encryptData(_ data: Data, password: String) throws -> Data {
 		let salt = Data(SHA256.hash(data: password.data(using: .utf8)!))
 
@@ -107,5 +102,4 @@ extension BackupManager {
 		guard derivationStatus == kCCSuccess else { return Data() }
 		return derivedKeyData
 	}
-
 }

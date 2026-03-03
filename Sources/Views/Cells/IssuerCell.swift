@@ -1,13 +1,11 @@
 import UIKit
 
-
 protocol IssuerCellDelegate: AnyObject {
 	func didTapCopyPinCode(in issuerCell: IssuerCell)
 }
 
 /// Class to represent the issuer cell
 final class IssuerCell: UICollectionViewCell {
-
 	static let identifier = "IssuerCell"
 
 	var pinCodeText: String { pinCodeLabel.text ?? "" }
@@ -237,16 +235,13 @@ final class IssuerCell: UICollectionViewCell {
 			return period - (Date().timeIntervalSince1970.truncatingRemainder(dividingBy: 30))
 		}
 	}
-
 }
 
+// ! Public
+
 extension IssuerCell {
-
-	// ! Public
-
 	/// Function to configure the cell with its respective view model
-	/// - Parameters:
-	/// 	- with: The cell's view model
+	/// - Parameter with: The cell's view model
 	func configure(with viewModel: IssuerCellViewModel) {
 		self.viewModel = viewModel
 
@@ -261,5 +256,4 @@ extension IssuerCell {
 		pinCodeLabel.text = ""
 		pinCodeLabel.text = setupFormattedPinCodeText()
 	}
-
 }

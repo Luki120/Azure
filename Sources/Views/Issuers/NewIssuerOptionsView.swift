@@ -1,6 +1,5 @@
 import UIKit
 
-
 protocol NewIssuerOptionsViewDelegate: AnyObject {
 	func didTapScanQRCodeCell(in newIssuerOptionsView: NewIssuerOptionsView)
 	func didTapImportQRImageCell(in newIssuerOptionsView: NewIssuerOptionsView)
@@ -19,7 +18,6 @@ protocol NewIssuerOptionsViewDelegate: AnyObject {
 
 /// Class that'll show the new issuer options view
 final class NewIssuerOptionsView: UIView {
-
 	let kDefaultHeight: CGFloat = 300
 	let kDismissableHeight: CGFloat = 215
 
@@ -153,13 +151,11 @@ final class NewIssuerOptionsView: UIView {
 	@objc private func didPan(_ gesture: UIPanGestureRecognizer) {
 		delegate?.newIssuerOptionsView(self, didPanWithGesture: gesture, modifyingConstraint: containerViewHeightConstraint)
 	}
-
 }
 
 // ! NewIssuerOptionsViewViewModelDelegate
 
 extension NewIssuerOptionsView: NewIssuerOptionsViewViewModelDelegate {
-
 	func didTapScanQRCodeCell() {
 		delegate?.didTapScanQRCodeCell(in: self)
 	}
@@ -187,21 +183,18 @@ extension NewIssuerOptionsView: NewIssuerOptionsViewViewModelDelegate {
 	func didTapDismissCell() {
 		delegate?.didTapDismissCell(in: self)
 	}
-
 }
 
+// ! Public
+
 extension NewIssuerOptionsView {
-
-	// ! Public
-
 	/// Function to animate the views
 	func animateViews() {
 		animateSheet()
 	}
 
 	/// Function to animate the sheet's height constraint
-	/// - Parameters:
-	///		- height: A CGFloat that represents the height
+	/// - Parameter height: A `CGFloat` that represents the height
 	func animateSheetHeight(_ height: CGFloat) {
 		animateViews(withDuration: 0.3) {
 			self.dimmedView.alpha = 0.6
@@ -213,8 +206,7 @@ extension NewIssuerOptionsView {
 	}
 
 	/// Function to animate the dismissal of the sheet view
-	/// - Parameters:
-	///		- withCompletion: Optional closure that takes a Bool as argument & returns nothing
+	/// - Parameter withCompletion: Optional closure that takes a `Bool` as argument & returns nothing
 	func animateDismiss(withCompletion completion: ((Bool) -> ())?) {
 		animateViews(withDuration: 0.3, animations: {
 			self.dimmedView.alpha = 0
@@ -224,8 +216,7 @@ extension NewIssuerOptionsView {
 	}
 
 	/// Function to calculate & set the dimmed view's alpha based on the translation of the pan gesture
-	/// - Parameters:
-	///		- basedOnTranslation: A CGPoint that represents the translation
+	/// - Parameter basedOnTranslation: A `CGPoint` that represents the translation
 	func calculateAlpha(basedOnTranslation translation: CGPoint) {
 		let alpha = translation.y / dimmedView.frame.height
 		dimmedView.alpha = 0.6 - alpha
@@ -233,8 +224,8 @@ extension NewIssuerOptionsView {
 
 	/// Function to configure the header
 	/// - Parameters:
-	///		- isDefaultConfiguration: A Bool to check if we should set the header with the default configuration
-	///		- isBackupOptions: A Bool to check if we should set the header for the backup options data source
+	///		- isDefaultConfiguration: A `Bool` to check if we should set the header with the default configuration
+	///		- isBackupOptions: A `Bool` to check if we should set the header for the backup options data source
 	func configureHeader(isDefaultConfiguration: Bool, isBackupOptions: Bool) {
 		if isDefaultConfiguration {
 			newIssuerOptionsHeaderView.configure(with: .init())
@@ -257,7 +248,6 @@ extension NewIssuerOptionsView {
 					prepareForReuse: true
 				)
 			)
-
 		}
 	}
 
@@ -275,5 +265,4 @@ extension NewIssuerOptionsView {
 	func setupMakeBackupOptionsDataSource() {
 		viewModel.setupMakeBackupOptionsDataSource()
 	}
-
 }

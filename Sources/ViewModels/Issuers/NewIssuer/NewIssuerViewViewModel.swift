@@ -1,14 +1,12 @@
 import UIKit
 
-
 protocol NewIssuerViewViewModelDelegate: AnyObject {
 	func didFadeInOutToastView(isDuplicateItem: Bool)
 	func shouldDismissVC()
 }
 
-/// View model class for NewIssuerView
+/// View model class for `NewIssuerView`
 final class NewIssuerViewViewModel: NSObject {
-
 	private var name = ""
 	private var account = ""
 	private var secret = ""
@@ -90,14 +88,12 @@ final class NewIssuerViewViewModel: NSObject {
 			delegate?.shouldDismissVC()
 		}
 	}
-
 }
 
 // ! UITableView
 
 extension NewIssuerViewViewModel: UITableViewDelegate {
-
-	final private class WorkingDataSource: DataSource {
+	private final class WorkingDataSource: DataSource {
 		override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 			let section = self.snapshot().sectionIdentifiers[section]
 			return section.headerTitle
@@ -105,8 +101,7 @@ extension NewIssuerViewViewModel: UITableViewDelegate {
 	}
 
 	/// Function to setup the table view's diffable data source
-	/// - Parameters:
-	///		- tableView: The table view
+	/// - Parameter tableView: The `UITableView`
 	func setupTableView(_ tableView: UITableView) {
 		dataSource = WorkingDataSource(tableView: tableView) { [weak self] tableView, indexPath, _ in
 			guard let self else { fatalError() }
@@ -160,15 +155,12 @@ extension NewIssuerViewViewModel: UITableViewDelegate {
 	func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 		return 50
 	}
-
 }
 
 // ! NewIssuerAlgorithmCellDelegate
 
 extension NewIssuerViewViewModel: NewIssuerAlgorithmCellDelegate {
-
 	func didChangeSelectedIndex(_ index: Int) {
 		IssuerManager.sharedInstance.setSelectedIndex(index)
 	}
-
 }

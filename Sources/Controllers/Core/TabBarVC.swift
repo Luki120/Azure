@@ -3,7 +3,6 @@ import UIKit
 
 /// Root view controller, which will show our tabs
 final class TabBarVC: UITabBarController {
-
 	private var isSelected = false
 
 	// ! Lifecycle
@@ -48,13 +47,11 @@ final class TabBarVC: UITabBarController {
 		guard UserDefaults.standard.object(forKey: "selectedIndex") != nil else { return }
 		selectedIndex = UserDefaults.standard.integer(forKey: "selectedIndex")
 	}
-
 }
 
 // ! UITabBarControllerDelegate
 
 extension TabBarVC: UITabBarControllerDelegate {
-
 	func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
 		UserDefaults.standard.set(selectedIndex, forKey: "selectedIndex")
 	}
@@ -93,5 +90,4 @@ extension TabBarVC: UITabBarControllerDelegate {
 
 		return true
 	}
-
 }

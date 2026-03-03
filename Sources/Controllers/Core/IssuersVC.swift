@@ -3,7 +3,6 @@ import UniformTypeIdentifiers
 
 /// Controller that'll show the issuers list
 final class IssuersVC: UIViewController {
-
 	private let authManager = AuthManager()
 	private let backupManager = BackupManager()
 
@@ -192,23 +191,19 @@ final class IssuersVC: UIViewController {
 			self.newIssuerOptionsVC.shouldDismissVC()
 		}
 	}
-
 }
 
 // ! FloatingButtonViewDelegate
 
 extension IssuersVC: FloatingButtonViewDelegate {
-
 	func didTapFloatingButton(in floatingButtonView: FloatingButtonView) {
 		presentNewIssuerOptionsVC()
 	}
-
 }
 
 // ! IssuersViewDelegate
 
 extension IssuersVC: IssuersViewDelegate {
-
 	func didTapCopyPinCode(in issuersView: IssuersView) {
 		issuersView.toastView.fadeInOutToastView(withMessage: "Copied code!", finalDelay: 0.2)
 	}
@@ -237,13 +232,11 @@ extension IssuersVC: IssuersViewDelegate {
 	func issuersView(_ issuersView: IssuersView, didPresent alertController: UIAlertController) {
 		present(alertController, animated: true)
 	}
-
 }
 
 // ! NewIssuerOptionsVCDelegate
 
 extension IssuersVC: NewIssuerOptionsVCDelegate {
-
 	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		if isJailbroken() {
 			presentInitialAlertController(isEncrypting: false) {
@@ -294,13 +287,11 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 	func shouldReloadData(in newIssuerOptionsVC: NewIssuerOptionsVC) {
 		issuersView.reloadData
 	}
-
 }
 
 // ! UIDocumentPickerDelegate
 
 extension IssuersVC: UIDocumentPickerDelegate {
-
 	func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
 		backupManager.decodeData(withPassword: password, isEncrypted: isEncrypted)
 
@@ -308,5 +299,4 @@ extension IssuersVC: UIDocumentPickerDelegate {
 			self.issuersView.reloadData
 		}
 	}
-
 }

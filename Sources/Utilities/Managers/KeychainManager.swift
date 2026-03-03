@@ -2,7 +2,6 @@ import Foundation
 
 /// Keychain singleton manager to handle saving, retrieving and deleting issuers from the keychain
 final class KeychainManager {
-
 	static let sharedInstance = KeychainManager()
 	private init() {}
 
@@ -12,9 +11,9 @@ final class KeychainManager {
 
 	/// Function to encode & save a single issuer to the keychain
 	/// Parameters:
-	///		- issuer: The issuer object
-	///		- forService: A string representing the service for the given issuer
-	///		- account: A string representing the account for the given issuer
+	///		- issuer: The `Issuer` object
+	///		- forService: A `String` representing the service for the given `Issuer`
+	///		- account: A `String` representing the account for the given `Issuer`
 	func save(issuer: inout Issuer, forService service: String, account: String) {
 		guard let encodedIssuer = try? JSONEncoder().encode(issuer) else { return }
 
@@ -45,8 +44,8 @@ final class KeychainManager {
 		issuer.creationDate = resultAttributes[kSecAttrCreationDate] as? Date
 	}
 
-	/// Function to decode & retrieve an array of issuers form the keychain
-	/// - Returns: An array of issuers
+	/// Function to decode & retrieve an array of `Issuer` objects form the keychain
+	/// - Returns: An array of `Issuer` objects
 	func retrieveIssuers() -> [Issuer] {
 		let query: [NSString : Any] = [
 			kSecClass: kSecClassGenericPassword,
@@ -70,10 +69,10 @@ final class KeychainManager {
 			.sorted { $0.index < $1.index }
 	}
 
-	/// Function to delete a specific issuer from the keychain
+	/// Function to delete a specific `Issuer` from the keychain
 	/// Parameters:
-	///		- forService: A string representing the service for the given issuer
-	///		- account: A string representing the account for the given issuer	
+	///		- forService: A `String` representing the service for the given issuer
+	///		- account: A `String` representing the account for the given issuer	
 	func deleteIssuer(forService service: String, account: String) {
 		let query: [NSString : Any] = [
 			kSecAttrService: service,
@@ -84,9 +83,8 @@ final class KeychainManager {
 		SecItemDelete(query as NSDictionary)
 	}
 
-	/// Function to delete all issuers from the keychain
+	/// Function to delete all `Issuer` objects from the keychain
 	func batchDeleteIssuers() {
 		[kSecClassGenericPassword].forEach { SecItemDelete([kSecClass: $0] as NSDictionary) }
 	}
-
 }

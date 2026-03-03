@@ -3,7 +3,6 @@ import class SafariServices.SFSafariViewController
 
 /// Struct to represent the settings view
 struct SettingsView: View {
-
 	@Environment(\.colorScheme) private var colorScheme
 
 	@State private var showWarningAlert = false
@@ -152,21 +151,18 @@ struct SettingsView: View {
 		.padding(.top, 25)
 		.listStyle(.insetGrouped)
 	}
-
 }
 
 private struct SafariView: UIViewControllerRepresentable {
-
 	let url: URL?
 
 	func makeUIViewController(context: Context) -> SFSafariViewController {
-		let fallbackURL = URL(string: "https://github.com/Luki120")! // this 100% exists so it's safe
+		let fallbackURL = URL(string: "https://github.com/Luki120")!
 		guard let url else { return .init(url: fallbackURL) }
 		return .init(url: url)
 	}
 
 	func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
-
 }
 
 // credits ⇝ https://gist.github.com/leptos-null/e521cbd4a8246ea824d823fc398ba255

@@ -2,10 +2,8 @@ import UIKit
 import LocalAuthentication
 import ObjectiveC.runtime
 
-
 @UIApplicationMain
 final class AppDelegate: UIResponder, UIApplicationDelegate {
-
 	var window: UIWindow?
 	private var strongWindow: UIWindow!
 
@@ -104,5 +102,4 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 			"v@:"
 		)
 	}
-
 }

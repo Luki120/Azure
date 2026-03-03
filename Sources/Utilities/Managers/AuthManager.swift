@@ -3,8 +3,7 @@ import LocalAuthentication
 
 /// Manager to handle authentication
 final class AuthManager {
-
-	/// Enum representing a reason of why authentication is being requested
+	/// Enum representing a reason for authentication
 	enum Reason {
 		case sensitiveOperation, unlockApp
 
@@ -18,8 +17,8 @@ final class AuthManager {
 
 	/// Function to setup the authentication
 	/// - Parameters:
-	///		- withReason: The reason for requesting authentication
-	///		- reply: Escaping closure taking a Bool & an optional Error as arguments which returns nothing
+	///		- withReason: The `Reason` for requesting authentication
+	///		- reply: `@escaping` closure that takes a `Bool` & an optional `Error` as arguments which returns nothing
 	func setupAuth(withReason reason: Reason, reply: @escaping (Bool, Error?) -> ()) {
 		LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason.reason, reply: reply)
 	}
@@ -42,5 +41,4 @@ final class AuthManager {
 
 		return true
 	}
-
 }

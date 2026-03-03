@@ -1,7 +1,6 @@
 import AVFoundation
 import UIKit
 
-
 protocol QRCodeVCDelegate: AnyObject {
 	func didCreateIssuerOutOfQRCode(in qrCodeVC: QRCodeVC)
 }
@@ -10,7 +9,6 @@ protocol QRCodeVCDelegate: AnyObject {
 
 /// View that'll show a dimmed view for the qr code scanning view
 private final class DimmedView: UIView {
-
 	private var gradientFrame: CGRect!
 
 	required init?(coder: NSCoder) {
@@ -58,12 +56,10 @@ private final class DimmedView: UIView {
 		animation.autoreverses = true
 		gradientLayer.add(animation, forKey: nil)
 	}
-
 }
 
 /// Controller that'll show the qr code scanner view
 final class QRCodeVC: UIViewController {
-
 	private let toastView = ToastView()
 	private let dimmedView = DimmedView()
 	private let captureSession = AVCaptureSession()
@@ -138,13 +134,11 @@ final class QRCodeVC: UIViewController {
 
 		captureSession.startRunning()
 	}
-
 }
 
 // ! AVCaptureMetadataOutputObjectsDelegate
 
 extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
-
 	func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
 		guard metadataObjects.count != 0,
 			let metadataObject = metadataObjects[0] as? AVMetadataMachineReadableCodeObject,
@@ -165,11 +159,9 @@ extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
 			delegate?.didCreateIssuerOutOfQRCode(in: self)
 		}
 	}
-
 }
 
 private extension UIView {
-
 	func windowWithCoordinates(fromRect rect: CGRect) -> CGRect {
 		let smallestDimension = min(bounds.width, bounds.height)
 		let windowSize = 0.5 * smallestDimension
@@ -181,5 +173,4 @@ private extension UIView {
 		)
 		return window
 	}
-
 }

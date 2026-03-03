@@ -1,6 +1,5 @@
 import UIKit
 
-
 extension CGColor {
 	static let darkBackgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.10, alpha: 1.0).cgColor
 	static let lightBackgroundColor = UIColor(red: 0.89, green: 0.90, blue: 0.92, alpha: 1.0).cgColor

@@ -1,7 +1,6 @@
 import Combine
 import UIKit
 
-
 protocol IssuersViewViewModelDelegate: AnyObject {
 	func didTapCopyPinCode()
 	func didTapCopySecret()
@@ -14,10 +13,8 @@ protocol IssuersViewViewModelDelegate: AnyObject {
 }
 
 extension IssuersView {
-
-	/// View model class for IssuersView
+	/// View model class for `IssuersView`
 	final class IssuersViewViewModel: NSObject {
-
 		weak var delegate: IssuersViewViewModelDelegate?
 
 		private var saveAction: UIAlertAction!
@@ -29,8 +26,7 @@ extension IssuersView {
 		private let collectionView: UICollectionView
 
 		/// Designated initializer
-		/// - Parameters:
-		///		- collectionView: The collection view
+		/// - Parameter collectionView: The `UICollectionView`
 		init(collectionView: UICollectionView) {
 			self.collectionView = collectionView
 			super.init()
@@ -84,26 +80,21 @@ extension IssuersView {
 			parameters.backgroundColor = .clear
 			return parameters
 		}
-
 	}
-
 }
 
 // ! IssuerCellDelegate
 
 extension IssuersView.IssuersViewViewModel: IssuerCellDelegate {
-
 	func didTapCopyPinCode(in issuerCell: IssuerCell) {
 		UIPasteboard.general.string = issuerCell.pinCodeText.replacingOccurrences(of: " ", with: "")
 		delegate?.didTapCopyPinCode()
 	}
-
 }
 
 // ! UICollectionViewDataSource
 
 extension IssuersView.IssuersViewViewModel: UICollectionViewDataSource {
-
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		delegate?.shouldAnimateNoIssuersLabel()
 		delegate?.shouldAnimateNoSearchResultsLabel(forViewModels: filteredViewModels, isFiltering: isFiltering)
@@ -129,13 +120,11 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDataSource {
 
 		return cell
 	}
-
 }
 
 // ! UICollectionViewDelegate
 
 extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
-
 	func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
 		return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
 			guard let cell = collectionView.cellForItem(at: indexPath) as? IssuerCell else { return UIMenu() }
@@ -270,13 +259,11 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 	@objc private func validateTextFields(_ textFields: [UITextField]) {
 		saveAction.isEnabled = textFields.allSatisfy { $0.text?.count ?? 0 >= 1 }
 	}
-
 }
 
 // ! UICollectionViewDragDelegate
 
 extension IssuersView.IssuersViewViewModel: UICollectionViewDragDelegate {
-
 	func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
 		let viewModel = viewModels[indexPath.item]
 		let itemProvider = NSItemProvider(object: viewModel.name as NSString)
@@ -289,13 +276,11 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDragDelegate {
 	func collectionView(_ collectionView: UICollectionView, dragPreviewParametersForItemAt indexPath: IndexPath) -> UIDragPreviewParameters? {
 		return makePreviewParameters()
 	}
-
 }
 
 // ! UICollectionViewDropDelegate
 
 extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
-
 	func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
 		if collectionView.hasActiveDrag {
 			return UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
@@ -359,13 +344,11 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 
 		coordinator.drop(item.dragItem, toItemAt: destinationIndexPath)
 	}
-
 }
 
 // ! UISearchResultsUpdating
 
 extension IssuersView.IssuersViewViewModel: UISearchResultsUpdating {
-
 	func updateSearchResults(for searchController: UISearchController) {
 		guard let searchedString = searchController.searchBar.text else { return }
 		updateWithFilteredContent(forString: searchedString)
@@ -380,5 +363,4 @@ extension IssuersView.IssuersViewViewModel: UISearchResultsUpdating {
 			return $0.name.range(of: textToSearch, options: .caseInsensitive) != nil
 		}
 	}
-
 }

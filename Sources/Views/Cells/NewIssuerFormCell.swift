@@ -2,7 +2,6 @@ import UIKit
 
 /// Class to represent the new issuer form cell
 final class NewIssuerFormCell: UITableViewCell {
-
 	static let identifier = "NewIssuerFormCell"
 
 	private lazy var cleanTextField: UITextField = {
@@ -65,11 +64,12 @@ final class NewIssuerFormCell: UITableViewCell {
 		contentView.backgroundColor = .secondarySystemGroupedBackground
 
 		NotificationCenter.default.addObserver(self, selector: #selector(resignResponder), name: .shouldResignResponderNotification, object: nil)
+
+		layoutUI()
 	}
 
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		layoutUI()
 
 		contentView.layer.cornerCurve = .continuous
 		contentView.layer.cornerRadius = 14
@@ -119,28 +119,23 @@ final class NewIssuerFormCell: UITableViewCell {
 		debounceWorkItem = workItem
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: workItem)
 	}
-
 }
 
+// ! Public
+
 extension NewIssuerFormCell {
-
-	// ! Public
-
 	/// Function to configure the cell with its respective view model
-	/// - Parameters:
-	/// 	- with: The cell's view model
+	/// - Parameter with: The cell's view model
 	func configure(with viewModel: NewIssuerFormCellViewModel) {
 		cleanTextField.tag = viewModel.tag
 		cleanTextField.placeholder = viewModel.placeholder
 		cleanTextField.returnKeyType = viewModel.returnKeyType
 	}
-
 }
 
 // ! UITextFieldDelegate
 
 extension NewIssuerFormCell: UITextFieldDelegate {
-
 	func textFieldDidBeginEditing(_ textField: UITextField) {
 		if textField.text?.count ?? 0 > 1 {
 			UIView.transition(with: clearAllButton, duration: 0.35, options: .transitionCrossDissolve) {
@@ -192,5 +187,4 @@ extension NewIssuerFormCell: UITextFieldDelegate {
 
 		return false
 	}
-
 }
