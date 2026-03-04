@@ -12,8 +12,10 @@ final class NewIssuerAlgorithmCell: UITableViewCell {
 
 	private lazy var algorithmLabel: UILabel = {
 		let label = UILabel()
+		label.font = .preferredFont(forTextStyle: .body)
 		label.textColor = .label
 		label.adjustsFontSizeToFitWidth = true
+		label.adjustsFontForContentSizeCategory = true
 		label.translatesAutoresizingMaskIntoConstraints = false
 		contentView.addSubview(label)
 		return label
@@ -21,6 +23,7 @@ final class NewIssuerAlgorithmCell: UITableViewCell {
 
 	private lazy var algorithmSegmentedControl: UISegmentedControl = {
 		let segmentedControl = UISegmentedControl(items: items)
+		segmentedControl.setTitleTextAttributes([.font: UIFont.preferredFont(forTextStyle: .footnote)], for: .normal)
 		segmentedControl.translatesAutoresizingMaskIntoConstraints = false
 		segmentedControl.addTarget(self, action: #selector(didChangeSelectedIndex(_:)), for: .valueChanged)
 		contentView.addSubview(segmentedControl)

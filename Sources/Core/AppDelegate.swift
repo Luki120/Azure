@@ -26,6 +26,9 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 		UINavigationBar.appearance().shadowImage = UIImage()
 		UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
 
+		let tabBarItemAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)]
+		UITabBarItem.appearance().setTitleTextAttributes(tabBarItemAttributes, for: .normal)
+
 		let usesBiometrics = UserDefaults.standard.bool(forKey: "useBiometrics")
 		if usesBiometrics && authManager.shouldUseBiometrics() { unsafePortalDispatch() }
 		else { window?.rootViewController = TabBarVC() }
@@ -57,6 +60,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 			quitButton.layer.cornerCurve = .continuous
 			quitButton.layer.cornerRadius = 20
 			quitButton.setTitle("Retry", for: .normal)
+			quitButton.titleLabel?.font = .preferredFont(forTextStyle: .body)
+			quitButton.titleLabel?.adjustsFontForContentSizeCategory = true
 			quitButton.addTarget(notAuthenticatedVC, action: NSSelectorFromString("didTapRetryButton"), for: .touchUpInside)
 
 			notAuthenticatedVC.view.addSubview(quitButton)

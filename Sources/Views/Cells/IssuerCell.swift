@@ -42,10 +42,13 @@ final class IssuerCell: UICollectionViewCell {
 
 	private lazy var pinCodeLabel: UILabel = {
 		let label = UILabel()
-		label.font = .monospacedSystemFont(ofSize: 20, weight: .medium)
+		let systemFont: UIFont = .monospacedSystemFont(ofSize: 20, weight: .medium)
+
+		label.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: systemFont)
 		label.numberOfLines = 1
 		label.textAlignment = .center
 		label.adjustsFontSizeToFitWidth = true
+		label.adjustsFontForContentSizeCategory = true
 		label.translatesAutoresizingMaskIntoConstraints = false
 		darkContentView.addSubview(label)
 		return label
@@ -245,9 +248,10 @@ extension IssuerCell {
 	func configure(with viewModel: IssuerCellViewModel) {
 		self.viewModel = viewModel
 
+		issuerLabel.adjustsFontForContentSizeCategory = true
 		issuerLabel.attributedText = NSMutableAttributedString(
 			fullString: "\(viewModel.name)\n\(viewModel.account)",
-			subString: "\(viewModel.account)"
+			subString: viewModel.account
 		)
 
 		issuerImageView.image = viewModel.image

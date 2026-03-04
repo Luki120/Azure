@@ -36,7 +36,7 @@ final class NewIssuerOptionsHeaderView: UIView {
 	// ! Reusable
 
 	private func createLabel(
-		withFont font: UIFont = .systemFont(ofSize: 16),
+		withFont font: UIFont = .preferredFont(forTextStyle: .callout),
 		text: String,
 		textColor: UIColor = .label
 	) -> UILabel {
@@ -46,6 +46,7 @@ final class NewIssuerOptionsHeaderView: UIView {
 		label.textColor = textColor
 		label.numberOfLines = 0
 		label.textAlignment = .center
+		label.adjustsFontForContentSizeCategory = true
 		titleStackView.addArrangedSubview(label)
 		return label
 	}
@@ -77,7 +78,7 @@ extension NewIssuerOptionsHeaderView {
 
 		strongTitleLabel = createLabel(text: viewModel.title)
 		strongSubtitleLabel = createLabel(
-			withFont: .systemFont(ofSize: 12),
+			withFont: .preferredFont(forTextStyle: .caption1),
 			text: viewModel.subtitle,
 			textColor: .secondaryLabel
 		)

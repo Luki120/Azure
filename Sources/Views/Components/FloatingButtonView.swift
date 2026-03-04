@@ -15,7 +15,8 @@ final class FloatingButtonView: UIView {
 		button.layer.shadowRadius = 8
 		button.layer.shadowOffset = .init(width: 0, height: 0)
 		button.layer.shadowOpacity = 0.5
-		button.setImage(.init(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20)), for: .normal)
+		button.setImage(.init(systemName: "plus", withConfiguration: UIImage.SymbolConfiguration(textStyle: .title3)), for: .normal)
+		button.imageView?.adjustsImageSizeForAccessibilityContentSizeCategory = true
 		addSubview(button)
 		return button
 	}()

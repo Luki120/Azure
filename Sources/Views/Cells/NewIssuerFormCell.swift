@@ -6,7 +6,7 @@ final class NewIssuerFormCell: UITableViewCell {
 
 	private lazy var cleanTextField: UITextField = {
 		let textField = UITextField()
-		textField.font = .systemFont(ofSize: 16)
+		textField.font = .preferredFont(forTextStyle: .callout)
 		textField.delegate = self
 		textField.leftView = UIView(frame: .init(x: 0, y: 0, width: 20, height: textField.frame.size.height))
 		textField.rightView = UIView(frame: .init(x: 0, y: 0, width: 20, height: textField.frame.size.height))

@@ -11,14 +11,17 @@ final class NewIssuerOptionsCell: UITableViewCell {
 		imageView.contentMode = .scaleAspectFill
 		imageView.clipsToBounds = true
 		imageView.translatesAutoresizingMaskIntoConstraints = false
+		imageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
 		contentView.addSubview(imageView)
 		return imageView
 	}()
 
 	private lazy var optionsLabel: UILabel = {
 		let label = UILabel()
+		label.font = .preferredFont(forTextStyle: .body)
 		label.alpha = 0
 		label.transform = .init(scaleX: 0.1, y: 0.1)
+		label.adjustsFontForContentSizeCategory = true
 		label.translatesAutoresizingMaskIntoConstraints = false
 		contentView.addSubview(label)
 		return label
@@ -43,8 +46,6 @@ final class NewIssuerOptionsCell: UITableViewCell {
 	private func layoutUI() {
 		optionsImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
 		optionsImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 30).isActive = true	
-
-		setupSizeConstraints(forView: optionsImageView, width: 25, height: 25)
 
 		optionsLabel.centerYAnchor.constraint(equalTo: optionsImageView.centerYAnchor).isActive = true
 		optionsLabel.leadingAnchor.constraint(equalTo: optionsImageView.trailingAnchor, constant: 15).isActive = true	

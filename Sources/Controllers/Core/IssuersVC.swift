@@ -42,7 +42,7 @@ final class IssuersVC: UIViewController {
 	// ! Private
 
 	private func setupNavBarItem() {
-		let configuration = UIImage.SymbolConfiguration(pointSize: 20)
+		let configuration = UIImage.SymbolConfiguration(textStyle: .title3)
 
 		plusButton = UIButton()
 		plusButton.alpha = UserDefaults.standard.bool(forKey: "useFloatingButton") ? 0 : 1

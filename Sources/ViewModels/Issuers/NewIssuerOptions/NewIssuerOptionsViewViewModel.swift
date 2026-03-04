@@ -14,19 +14,19 @@ extension NewIssuerOptionsView {
 	/// View model class for `NewIssuerOptionsView`
 	final class NewIssuerOptionsViewViewModel: NSObject {
 		private let newIssuerOptionsViewModels: [NewIssuerOptionsCellViewModel] = [
-			.init(image: UIImage(systemName: "qrcode"), text: "Scan QR Code"),
-			.init(image: UIImage(systemName: "square.and.arrow.up"), text: "Import QR Image"),
-			.init(image: UIImage(systemName: "square.and.pencil"), text: "Enter Manually")
+			.init(image: UIImage(name: "qrcode"), text: "Scan QR Code"),
+			.init(image: UIImage(name: "square.and.arrow.up"), text: "Import QR Image"),
+			.init(image: UIImage(name: "square.and.pencil"), text: "Enter Manually")
 		]
 
 		private let backupOptionsViewModels: [NewIssuerOptionsCellViewModel] = [
-			.init(image: UIImage(systemName: "square.and.arrow.down"), text: "Load Backup"),
-			.init(image: UIImage(systemName: "square.and.arrow.up"), text: "Make Backup")
+			.init(image: UIImage(name: "square.and.arrow.down"), text: "Load Backup"),
+			.init(image: UIImage(name: "square.and.arrow.up"), text: "Make Backup")
 		]
 
 		private let makeBackupOptionsViewModels: [NewIssuerOptionsCellViewModel] = [
-			.init(image: UIImage(systemName: "checkmark.circle.fill"), text: "Yes"),
-			.init(image: UIImage(systemName: "xmark.circle.fill"), text: "No")
+			.init(image: UIImage(name: "checkmark.circle.fill"), text: "Yes"),
+			.init(image: UIImage(name: "xmark.circle.fill"), text: "No")
 		]
 
 		private var isBackupOptions = false
@@ -84,6 +84,14 @@ extension NewIssuerOptionsView.NewIssuerOptionsViewViewModel: UITableViewDelegat
 				}
 			}
 		}
+	}
+}
+
+// ! Private
+
+private extension UIImage {
+	convenience init?(name: String) {
+		self.init(systemName: name, withConfiguration: UIImage.SymbolConfiguration(textStyle: .title2))
 	}
 }
 

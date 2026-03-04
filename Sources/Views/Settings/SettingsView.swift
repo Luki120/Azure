@@ -8,6 +8,8 @@ struct SettingsView: View {
 	@State private var showWarningAlert = false
 	@State private var showCreditsSheet = false
 
+	@ScaledMetric private var platformImageHeight = 25
+
 	private let credits = """
 	Credits:
 	@6007135: App icon & significant contributions
@@ -61,7 +63,7 @@ struct SettingsView: View {
 					.alert(isPresented: $showWarningAlert) {
 						Alert(
 							title: Text("Azure"),
-							message: Text("Dude, hold up right there. You’re about to purge ALL of your 2FA codes and data, ARE YOU ABSOLUTELY SURE? ❗️❗Don’t be a dumbass, you’ll regret it later, I warned you. Besides, keep in mind that this won't remove 2FA from your accounts, so make sure you also disable it from the issuers' settings in order to prevent being locked out."),
+							message: Text("Hold up right there. You’re about to purge ALL of your 2FA codes & data, are you absolutely sure?❗️❗Keep in mind that this won't remove 2FA from your accounts, so make sure you also remove it from the issuers' settings in order to prevent being locked out."),
 							primaryButton: .destructive(Text("I'm sure")) {
 								viewModel.didTapPurgeDataButton()
 							},
@@ -93,7 +95,7 @@ struct SettingsView: View {
 				Text(viewModel.appName)
 
 				Text(viewModel.appDescription)
-					.font(.system(size: 10))
+					.font(.caption2)
 					.foregroundColor(.secondary)
 			}
 			.onTapGesture {
@@ -110,8 +112,8 @@ struct SettingsView: View {
 					viewModel.platform.image
 						.resizable()
 						.aspectRatio(contentMode: .fit)
-						.frame(width: 25, height: 25)
-						.contentShape(Rectangle())
+						.frame(height: platformImageHeight)
+						.contentShape(.rect)
 						.onTapGesture {
 							viewModel.onTap(viewModel.platform)
 						}

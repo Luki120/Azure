@@ -43,7 +43,6 @@ struct Issuer: Codable {
 	private func generateOTP(forCounter counter: UInt64) -> String {
 		hashFor(algorithm.hashFunction, counter: counter)
 	}
-
 }
 
 // ! Public

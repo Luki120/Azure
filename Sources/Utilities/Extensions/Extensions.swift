@@ -24,11 +24,11 @@ extension NSMutableAttributedString {
 		let mutableParagraphStyle = NSMutableParagraphStyle()
 		mutableParagraphStyle.lineBreakMode = .byTruncatingTail
 
-		attributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.label, range: rangeOfFullString)
-		attributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.systemGray, range: rangeOfSubString)
-		attributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 16), range: rangeOfFullString)
-		attributedString.addAttribute(NSAttributedString.Key.font, value: UIFont.systemFont(ofSize: 14), range: rangeOfSubString)
-		attributedString.addAttribute(NSAttributedString.Key.paragraphStyle, value: mutableParagraphStyle, range: rangeOfSubString)
+		attributedString.addAttribute(.foregroundColor, value: UIColor.label, range: rangeOfFullString)
+		attributedString.addAttribute(.foregroundColor, value: UIColor.systemGray, range: rangeOfSubString)
+		attributedString.addAttribute(.font, value: UIFont.preferredFont(forTextStyle: .callout), range: rangeOfFullString)
+		attributedString.addAttribute(.font, value: UIFont.preferredFont(forTextStyle: .subheadline), range: rangeOfSubString)
+		attributedString.addAttribute(.paragraphStyle, value: mutableParagraphStyle, range: rangeOfSubString)
 
 		self.init(attributedString: attributedString)
 	}
@@ -45,6 +45,20 @@ extension UIColor {
 	static let lightColor = UIColor(red: 0.95, green: 0.95, blue: 0.97, alpha: 1.0)
 	static let kAzureLilacTintColor = UIColor(red: 0.70, green: 0.56, blue: 1.0, alpha: 1.0)
 	static let kAzureMintTintColor = UIColor(red: 0.40, green: 0.81, blue: 0.73, alpha: 1.0)
+}
+
+extension UIFont {
+	class func preferredFont(
+		forTextStyle style: UIFont.TextStyle,
+		weight: Weight = .regular,
+		size: CGFloat? = nil
+	) -> UIFont {
+		let metrics = UIFontMetrics(forTextStyle: style)
+		let descriptor = preferredFont(forTextStyle: style).fontDescriptor
+		let fontToScale = UIFont.systemFont(ofSize: size ?? descriptor.pointSize, weight: weight)
+
+		return metrics.scaledFont(for: fontToScale)
+	}	
 }
 
 extension UIStackView {

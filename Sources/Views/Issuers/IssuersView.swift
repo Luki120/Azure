@@ -130,12 +130,13 @@ final class IssuersView: UIView {
 
 	private func createLabel(withText text: String, initialAlpha alpha: CGFloat = 1) -> UILabel {
 		let label = UILabel()
-		label.font = .systemFont(ofSize: 16)
+		label.font = .preferredFont(forTextStyle: .callout)
 		label.text = text
 		label.alpha = alpha
 		label.textColor = .placeholderText
 		label.numberOfLines = 0
 		label.textAlignment = .center
+		label.adjustsFontForContentSizeCategory = true
 		addSubview(label)
 		return label
 	}

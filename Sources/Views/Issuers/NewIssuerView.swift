@@ -1,13 +1,11 @@
 import UIKit
 
-
 protocol NewIssuerViewDelegate: AnyObject {
 	func shouldDismissVC(in newIssuerView: NewIssuerView)
 }
 
 /// Class to represent the new issuer view
 final class NewIssuerView: UIView {
-
 	private let toastView = ToastView()
 	private let viewModel = NewIssuerViewViewModel()
 
@@ -38,13 +36,11 @@ final class NewIssuerView: UIView {
 		viewModel.delegate = self
 		viewModel.setupTableView(newIssuerTableView)
 	}
-
 }
 
 // ! NewIssuerViewViewModelDelegate
 
 extension NewIssuerView: NewIssuerViewViewModelDelegate {
-
 	func didFadeInOutToastView(isDuplicateItem: Bool) {
 		if isDuplicateItem {
 			toastView.fadeInOutToastView(withMessage: "Item already exists.", finalDelay: 1.5)
@@ -57,5 +53,4 @@ extension NewIssuerView: NewIssuerViewViewModelDelegate {
 	func shouldDismissVC() {
 		delegate?.shouldDismissVC(in: self)
 	}
-
 }

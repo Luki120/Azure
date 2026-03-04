@@ -17,11 +17,12 @@ final class ToastView: UIView {
 
 	private lazy var toastViewLabel: UILabel = {
 		let label = UILabel()
-		label.font = .systemFont(ofSize: 14)
+		label.font = .preferredFont(forTextStyle: .subheadline)
 		label.textColor = .label
 		label.numberOfLines = 0
 		label.textAlignment = .center
 		label.adjustsFontSizeToFitWidth = true
+		label.adjustsFontForContentSizeCategory = true
 		toastView.addSubview(label)
 		return label
 	}()
