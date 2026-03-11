@@ -2,7 +2,8 @@ import SwiftUI
 import UIKit
 import class SafariServices.SFSafariViewController
 
-/// View model class for SettingsView
+/// View model class for `SettingsView`
+@MainActor
 final class SettingsViewViewModel: ObservableObject {
 	@AppStorage("useBiometrics") private(set) var useBiometrics = false
 	@AppStorage("useFloatingButton") private var useFloatingButton = false
@@ -39,10 +40,10 @@ final class SettingsViewViewModel: ObservableObject {
 		]
 
 		ghCellViewModels = [
-			.init(developer: .luki, imageURLString: Developer.lukiIcon) { [weak self] developer in
+			.init(developer: .luki) { [weak self] developer in
 				self?.openURL(developer.targetURL)
 			},
-			.init(developer: .cookies, imageURLString: Developer.cookiesIcon) { [weak self] developer in
+			.init(developer: .cookies) { [weak self] developer in
 				self?.openURL(developer.targetURL)
 			}
 		]

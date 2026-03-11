@@ -1,20 +1,20 @@
 import Foundation
 
-/// Keychain singleton manager to handle saving, retrieving and deleting issuers from the keychain
-final class KeychainManager {
-	static let sharedInstance = KeychainManager()
+/// Keychain actor to handle saving, retrieving & deleting issuers from the keychain
+final actor KeychainActor {
+	static let sharedInstance = KeychainActor()
 	private init() {}
 
 	private var status: OSStatus?
 
 	var isDuplicateItem: Bool { return status == errSecDuplicateItem }
 
-	/// Function to encode & save a single issuer to the keychain
+	/// Function to encode & save a single `Issuer` to the keychain
 	/// Parameters:
 	///		- issuer: The `Issuer` object
-	///		- forService: A `String` representing the service for the given `Issuer`
+	///		- service: A `String` representing the service for the given `Issuer`
 	///		- account: A `String` representing the account for the given `Issuer`
-	func save(issuer: inout Issuer, forService service: String, account: String) {
+	func save(issuer: inout Issuer, service: String, account: String) {
 		guard let encodedIssuer = try? JSONEncoder().encode(issuer) else { return }
 
 		let query: [NSString : Any] = [
@@ -44,9 +44,9 @@ final class KeychainManager {
 		issuer.creationDate = resultAttributes[kSecAttrCreationDate] as? Date
 	}
 
-	/// Function to decode & retrieve an array of `Issuer` objects form the keychain
+	/// Function to decode & retrieve an array of `Issuer` objects from the keychain
 	/// - Returns: An array of `Issuer` objects
-	func retrieveIssuers() -> [Issuer] {
+	nonisolated func retrieveIssuers() -> [Issuer] {
 		let query: [NSString : Any] = [
 			kSecClass: kSecClassGenericPassword,
 			kSecMatchLimit: kSecMatchLimitAll,
@@ -71,9 +71,9 @@ final class KeychainManager {
 
 	/// Function to delete a specific `Issuer` from the keychain
 	/// Parameters:
-	///		- forService: A `String` representing the service for the given issuer
-	///		- account: A `String` representing the account for the given issuer	
-	func deleteIssuer(forService service: String, account: String) {
+	///		- service: A `String` representing the service for the given `Issuer`
+	///		- account: A `String` representing the account for the given `Issuer`	
+	func deleteIssuer(service: String, account: String) {
 		let query: [NSString : Any] = [
 			kSecAttrService: service,
 			kSecAttrAccount: account,

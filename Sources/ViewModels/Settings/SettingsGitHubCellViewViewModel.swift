@@ -2,48 +2,44 @@ import UIKit
 import func SwiftUI.withAnimation
 
 /// View model class for `SettingsGitHubCellView`
+@MainActor
 final class SettingsGitHubCellViewViewModel: Identifiable, ObservableObject {
 	let id = UUID()
 	let developer: Developer
 	let onTap: (Developer) -> ()
-	private let imageURLString: String?
 
 	var devName: String { return developer.devName }
 	var targetURL: URL? { return developer.targetURL }
 
 	@Published private(set) var image = UIImage()
 
-	private let imageCache = NSCache<NSString, UIImage>()
-
 	/// Designated initializer
 	/// - Parameters:
 	/// 	- developer: A `Developer` object to represent the developer
-	/// 	- imageURLString: An optional `String` to represent the image's url string
 	/// 	- onTap: An `@escaping` closure that takes a `Developer` object as argument & returns nothing
-	init(developer: Developer, imageURLString: String?, onTap: @escaping (Developer) -> ()) {
+	init(developer: Developer, onTap: @escaping (Developer) -> ()) {
 		self.developer = developer
-		self.imageURLString = imageURLString
 		self.onTap = onTap
-		fetchImage()
+
+		Task {
+			await fetchImage()
+		}
 	}
 
-	private func fetchImage() {
-		guard let imageURLString, let url = URL(string: imageURLString) else { return }
-
-		if let cachedImage = imageCache.object(forKey: imageURLString as NSString) {
-			DispatchQueue.main.async {
-				self.image = cachedImage
-			}
+	nonisolated
+	private func fetchImage() async {
+		guard let url = URL(string: developer == .luki ? Developer.lukiIcon : Developer.cookiesIcon) else {
 			return
 		}
 
 		let task = URLSession.shared.dataTask(with: url) { data, _, error in
 			guard let data, let image = UIImage(data: data), error == nil else { return }
-			self.imageCache.setObject(image, forKey: imageURLString as NSString)
 
-			DispatchQueue.main.async {
-				withAnimation(.easeInOut) {
-					self.image = image
+			Task {
+				await MainActor.run {
+					withAnimation(.smooth) {
+						self.image = image
+					}
 				}
 			}
 		}

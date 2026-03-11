@@ -1,11 +1,13 @@
 import UIKit
 
+@MainActor
 protocol NewIssuerViewViewModelDelegate: AnyObject {
 	func didFadeInOutToastView(isDuplicateItem: Bool)
 	func shouldDismissVC()
 }
 
 /// View model class for `NewIssuerView`
+@MainActor
 final class NewIssuerViewViewModel: NSObject {
 	private var name = ""
 	private var account = ""
@@ -38,11 +40,7 @@ final class NewIssuerViewViewModel: NSObject {
 		case secret = "Secret"
 		case algorithm = "Type"
 
-		var headerTitle: String {
-			switch self {
-				case .issuer, .account, .secret, .algorithm: return rawValue
-			}
-		}
+		var headerTitle: String { rawValue }
 	}
 
 	private typealias DataSource = UITableViewDiffableDataSource<Section, CellType>
@@ -72,20 +70,21 @@ final class NewIssuerViewViewModel: NSObject {
 			return
 		}
 
-		IssuerManager.sharedInstance.createIssuer(
-			withName: name,
-			account: account,
-			secret: .base32DecodedString(secret)
-		) { isDuplicateItem, issuer in
+		Task {
+			let (isDuplicateItem, issuer) = await IssuerManager.sharedInstance.createIssuer(
+				name: name,
+				account: account,
+				secret: .base32DecodedString(secret)
+			)
 
 			guard !isDuplicateItem else {
 				NotificationCenter.default.post(name: .shouldResignResponderNotification, object: nil)
-				delegate?.didFadeInOutToastView(isDuplicateItem: true)
+				self.delegate?.didFadeInOutToastView(isDuplicateItem: true)
 				return
 			}
 
 			IssuerManager.sharedInstance.appendIssuer(issuer)
-			delegate?.shouldDismissVC()
+			self.delegate?.shouldDismissVC()
 		}
 	}
 }

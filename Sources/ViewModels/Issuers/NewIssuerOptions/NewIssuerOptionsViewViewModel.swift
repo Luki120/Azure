@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol NewIssuerOptionsViewViewModelDelegate: AnyObject {
 	func didTapScanQRCodeCell()
 	func didTapImportQRImageCell()
@@ -12,6 +13,7 @@ protocol NewIssuerOptionsViewViewModelDelegate: AnyObject {
 
 extension NewIssuerOptionsView {
 	/// View model class for `NewIssuerOptionsView`
+	@MainActor
 	final class NewIssuerOptionsViewViewModel: NSObject {
 		private let newIssuerOptionsViewModels: [NewIssuerOptionsCellViewModel] = [
 			.init(image: UIImage(name: "qrcode"), text: "Scan QR Code"),

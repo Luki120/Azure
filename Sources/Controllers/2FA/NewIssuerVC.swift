@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol NewIssuerVCDelegate: AnyObject {
 	func shouldDismissVC(in newIssuerVC: NewIssuerVC)
 }

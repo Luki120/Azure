@@ -3,9 +3,6 @@ import UniformTypeIdentifiers
 
 /// Controller that'll show the issuers list
 final class IssuersVC: UIViewController {
-	private let authManager = AuthManager()
-	private let backupManager = BackupManager()
-
 	private var plusButton: UIButton!
 	private var issuersView: IssuersView!
 	private var continueAction: UIAlertAction!
@@ -71,15 +68,14 @@ final class IssuersVC: UIViewController {
 	}
 
 	@objc private func didTapMakeBackup() {
-		guard authManager.shouldUseBiometrics() else {
-			makeBackup()
-			return
-		}
-		authManager.setupAuth(withReason: .sensitiveOperation) { [weak self] success, _ in
-			DispatchQueue.main.async {
-				guard success else { return }
-				self?.makeBackup()
+		Task {
+			guard await BiometricsActor.sharedInstance.shouldUseBiometrics() else {
+				makeBackup()
+				return
 			}
+
+			guard try await BiometricsActor.sharedInstance.setupAuth(reason: .sensitiveOperation) else { return }
+			makeBackup()
 		}
 	}
 
@@ -106,21 +102,22 @@ final class IssuersVC: UIViewController {
 		}
 
 		let noAction = UIAlertAction(title: "No", style: .default) { _ in
-			if isEncrypting {
-				self.backupManager.encodeData()
-				self.configureNewIssuerOptionsHeader()
-			}
-			else {
-				if isJailbroken() {
-					self.backupManager.decodeData()
-					self.transitionIssuersView()
+			Task { @MainActor in
+				if isEncrypting {
+					await BackupActor.sharedInstance.encodeData()
+					self.configureNewIssuerOptionsHeader()
 				}
 				else {
-					self.didPresentDocumentPickerVC()
+					if isJailbroken() {
+						await BackupActor.sharedInstance.decodeData()
+						self.transitionIssuersView()
+					}
+					else {
+						self.didPresentDocumentPickerVC()
+					}
 				}
+				self.isEncrypted = false
 			}
-
-			self.isEncrypted = false
 		}
 
 		alertController.addAction(yesAction)
@@ -130,7 +127,9 @@ final class IssuersVC: UIViewController {
 	}
 
 	private func presentAlertController(isMakingBackup: Bool = true, completion: @escaping (String) -> Void) {
-		let message = isMakingBackup ? backupManager.makeBackupMessage : backupManager.loadBackupMessage
+		let message = isMakingBackup
+			? BackupActor.sharedInstance.makeBackupMessage
+			: BackupActor.sharedInstance.loadBackupMessage
 
 		let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
 
@@ -185,10 +184,12 @@ final class IssuersVC: UIViewController {
 	}
 
 	private func transitionIssuersView() {
-		UIView.transition(with: view, duration: 0.5, animations: {
-			self.issuersView.reloadData
-		}) { _ in
-			self.newIssuerOptionsVC.shouldDismissVC()
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+			UIView.transition(with: self.view, duration: 0.5, animations: {
+				self.issuersView.reloadData
+			}) { _ in
+				self.newIssuerOptionsVC.shouldDismissVC()
+			}
 		}
 	}
 }
@@ -209,15 +210,14 @@ extension IssuersVC: IssuersViewDelegate {
 	}
 
 	func didTapCopySecret(in issuersView: IssuersView) {
-		guard authManager.shouldUseBiometrics() else {
-			issuersView.toastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2)
-			return
-		}
-		authManager.setupAuth(withReason: .sensitiveOperation) { success, _ in
-			DispatchQueue.main.async {
-				guard success else { return }
-				issuersView.toastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2) 
+		Task { @MainActor in
+			guard await BiometricsActor.sharedInstance.shouldUseBiometrics() else {
+				self.issuersView.toastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2)
+				return
 			}
+
+			guard try await BiometricsActor.sharedInstance.setupAuth(reason: .sensitiveOperation) else { return }
+			self.issuersView.toastView.fadeInOutToastView(withMessage: "Copied secret!", finalDelay: 0.2)
 		}
 	}
 
@@ -243,8 +243,12 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 				self.presentAlertController(isMakingBackup: false) { [weak self] password in
 					guard let self else { return }
 
-					backupManager.decodeData(withPassword: password, isEncrypted: true)
-					self.transitionIssuersView()
+					Task {
+						await BackupActor.sharedInstance.decodeData(password: password, isEncrypted: true)
+						await MainActor.run {
+							self.transitionIssuersView()
+						}
+					}
 				}
 			}
 		}
@@ -265,14 +269,16 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 			self.presentAlertController { [weak self] password in
 				guard let self else { return }
 
-				backupManager.encodeData(withPassword: password, encrypt: true)
-				self.configureNewIssuerOptionsHeader()
+				Task {
+					await BackupActor.sharedInstance.encodeData(password: password, encrypt: true)
+					self.configureNewIssuerOptionsHeader()
+				}
 			}
 		}
 	}
 
 	func didTapViewInFilesOrFilzaCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
-		let pathToFilza = "filza://view" + backupManager.kBackupsPathURL.path
+		let pathToFilza = "filza://view" + BackupActor.sharedInstance.kBackupsPathURL.path
 		let pathToFiles = "shareddocuments://"
 
 		let urlString = isJailbroken() ? pathToFilza : pathToFiles
@@ -293,10 +299,12 @@ extension IssuersVC: NewIssuerOptionsVCDelegate {
 
 extension IssuersVC: UIDocumentPickerDelegate {
 	func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-		backupManager.decodeData(withPassword: password, isEncrypted: isEncrypted)
+		Task {
+			await BackupActor.sharedInstance.decodeData(password: password, isEncrypted: isEncrypted)
 
-		UIView.transition(with: view, duration: 0.5) {
-			self.issuersView.reloadData
+			UIView.transition(with: view, duration: 0.5) {
+				self.issuersView.reloadData
+			}
 		}
 	}
 }

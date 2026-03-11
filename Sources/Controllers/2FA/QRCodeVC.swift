@@ -1,6 +1,7 @@
 import AVFoundation
 import UIKit
 
+@MainActor
 protocol QRCodeVCDelegate: AnyObject {
 	func didCreateIssuerOutOfQRCode(in qrCodeVC: QRCodeVC)
 }
@@ -138,25 +139,26 @@ final class QRCodeVC: UIViewController {
 
 // ! AVCaptureMetadataOutputObjectsDelegate
 
-extension QRCodeVC: AVCaptureMetadataOutputObjectsDelegate {
+extension QRCodeVC: @MainActor AVCaptureMetadataOutputObjectsDelegate {
 	func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
 		guard metadataObjects.count != 0,
 			let metadataObject = metadataObjects[0] as? AVMetadataMachineReadableCodeObject,
 			let outputString = metadataObject.stringValue else { return }
 
-		IssuerManager.sharedInstance.createIssuer(outOfOtPauthString: outputString) { isDuplicateItem, issuer in
+		Task {
+			guard let (isDuplicateItem, issuer) = await IssuerManager.sharedInstance.createIssuer(otPauthString: outputString) else { return }
 			guard !isDuplicateItem else {
-				toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+				self.toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
 				return
 			}
 
 			IssuerManager.sharedInstance.appendIssuer(issuer)
 
-			captureSession.stopRunning()
-			captureVideoPreviewLayer.removeFromSuperlayer()
-			dimmedView.layer.removeAllAnimations()
+			self.captureSession.stopRunning()
+			self.captureVideoPreviewLayer.removeFromSuperlayer()
+			self.dimmedView.layer.removeAllAnimations()
 
-			delegate?.didCreateIssuerOutOfQRCode(in: self)
+			self.delegate?.didCreateIssuerOutOfQRCode(in: self)
 		}
 	}
 }

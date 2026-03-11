@@ -1,13 +1,16 @@
 import Foundation
 import LocalAuthentication
 
-/// Manager to handle authentication
-final class AuthManager {
+/// Actor to handle authentication
+final actor BiometricsActor {
+	static let sharedInstance = BiometricsActor()
+	private init() {}
+
 	/// Enum representing a reason for authentication
 	enum Reason {
 		case sensitiveOperation, unlockApp
 
-		var reason: String {
+		var description: String {
 			switch self {
 				case .sensitiveOperation: return "Azure needs you to authenticate for a sensitive operation."
 				case .unlockApp: return "Azure needs you to authenticate in order to access the app."
@@ -15,16 +18,16 @@ final class AuthManager {
 		}
 	}
 
-	/// Function to setup the authentication
-	/// - Parameters:
-	///		- withReason: The `Reason` for requesting authentication
-	///		- reply: `@escaping` closure that takes a `Bool` & an optional `Error` as arguments which returns nothing
-	func setupAuth(withReason reason: Reason, reply: @escaping (Bool, Error?) -> ()) {
-		LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason.reason, reply: reply)
+	/// Async function to setup authentication
+	/// - Parameter reason: The `Reason` for requesting authentication
+	/// - Throws: `LAError`
+	/// - Returns: `Bool`
+	func setupAuth(reason: Reason) async throws -> Bool {
+		return try await LAContext().evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason.description)
 	}
 
 	/// Function to verify wether authentication should be requested or not
-	/// - Returns: A bool value
+	/// - Returns: `Bool`
 	func shouldUseBiometrics() -> Bool {
 		var systemInfo = utsname()
 		uname(&systemInfo)

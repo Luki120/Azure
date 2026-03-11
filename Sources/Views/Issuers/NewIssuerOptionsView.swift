@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol NewIssuerOptionsViewDelegate: AnyObject {
 	func didTapScanQRCodeCell(in newIssuerOptionsView: NewIssuerOptionsView)
 	func didTapImportQRImageCell(in newIssuerOptionsView: NewIssuerOptionsView)

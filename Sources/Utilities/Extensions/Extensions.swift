@@ -58,7 +58,7 @@ extension UIFont {
 		let fontToScale = UIFont.systemFont(ofSize: size ?? descriptor.pointSize, weight: weight)
 
 		return metrics.scaledFont(for: fontToScale)
-	}	
+	}
 }
 
 extension UIStackView {
@@ -176,7 +176,9 @@ extension UIViewController {
 	}
 }
 
-var kUserInterfaceStyle: UIUserInterfaceStyle { return UIScreen.main.traitCollection.userInterfaceStyle }
+@MainActor var kUserInterfaceStyle: UIUserInterfaceStyle {
+	return UIScreen.main.traitCollection.userInterfaceStyle
+}
 
 private enum Jailbreak: String, CaseIterable {
 	case checkra1n = "/var/checkra1n.dmg"

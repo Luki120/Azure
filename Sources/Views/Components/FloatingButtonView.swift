@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol FloatingButtonViewDelegate: AnyObject {
 	func didTapFloatingButton(in floatingButtonView: FloatingButtonView)
 }

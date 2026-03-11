@@ -2,15 +2,12 @@ import UIKit
 import LocalAuthentication
 import ObjectiveC.runtime
 
-@UIApplicationMain
+@main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
 	var window: UIWindow?
-	private var strongWindow: UIWindow!
 
 	private static var NotAuthenticatedVClass: AnyClass!
 	private lazy var NotAuthenticatedVC = AppDelegate.NotAuthenticatedVClass.alloc() as? UIViewController
-
-	private let authManager = AuthManager()
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 		setupNotAuthenticatedVC()
@@ -21,30 +18,38 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
 		window?.rootViewController = UIViewController()
 		window?.makeKeyAndVisible()
 
-		strongWindow = window
-
 		UINavigationBar.appearance().shadowImage = UIImage()
 		UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
 
 		let tabBarItemAttributes = [NSAttributedString.Key.font: UIFont.preferredFont(forTextStyle: .caption2)]
 		UITabBarItem.appearance().setTitleTextAttributes(tabBarItemAttributes, for: .normal)
 
-		let usesBiometrics = UserDefaults.standard.bool(forKey: "useBiometrics")
-		if usesBiometrics && authManager.shouldUseBiometrics() { unsafePortalDispatch() }
-		else { window?.rootViewController = TabBarVC() }
+		Task {
+			let usesBiometrics = UserDefaults.standard.bool(forKey: "useBiometrics")
+			let shouldUseBiometrics = await BiometricsActor.sharedInstance.shouldUseBiometrics()
+
+			if usesBiometrics && shouldUseBiometrics { unsafePortalDispatch() }
+			else {
+				await MainActor.run {
+					window?.rootViewController = TabBarVC()
+				}
+			}
+		}
 
 		return true
 	}
 
 	private func unsafePortalDispatch() {
-		authManager.setupAuth(withReason: .unlockApp) { [weak self] success, error in
-			DispatchQueue.main.async {
+		Task { @MainActor in
+			do {
+				guard try await BiometricsActor.sharedInstance.setupAuth(reason: .unlockApp) else { return }
+				window?.rootViewController = TabBarVC()
+			}
+			catch {
 				let laError = error as? LAError
-				guard success && laError?.code != .passcodeNotSet else {
-					self?.strongWindow.rootViewController = self?.NotAuthenticatedVC
-					return
+				if laError?.code == .passcodeNotSet || laError != nil {
+					window?.rootViewController = NotAuthenticatedVC
 				}
-				self?.strongWindow.rootViewController = TabBarVC()
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 import Combine
 import UIKit
 
+@MainActor
 protocol IssuersViewViewModelDelegate: AnyObject {
 	func didTapCopyPinCode()
 	func didTapCopySecret()
@@ -14,6 +15,7 @@ protocol IssuersViewViewModelDelegate: AnyObject {
 
 extension IssuersView {
 	/// View model class for `IssuersView`
+	@MainActor
 	final class IssuersViewViewModel: NSObject {
 		weak var delegate: IssuersViewViewModelDelegate?
 
@@ -33,18 +35,11 @@ extension IssuersView {
 			updateViewModels()
 		}
 
-		private func setupDataSource(
-			forViewModels viewModels: [IssuerCellViewModel],
-			at indexPath: IndexPath,
-			forCell cell: IssuerCell
-		) {
+		private func setupDataSource(viewModels: [IssuerCellViewModel], indexPath: IndexPath, cell: IssuerCell) {
 			var viewModel = viewModels[indexPath.item]
 			viewModel.image = setImage(forIssuer: viewModel.issuer)
-			viewModel.issuer.index = indexPath.item
 
 			cell.configure(with: viewModel)
-
-			KeychainManager.sharedInstance.save(issuer: &viewModel.issuer, forService: viewModel.issuer.name, account: viewModel.issuer.account)
 		}
 
 		private func setImage(forIssuer issuer: Issuer) -> UIImage? {
@@ -66,8 +61,20 @@ extension IssuersView {
 		private func updateViewModels() {
 			IssuerManager.sharedInstance.$issuers
 				.sink { [weak self] issuers in
-					let mappedModels = issuers.map(IssuerCellViewModel.init(_:))
-					self?.viewModels = mappedModels
+					self?.viewModels = issuers.enumerated().map { index, issuer in
+						var issuer = issuer
+						issuer.index = index
+
+						Task {
+							await KeychainActor.sharedInstance.save(
+								issuer: &issuer,
+								service: issuer.name,
+								account: issuer.account
+							)
+						}
+
+						return IssuerCellViewModel(issuer)
+					}
 				}
 				.store(in: &subscriptions)
 		}
@@ -112,10 +119,11 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDataSource {
 		cell.delegate = self
 
 		if isFiltering {
-			setupDataSource(forViewModels: filteredViewModels, at: indexPath, forCell: cell)
+			setupDataSource(viewModels: filteredViewModels, indexPath: indexPath, cell: cell)
 		}
 		else {
-			setupDataSource(forViewModels: viewModels, at: indexPath, forCell: cell)
+			setupDataSource(viewModels: viewModels, indexPath: indexPath, cell: cell)
+			updateViewModels()
 		}
 
 		return cell
@@ -152,8 +160,12 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 							forName: UITextField.textDidChangeNotification,
 							object: textField,
 							queue: .main
-						) { _ in
-							self.validateTextFields(textFields)
+						) { [textFields] _ in
+							Task {
+								await MainActor.run {
+									self.validateTextFields(textFields)
+								}
+							}
 						}
 					}
 				}
@@ -186,11 +198,13 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 						collectionView.reloadData()
 					}
 
-					KeychainManager.sharedInstance.save(
-						issuer: &newIssuer,
-						forService: oldIssuer.name,
-						account: oldIssuer.account
-					)
+					Task {
+						await KeychainActor.sharedInstance.save(
+							issuer: &newIssuer,
+							service: oldIssuer.name,
+							account: oldIssuer.account
+						)
+					}
 
 					IssuerManager.sharedInstance.updateIssuer(newIssuer, at: indexPath)
 				}
@@ -212,7 +226,7 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDelegate {
 				let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
 
 				let confirmAction = UIAlertAction(title: "Yes", style: .destructive) { _ in
-					IssuerManager.sharedInstance.removeIssuer(at: indexPath)
+					IssuerManager.sharedInstance.removeIssuer(at: indexPath.item, saveToKeychain: true)
 					collectionView.deleteItems(at: [indexPath])
 				}
 				let dismissAction = UIAlertAction(title: "Oops", style: .cancel)
@@ -322,24 +336,13 @@ extension IssuersView.IssuersViewViewModel: UICollectionViewDropDelegate {
 			IssuerManager.sharedInstance.removeIssuer(at: sourceIndexPath.item)
 			IssuerManager.sharedInstance.insertIssuer(viewModel.issuer, at: destinationIndexPath.item)
 
-			// Leptos giga chad code, only that I translated it to Swift ™️
-			// ⇝ https://github.com/leptos-null/OneTime/blob/88395900c67852bb9e7597c2bdae5a2a150b1844/onetime/ViewControllers/OTPassTableViewController.m#L299
-			let start = min(sourceIndexPath.item, destinationIndexPath.item)
-			let stop = max(destinationIndexPath.item, sourceIndexPath.item)
-
-			for index in start...stop {
-				var viewModel = viewModels[index]
-				viewModel.issuer.index = index
-
-				KeychainManager.sharedInstance.save(
-					issuer: &viewModel.issuer,
-					forService: viewModel.issuer.name,
-					account: viewModel.issuer.account
-				)
+			for index in IssuerManager.sharedInstance.issuers.indices {
+				Task {
+					await IssuerManager.sharedInstance.reindexIssuers(startingAt: index)
+				}
 			}
 
-			collectionView.deleteItems(at: [sourceIndexPath])
-			collectionView.insertItems(at: [destinationIndexPath])
+			collectionView.moveItem(at: sourceIndexPath, to: destinationIndexPath)
 		}
 
 		coordinator.drop(item.dragItem, toItemAt: destinationIndexPath)

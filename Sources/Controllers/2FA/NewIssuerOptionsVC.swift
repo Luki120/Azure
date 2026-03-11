@@ -1,6 +1,7 @@
 import PhotosUI
 import UIKit
 
+@MainActor
 protocol NewIssuerOptionsVCDelegate: AnyObject {
 	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
 	func didTapMakeBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC)
@@ -43,11 +44,11 @@ final class NewIssuerOptionsVC: UIViewController {
 
 	// ! Reusable
 
-	private func configureVC(
+	private func configure(
 		_ vc: UIViewController,
-		withTitle title: String,
-		withItemImage image: UIImage,
-		forSelector selector: Selector,
+		title: String,
+		image: UIImage,
+		selector: Selector,
 		isLeftBarButtonItem: Bool
 	) {
 		navVC = UINavigationController(rootViewController: vc)
@@ -79,11 +80,11 @@ extension NewIssuerOptionsVC: NewIssuerOptionsViewDelegate {
 		let qrCodeVC = QRCodeVC()
 		qrCodeVC.delegate = self
 
-		configureVC(
+		configure(
 			qrCodeVC,
-			withTitle: "Scan QR Code",
-			withItemImage: UIImage(systemName: "xmark.circle.fill") ?? UIImage(),
-			forSelector: #selector(didTapDismissButton),
+			title: "Scan QR Code",
+			image: UIImage(systemName: "xmark.circle.fill") ?? UIImage(),
+			selector: #selector(didTapDismissButton),
 			isLeftBarButtonItem: true
 		)
 		present(navVC, animated: true)
@@ -102,11 +103,11 @@ extension NewIssuerOptionsVC: NewIssuerOptionsViewDelegate {
 	}
 
 	func didTapEnterManuallyCell(in newIssuerOptionsView: NewIssuerOptionsView) {
-		configureVC(
+		configure(
 			newIssuerVC,
-			withTitle: "Enter QR Code",
-			withItemImage: UIImage(systemName: "checkmark.circle.fill") ?? UIImage(),
-			forSelector: #selector(didTapComposeButton),
+			title: "Enter QR Code",
+			image: UIImage(systemName: "checkmark.circle.fill") ?? UIImage(),
+			selector: #selector(didTapComposeButton),
 			isLeftBarButtonItem: false
 		)
 		newIssuerVC.navigationItem.leftBarButtonItem = .getBarButtomItem(
@@ -210,22 +211,22 @@ extension NewIssuerOptionsVC: PHPickerViewControllerDelegate {
 			let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: options)
 			let features = detector?.features(in: ciImage) as? [CIQRCodeFeature] ?? []
 
-			DispatchQueue.main.async {
+			Task { @MainActor in
 				guard let otPauthString = features.first?.messageString else {
 					self.toastView.fadeInOutToastView(withMessage: "No QR code was detected on this image.", finalDelay: 1.5)
 					return
 				}
-				IssuerManager.sharedInstance.createIssuer(outOfOtPauthString: otPauthString) { isDuplicateItem, issuer in
-					guard !isDuplicateItem else {
-						self.toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
-						return
-					}
 
-					IssuerManager.sharedInstance.appendIssuer(issuer)
-
-					self.delegate?.shouldReloadData(in: self)
-					self.dismissVC()
+				guard let (isDuplicateItem, issuer) = await IssuerManager.sharedInstance.createIssuer(otPauthString: otPauthString) else { return }
+				guard !isDuplicateItem else {
+					self.toastView.fadeInOutToastView(withMessage: "Item already exists, updating it now.", finalDelay: 1.5)
+					return
 				}
+
+				IssuerManager.sharedInstance.appendIssuer(issuer)
+
+				self.delegate?.shouldReloadData(in: self)
+				self.dismissVC()
 			}
 		}
 	}
@@ -243,8 +244,8 @@ extension NewIssuerOptionsVC {
 
 	/// Function to configure the header
 	/// - Parameters:
-	///		- isDefaultConfiguration: A Bool to check if we should set the header with the default configuration
-	///		- isBackupOptions: A Bool to check if we should set the header for the backup options data source
+	///		- isDefaultConfiguration: A `Bool` to check if the header should use the default configuration
+	///		- isBackupOptions: A `Bool` to check if we should set the header for the backup options data source
 	func configureHeader(isDefaultConfiguration: Bool = true, isBackupOptions: Bool = false) {
 		newIssuerOptionsView.configureHeader(isDefaultConfiguration: isDefaultConfiguration, isBackupOptions: isBackupOptions)
 	}

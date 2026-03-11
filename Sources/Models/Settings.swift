@@ -61,4 +61,4 @@ enum FundingPlatform: String {
 			case .paypal: return URL(string: "https://paypal.me/Luki120")
 		}
 	}
-} 
+}

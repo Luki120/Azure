@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol IssuersViewDelegate: AnyObject {
 	func didTapCopyPinCode(in issuersView: IssuersView)
 	func didTapCopySecret(in issuersView: IssuersView)

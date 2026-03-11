@@ -1,5 +1,6 @@
 import UIKit
 
+/// Class to represent the new issuer options cell
 final class NewIssuerOptionsCell: UITableViewCell {
 	static let identifier = "NewIssuerOptionsCell"
 

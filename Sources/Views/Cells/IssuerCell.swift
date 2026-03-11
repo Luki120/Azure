@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol IssuerCellDelegate: AnyObject {
 	func didTapCopyPinCode(in issuerCell: IssuerCell)
 }
@@ -108,7 +109,7 @@ final class IssuerCell: UICollectionViewCell {
 
 		layer.backgroundColor = kUserInterfaceStyle == .dark ? .darkBackgroundColor : .lightBackgroundColor
 		layer.shadowColor = kUserInterfaceStyle == .dark ? .darkShadowColor : .lightShadowColor
-	}	
+	}
 
 	override func dragStateDidChange(_ dragState: UICollectionViewCell.DragState) {
 		super.dragStateDidChange(dragState)

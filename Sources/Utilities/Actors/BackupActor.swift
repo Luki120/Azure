@@ -2,15 +2,17 @@ import CommonCrypto
 import CryptoKit
 import Foundation
 
-/// Manager to handle importing & exporting backups
-final class BackupManager {
+/// Actor to handle importing & exporting backups
+final actor BackupActor {
+	static let sharedInstance = BackupActor()
+
 	let loadBackupMessage = "Please enter your password in order to continue." 
 	let makeBackupMessage = "Please input a password equal or greater than 8 characters in order to continue, make sure to remember it otherwise you won't be able to restore encrypted backups."
 
 	let kBackupsPathURL: URL!
 	private let fileM = FileManager.default
 
-	init() {
+	private init() {
 		let documentsPathURL = fileM.urls(for: .documentDirectory, in: .userDomainMask)[0]
 		kBackupsPathURL = documentsPathURL.appendingPathComponent("AzureBackup").appendingPathExtension("json")
 	}
@@ -18,58 +20,66 @@ final class BackupManager {
 
 // ! Public
 
-extension BackupManager {
+extension BackupActor {
 	/// Function to decode the data from a backup & import it
 	/// - Parameters:
-	/// 	- withPassword: A `String` that represents the password needed for decrpyting the data
+	/// 	- password: A `String` that represents the password needed for decrypting the data
 	/// 	- isEncrypted: A `Bool` to check wether the data is encrypted or not
-	func decodeData(withPassword password: String = "", isEncrypted: Bool = false) {
+	func decodeData(password: String = "", isEncrypted: Bool = false) {
 		if !fileM.fileExists(atPath: kBackupsPathURL.path) { return }
 		guard let data = try? Data(contentsOf: kBackupsPathURL) else { return }
 
-		if isEncrypted {
-			guard let decryptedData = try? decryptData(data, password: password),
-				let issuers = try? JSONDecoder().decode([Issuer].self, from: decryptedData) else { return }
+		Task {
+			if isEncrypted {
+				guard let decryptedData = try? decrypt(data, password: password),
+					let issuers = try? JSONDecoder().decode([Issuer].self, from: decryptedData) else { return }
 
-			IssuerManager.sharedInstance.setIssuers(issuers)
-		}
-		else {
-			guard let issuers = try? JSONDecoder().decode([Issuer].self, from: data) else { return }
-			IssuerManager.sharedInstance.setIssuers(issuers)
+				await MainActor.run {
+					IssuerManager.sharedInstance.setIssuers(issuers)
+				}
+			}
+			else {
+				guard let issuers = try? JSONDecoder().decode([Issuer].self, from: data) else { return }
+				await MainActor.run {
+					IssuerManager.sharedInstance.setIssuers(issuers)
+				}
+			}
 		}
 	}
 
 	/// Function to encode the data & export it
 	/// - Parameters:
-	/// 	- withPassword: A `String` that represents the password needed for encrypting the data
+	/// 	- password: A `String` that represents the password needed for encrypting the data
 	/// 	- encrypt: A `Bool` to check wether the data should be encrypted or not
-	func encodeData(withPassword password: String = "", encrypt: Bool = false) {
-		guard IssuerManager.sharedInstance.issuers.count > 0 else { return }
+	func encodeData(password: String = "", encrypt: Bool = false) {
+		Task {
+			guard await IssuerManager.sharedInstance.issuers.count > 0 else { return }
 
-		let encoder = JSONEncoder()
-		encoder.outputFormatting = .prettyPrinted
+			let encoder = JSONEncoder()
+			encoder.outputFormatting = .prettyPrinted
 
-		guard let encodedData = try? encoder.encode(IssuerManager.sharedInstance.issuers) else { return }
+			guard let encodedData = try? await encoder.encode(IssuerManager.sharedInstance.issuers) else { return }
 
-		if encrypt {
-			guard let encryptedData = try? encryptData(encodedData, password: password) else { return }
-			try? encryptedData.write(to: kBackupsPathURL, options: .atomic)
-		}
-		else {
-			try? encodedData.write(to: kBackupsPathURL, options: .atomic)
+			if encrypt {
+				guard let encryptedData = try? self.encrypt(encodedData, password: password) else { return }
+				try? encryptedData.write(to: kBackupsPathURL, options: .atomic)
+			}
+			else {
+				try? encodedData.write(to: kBackupsPathURL, options: .atomic)
+			}
 		}
 	}
 }
 
-extension BackupManager {
-	private func encryptData(_ data: Data, password: String) throws -> Data {
+extension BackupActor {
+	private func encrypt(_ data: Data, password: String) throws -> Data {
 		let salt = Data(SHA256.hash(data: password.data(using: .utf8)!))
 
 		let key = SymmetricKey(data: derivedPBKDF2Key(from: password, salt: salt, keySize: .bits256))
 		return try AES.GCM.seal(data, using: key).combined!
 	}
 
-	private func decryptData(_ data: Data, password: String) throws -> Data {
+	private func decrypt(_ data: Data, password: String) throws -> Data {
 		let salt = Data(SHA256.hash(data: password.data(using: .utf8)!))
 
 		let key = SymmetricKey(data: derivedPBKDF2Key(from: password, salt: salt, keySize: .bits256))

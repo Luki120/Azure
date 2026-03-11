@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 protocol NewIssuerAlgorithmCellDelegate: AnyObject {
 	func didChangeSelectedIndex(_ index: Int)
 }
