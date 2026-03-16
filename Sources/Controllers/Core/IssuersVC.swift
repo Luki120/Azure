@@ -92,64 +92,6 @@ final class IssuersVC: UIViewController {
 		present(newIssuerOptionsVC, animated: false)
 	}
 
-	private func presentInitialAlertController(isEncrypting: Bool = true, completion: @escaping () -> Void) {
-		let message = isEncrypting ? "Do you want to encrypt your data?" : "Did you encrypt your backup?"
-		let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
-
-		let yesAction = UIAlertAction(title: "Yes", style: .default) { _ in
-			completion()
-			self.isEncrypted = true
-		}
-
-		let noAction = UIAlertAction(title: "No", style: .default) { _ in
-			Task { @MainActor in
-				if isEncrypting {
-					await BackupActor.sharedInstance.encodeData()
-					self.configureNewIssuerOptionsHeader()
-				}
-				else {
-					if isJailbroken() {
-						await BackupActor.sharedInstance.decodeData()
-						self.transitionIssuersView()
-					}
-					else {
-						self.didPresentDocumentPickerVC()
-					}
-				}
-				self.isEncrypted = false
-			}
-		}
-
-		alertController.addAction(yesAction)
-		alertController.addAction(noAction)
-
-		presentedViewController?.present(alertController, animated: true)
-	}
-
-	private func presentAlertController(isMakingBackup: Bool = true, completion: @escaping (String) -> Void) {
-		let message = isMakingBackup
-			? BackupActor.sharedInstance.makeBackupMessage
-			: BackupActor.sharedInstance.loadBackupMessage
-
-		let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
-
-		alertController.addTextField { textField in
-			textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
-		}
-
-		continueAction = UIAlertAction(title: "Continue", style: .default) { _ in
-			completion(alertController.textFields?.first?.text ?? "")
-		}
-		continueAction.isEnabled = false
-
-		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-
-		alertController.addAction(continueAction)
-		alertController.addAction(cancelAction)
-
-		presentedViewController?.present(alertController, animated: true)
-	}
-
 	@objc private func textFieldDidChange(_ textField: UITextField) {
 		continueAction.isEnabled = textField.text?.count ?? 0 >= 8
 	}
@@ -189,6 +131,102 @@ final class IssuersVC: UIViewController {
 				self.issuersView.reloadData
 			}) { _ in
 				self.newIssuerOptionsVC.shouldDismissVC()
+			}
+		}
+	}
+}
+
+// Backup logic
+
+private extension IssuersVC {
+	private func presentBackupAlert(isEncrypting: Bool = true, completion: @escaping () -> Void) {
+		let message = isEncrypting ? "Do you want to encrypt your data?" : "Did you encrypt your backup?"
+		let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
+
+		let yesAction = UIAlertAction(title: "Yes", style: .default) { _ in
+			completion()
+			self.isEncrypted = true
+		}
+
+		let noAction = UIAlertAction(title: "No", style: .default) { _ in
+			self.isEncrypted = false
+			self.handleUnencryptedBackup(isEncrypting: isEncrypting)
+		}
+
+		alertController.addAction(yesAction)
+		alertController.addAction(noAction)
+		presentedViewController?.present(alertController, animated: true)
+	}
+
+	private func presentPasswordAlert(isMakingBackup: Bool = true, completion: @escaping (String) -> Void) {
+		let message = isMakingBackup
+			? BackupActor.sharedInstance.makeBackupMessage
+			: BackupActor.sharedInstance.loadBackupMessage
+
+		let alertController = UIAlertController(title: "Azure", message: message, preferredStyle: .alert)
+
+		alertController.addTextField { textField in
+			textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
+		}
+
+		continueAction = UIAlertAction(title: "Continue", style: .default) { _ in
+			completion(alertController.textFields?.first?.text ?? "")
+		}
+		continueAction.isEnabled = false
+
+		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+
+		alertController.addAction(continueAction)
+		alertController.addAction(cancelAction)
+		presentedViewController?.present(alertController, animated: true)
+	}
+
+	private func handleUnencryptedBackup(isEncrypting: Bool) {
+		Task { @MainActor in
+			if isEncrypting {
+				await BackupActor.sharedInstance.encodeData()
+				configureNewIssuerOptionsHeader()
+				return
+			}
+
+			if isJailbroken() {
+				await BackupActor.sharedInstance.decodeData()
+				transitionIssuersView()
+			}
+			else {
+				didPresentDocumentPickerVC()
+			}
+		}
+	}
+
+	private func askPasswordForLoadingBackup() {
+		presentPasswordAlert(isMakingBackup: false) { [weak self] password in
+			guard let self else { return }
+
+			if isJailbroken() {
+				Task {
+					await BackupActor.sharedInstance.decodeData(password: password, isEncrypted: true)
+					await MainActor.run {
+						self.transitionIssuersView()
+					}
+				}
+			}
+			else {
+				self.password = password
+				didPresentDocumentPickerVC()
+			}
+		}
+	}
+
+	private func askPasswordForMakingBackup() {
+		presentPasswordAlert { [weak self] password in
+			guard let self else { return }
+
+			Task {
+				await BackupActor.sharedInstance.encodeData(password: password, encrypt: true)
+				await MainActor.run {
+					self.configureNewIssuerOptionsHeader()
+				}
 			}
 		}
 	}
@@ -238,42 +276,14 @@ extension IssuersVC: IssuersViewDelegate {
 
 extension IssuersVC: NewIssuerOptionsVCDelegate {
 	func didTapLoadBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
-		if isJailbroken() {
-			presentInitialAlertController(isEncrypting: false) {
-				self.presentAlertController(isMakingBackup: false) { [weak self] password in
-					guard let self else { return }
-
-					Task {
-						await BackupActor.sharedInstance.decodeData(password: password, isEncrypted: true)
-						await MainActor.run {
-							self.transitionIssuersView()
-						}
-					}
-				}
-			}
-		}
-		else {
-			presentInitialAlertController(isEncrypting: false) {
-				self.presentAlertController(isMakingBackup: false) { [weak self] password in
-					guard let self else { return }
-					self.password = password
-
-					self.didPresentDocumentPickerVC()
-				}
-			}
+		presentBackupAlert(isEncrypting: false) { [weak self] in
+			self?.askPasswordForLoadingBackup()
 		}
 	}
 
 	func didTapMakeBackupCell(in newIssuerOptionsVC: NewIssuerOptionsVC) {
-		presentInitialAlertController {
-			self.presentAlertController { [weak self] password in
-				guard let self else { return }
-
-				Task {
-					await BackupActor.sharedInstance.encodeData(password: password, encrypt: true)
-					self.configureNewIssuerOptionsHeader()
-				}
-			}
+		presentBackupAlert { [weak self] in
+			self?.askPasswordForMakingBackup()
 		}
 	}
 
